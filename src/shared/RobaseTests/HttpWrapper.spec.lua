@@ -46,7 +46,6 @@ return function()
         Url = nil,
         Method = "GET",
     }
-
     testRequests.UnsuccessfulRequest = {
         Url = "https://httpbin.org/status/400",
         Method = "GET"
