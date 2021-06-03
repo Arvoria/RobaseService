@@ -1,0 +1,11 @@
+std = "roblox+testez"
+
+[rules]
+unused_variable = "allow"
+shadowing = "allow"
+empty_if = "allow"
+undefined_variable = "warn"
+incorrect_standard_library_use = "warn"
+
+[config]
+unused_variables = {allow_unused_self = true}
