@@ -52,7 +52,6 @@ return function()
     }
 
     describe("Request", function()
-        SKIP()
         it("should perform a simple get request", function()
             local request = HttpWrapper:Request(testRequests.GetRequest)
             request:andThen(function(body)

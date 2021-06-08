@@ -88,7 +88,7 @@ end
 function Robase:SetAsync(key, data, method)
     local options = getRequestOptions(key, data, method, self)
     options.Headers = {
-        ["Content-Type"] = "application/x-www-form-urlencoded"
+        ["Content-Type"] = "application/json"
     }
     local SetRequest = HttpWrapper:Request(options)
 
@@ -165,7 +165,7 @@ function Robase:IncrementAsync(key, delta)
     end
 
     data += delta
-    return self:SetAsync(key, data)
+    return self:SetAsync(key, data, "PUT")
 end
 
 function Robase:BatchUpdateAsync(baseKey, uploadKeyValues, uploadCallbacks, cache)
@@ -180,14 +180,16 @@ function Robase:BatchUpdateAsync(baseKey, uploadKeyValues, uploadCallbacks, cach
         assert(uploadCallbacks[key]~=nil, "BatchUpdateAsync: '"..key.."' does not have a callback function")
         assert(typeof(uploadCallbacks[key])=="function", "Callback is not a function")
 
-            local success, data
-            if cache~=nil and cache[key] then
-                data = cache[key]
-                success = (data~=nil)
-            else
-                success, data = self:GetAsync(key)
-            end
-        updated[key] = uploadCallbacks[key](data)
+        local success, data
+        if cache~=nil and cache[key] then
+            data = cache[key]
+            success = (data~=nil)
+        else
+            success, data = self:GetAsync(string.format("%s/%s", baseKey, key))
+        end
+
+        local new = uploadCallbacks[key](data)
+        updated[key] = new
     end
 
     return self:SetAsync(baseKey, updated, "PATCH")

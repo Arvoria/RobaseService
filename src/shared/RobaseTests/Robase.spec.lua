@@ -10,7 +10,7 @@ return function()
 
     local PlayerData = RobaseService:GetRobase("PlayerData")
 
-    beforeEach(function()
+    beforeAll(function()
         PlayerData:SetAsync(
             "GetDataHere",
             {
@@ -21,11 +21,11 @@ return function()
                 UpdateWhatever = "Hello",
                 BatchUpdateMe = {
                     Players = {
-                        ["1"] = {
+                        ["123"] = {
                             Coins = 10,
                             Level = 5,
                         },
-                        ["2"] = {
+                        ["456"] = {
                             Coins = 10,
                             Level = 2
                         }
@@ -40,19 +40,19 @@ return function()
     end)
 
     describe("GetAsync", function()
-        SKIP()
         it("should successfully retreive data", function()
             local Data = PlayerData:GetAsync("GetDataHere")
             expect(Data).to.be.ok()
         end)
 
         it("should fail to retrieve data from unknown keys", function()
-            expect(PlayerData:GetAsync("DataDoesNotExist")).to.never.be.ok()
+            local success, value = PlayerData:GetAsync("DataDoesNotExist")
+            expect(success).to.equal(true)
+            expect(value).to.never.be.ok()
         end)
     end)
 
     describe("SetAsync", function()
-        SKIP()
         it("should successfully PUT data into the database if it does not exist", function()
             local key, value = "GetDataHere/IPutThisHereRemotely", true
             local success, body = PlayerData:SetAsync(key, value, "PUT")
@@ -78,14 +78,14 @@ return function()
         it("should manage malformed methods and set them to the default request method", function()
             local key, value = "GetDataHere/MalformedPutExample", "PuT"
             local success, body = PlayerData:SetAsync(key, value, "PuT")
+
             expect(success).to.equal(true)
             expect(body).to.be.ok()
-            expect(HttpService:JSONDecode(body)).to.equal(value)
+            expect(body).to.equal(value)
         end)
     end)
 
     describe("UpdateAsync", function()
-        SKIP()
         it("should update a key in the database", function()
             local success, value = PlayerData:UpdateAsync(
                 "GetDataHere",
@@ -95,7 +95,9 @@ return function()
                 end
             )
 
-            print(success, value)
+            expect(success).to.equal(true)
+            expect(value).to.be.ok()
+            expect(value.UpdateWhatever).to.equal("Hello, world!")
         end)
 
         it("should throw an error if the callback is not a function", function()
@@ -106,7 +108,6 @@ return function()
     end)
 
     describe("DeleteAsync", function()
-        SKIP()
         it("should delete a key from the database", function()
             local _, before = PlayerData:GetAsync("GetDataHere/DeleteMe")
             local success, removed = PlayerData:DeleteAsync("GetDataHere/DeleteMe")
@@ -126,7 +127,6 @@ return function()
     end)
 
     describe("IncrementAsync", function()
-        SKIP()
         it("should increment integer-typed data - at a given key - by a set integer, delta", function()
             local key = "GetDataHere/IncrementThat"
             local delta = 25
@@ -166,9 +166,10 @@ return function()
     end)
 
     describe("BatchUpdateAsync", function()
-        --SKIP()
         it("should update multiple child nodes from a baseKey with relevant callback functions", function()
             local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
+            local calledAt = os.date()
+
             local Callbacks = {
                 ["Players"] = function(old)
                     for _, plr in pairs(old) do
@@ -179,28 +180,94 @@ return function()
                 end,
 
                 ["Server"] = function(old)
-                    return os.date()
+                    old.LastUpdated = calledAt
+                    return old
                 end
             }
 
             local success, data = PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
-            print(success, data)
+
+            expect(success).to.equal(true)
+            expect(data).to.be.ok()
+            expect(data.Server.LastUpdated).to.equal(calledAt)
         end)
 
-        itSKIP("should throw an error if the keyValues are not a table", function()
+        it("should throw an error if the keyValues are not a table", function()
+            expect(function()
+                local Data = "Players&Server" -- this isn't a dictionary of database keys and their values
+                local calledAt = os.date()
 
+                local Callbacks = {
+                    ["Players"] = function(old)
+                        for _, plr in pairs(old) do
+                            plr.Level += 10
+                            plr.Coins += 100
+                        end
+                        return old
+                    end,
+
+                    ["Server"] = function(old)
+                        old.LastUpdated = calledAt
+                        return old
+                    end
+                }
+
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+            end).to.throw()
         end)
 
-        itSKIP("should throw an error if the callbacks are not a table", function()
-            
+        it("should throw an error if the callbacks are not a table", function()
+            expect(function()
+                local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
+                local Callbacks = "ThisShouldThrow" -- wait a minute this isn't a table of functions
+
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+            end).to.throw()
         end)
 
-        itSKIP("should throw an error if a callback function cannot be found for a key", function()
+        it("should throw an error if a callback function cannot be found for a key", function()
+            expect(function()
+                local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
+                local calledAt = os.date()
 
+                local Callbacks = {
+                    ["Players"] = function(old) -- correct spelling
+                        for _, plr in pairs(old) do
+                            plr.Level += 10
+                            plr.Coins += 100
+                        end
+                        return old
+                    end,
+
+                    ["Serve"] = function(old) -- intentional typo
+                        old.LastUpdated = calledAt
+                        return old
+                    end
+                }
+
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+            end).to.throw()
         end)
 
-        itSKIP("should throw an error if an element of the callbacks table is not a function", function()
-            
+        it("should throw an error if an element of the callbacks table is not a function", function()
+            expect(function()
+                local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
+                local calledAt = os.date()
+
+                local Callbacks = {
+                    ["Players"] = function(old) -- correct spelling
+                        for _, plr in pairs(old) do
+                            plr.Level += 10
+                            plr.Coins += 100
+                        end
+                        return old
+                    end,
+
+                    ["Server"] = calledAt
+                }
+
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+            end).to.throw()
         end)
     end)
 end

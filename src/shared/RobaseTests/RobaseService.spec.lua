@@ -6,7 +6,6 @@ return function()
     local TestName = "PlayerData"
 
     describe("new", function()
-        SKIP()
         it("should instantiate a new RobaseService with a BaseUrl and AuthToken", function()
             local ExampleService = RobaseService.new(TestUrl, TestAuth)
 
@@ -29,7 +28,6 @@ return function()
     end)
 
     describe("GetRobase", function()
-        SKIP()
         it("should fetch a new Robase with associated path and authentication", function()
             local ExampleService = RobaseService.new(TestUrl, TestAuth)
             local ExampleRobase = ExampleService:GetRobase(TestName)
