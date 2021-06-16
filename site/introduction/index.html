@@ -32,8 +32,8 @@
       
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,400i,700%7CFira+Code&display=fallback">
-        <style>:root{--md-text-font-family:"Montserrat";--md-code-font-family:"Fira Code"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Karla:300,400,400i,700%7CFira+Code&display=fallback">
+        <style>:root{--md-text-font-family:"Karla";--md-code-font-family:"Fira Code"}</style>
       
     
     
@@ -255,13 +255,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#trusting-documentation" class="md-nav__link">
-    Trusting Documentation
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#storage-limitations" class="md-nav__link">
     Storage limitations
   </a>
@@ -271,6 +264,13 @@
           <li class="md-nav__item">
   <a href="#accessing-deeply-nested-keys" class="md-nav__link">
     Accessing deeply-nested keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    
   </a>
   
 </li>
@@ -322,13 +322,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#trusting-documentation" class="md-nav__link">
-    Trusting Documentation
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#storage-limitations" class="md-nav__link">
     Storage limitations
   </a>
@@ -338,6 +331,13 @@
           <li class="md-nav__item">
   <a href="#accessing-deeply-nested-keys" class="md-nav__link">
     Accessing deeply-nested keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    
   </a>
   
 </li>
@@ -371,9 +371,6 @@
 <p>Unfortunately, DataStores have issues:</p>
 <ul>
 <li>
-<p>You cannot look at the source code directly, meaning you have to trust the documentation;</p>
-</li>
-<li>
 <p>You are limited to 4MB of data per key</p>
 </li>
 <li>
@@ -389,22 +386,43 @@
 <p>Cannot be updated dynamically, from anywhere, at anytime. This makes systems such as FFlags not possible, A/B Testing extraneous, and timed-events that can turn on at a moment's notice in a live game - impossible.</p>
 </li>
 </ul>
-<h3 id="trusting-documentation">Trusting Documentation</h3>
-<p>More often than not you can trust what the documentation says, "it will do X", generally means it will "do X". However, there comes a time where you want to know "how does it 'do X'" and that can only be solved in two manners:</p>
-<ul>
-<li>
-<p>You dive into the source code</p>
-</li>
-<li>
-<p>Or, you can see if the docs tell you</p>
-</li>
-</ul>
-<p>And unfortunately, Roblox doesn't provide extensive documentation on every single method and every single service, this would be a massive task. </p>
-<p>Source Docs - documentation within source code - are an amazing resource to use to help developers stay sane when looking at your codebase. Thankfully, Robase has this technical project documentation page <em>and</em> source docs!</p>
 <h3 id="storage-limitations">Storage limitations</h3>
 <p>Before using Robase something you may want to ask yourself is: Do I really need this? In most cases, DataStore2 or ProfileService will serve you well, though you won't be saving anything big or complex. If you are looking to store large, complex data, then Robase is something you will want in your arsenal.</p>
-<p>Developing a game on Roblox means that you will have used one of the following: <a href="">DataStoreService</a>, DataStore2, or ProfileService; the latter two of which being wrappers/managers for the former.<br />
-This informs me that you are currently saving simple player data: number of coins, stats and levels, minor inventory data, etc. </p>
+<p>Firebase's Spark plan provides you with 1GB storage in total per database/project and 10GB data downloaded per month. The Blaze plan is priced at how much you are using each, billed each month; each GB of storage costs $5 per month and each GB downloaded costs $1 per month. With the Blaze plan, a database using 1GB of storage and 100GB downloaded per month will be estimated to pay $105 per month. In addition to this you get other bonuses. </p>
+<p>The differences between the Spark and Blaze plan is documented <a href="https://firebase.google.com/pricing">here</a></p>
+<p><a href="https://pastebin.com/5zhfsfJb">This example profile</a> shows just how complex and large data can be even when it has been optimised for storage. This profile will take up 3.6KB of data, that's not so much, right? Now imagine you have 100,000 unique players playing your game, that's now ~352MB, over a third of the capacity for the free plan. That's <strong>a lot</strong> of data!</p>
+<p>But this is just player data, what about things that happen in a server? Think about: an experience-wide event, like "Double XP" and how would you handle it; or even the optimised metadata for every minigame played; FFlags deployment system. There is a lot of things you can do in the backend of your database and it can be controlled remotely. <a href="">This example server data</a> gives an example look at how a Firebase structure could be setup as a Lua table.<br />
+This structure is approximately 2KB in storage. <code>ServerData.PlayedMinigames.Games</code> is approximately 1.5KB in size, each minigame's data equating to 105.5B. 
+What if we asked how much this could grow? Imagine we have a small experience, with about 20,000 visits per day. Now lets say that on average every visit garners 1.8 minigame plays, we can scale this up to how much the database will grow each day. For 20,000 visits we would have 36,000 minigames played - that's roughly 3.62MB!</p>
+<p>Just how scalable and manageable is this? Well first we have to allow some assumptions:</p>
+<ul>
+<li>
+<p>We reserve 500MB in data for player data, the server can use the rest of it.</p>
+</li>
+<li>
+<p>Growth is static and the number of visists remain the same.</p>
+</li>
+<li>
+<p>Minigames Played to Visits ratio is 1.8.</p>
+</li>
+</ul>
+<pre><code class="language-lua">local MaxServerData = 1 * 1024 * 1024 * 1024 -- 1GB in Bytes
+local VisitsPerDay = 20 * 1000 -- 20,000 Visits per day
+local MinigamesVisitsRatio = 1.8 -- Every visit receives on average 1.8 minigame plays
+local MinigamesPerDay = VisitsPerDay * MinigamesVisitsRatio -- do mult
+
+local MinigamesStorageCostPerDay = 105.5 * MinigamesPerDay -- in Bytes/day
+
+local MaxUsage = MaxServerData / 2
+local DaysUntilMaxUsage = MaxUsage / MinigamesStorageCostPerDay
+print(DaysUntilMaxUsage)
+
+--&gt;&gt; 141.35...
+</code></pre>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This is just one example of what one can do with large data. The possibiblities are down to your imagination.</p>
+</div>
 <h3 id="accessing-deeply-nested-keys">Accessing deeply-nested keys</h3>
 <p>Being able to access a deeply-nested key can be helpful for a few reasons:</p>
 <ul>
@@ -412,42 +430,7 @@ This informs me that you are currently saving simple player data: number of coin
 <li>Saves unnecessary lines of code rooting through tables</li>
 <li>Saves on sanity checks: <code>if table.that.this then end</code></li>
 </ul>
-<p>As an example, we will use the following data structure:</p>
-<pre><code class="language-lua">local PlayerProfile = {
-    Stats = {
-
-    }
-
-    Inventory = {
-        Pages = {
-
-        }
-
-        _metadata = {
-            _totalSlots = 8,
-            _totalPages = 1,
-        }
-    },
-
-    InAppPurchases = {
-        [&quot;GamepassId&quot;] = {
-            PurchasedOn = &quot;1/1/1970 00:00 UTC&quot;,
-
-        }
-    },
-
-    _metadata = {
-        _playTime = 0,
-        _lastSessionDuration = 0,
-        _currentSessionDuration = 0,
-        _totalLevel = 10,
-        _sessionLastLocked = &quot;1/1/1970 00:00 UTC&quot;,
-        _sessionLocked = true,
-        _lastAutoSave = &quot;1/1/1970 00:00 UTC&quot;,
-        _lastManualSave = &quot;1/1/1970 00:00 UTC&quot;,
-    }
-}
-</code></pre>
+<h3 id="_1"></h3>
                 
               
               

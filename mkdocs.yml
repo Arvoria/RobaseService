@@ -12,7 +12,7 @@ extra_css:
 theme:
   name: material
   font:
-    text: Montserrat
+    text: Karla
     code: Fira Code
 
   logo: img/ai-logo-flat.svg

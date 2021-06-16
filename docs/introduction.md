@@ -8,8 +8,6 @@ Robase (formerly: Roblox-Firebase) has been in development since Summer 2020 and
 
 Unfortunately, DataStores have issues:
 
-+ You cannot look at the source code directly, meaning you have to trust the documentation;
-
 + You are limited to 4MB of data per key
 
 + You can only access top-level keys (`Player.UserId`s) and must define a path to a given point with table notation. (`table.this.that`).
@@ -20,24 +18,45 @@ Unfortunately, DataStores have issues:
 
 + Cannot be updated dynamically, from anywhere, at anytime. This makes systems such as FFlags not possible, A/B Testing extraneous, and timed-events that can turn on at a moment's notice in a live game - impossible.
 
-### Trusting Documentation
-
-More often than not you can trust what the documentation says, "it will do X", generally means it will "do X". However, there comes a time where you want to know "how does it 'do X'" and that can only be solved in two manners:
-
-- You dive into the source code
-
-- Or, you can see if the docs tell you
-
-And unfortunately, Roblox doesn't provide extensive documentation on every single method and every single service, this would be a massive task. 
-
-Source Docs - documentation within source code - are an amazing resource to use to help developers stay sane when looking at your codebase. Thankfully, Robase has this technical project documentation page *and* source docs!
-
 ### Storage limitations
 
 Before using Robase something you may want to ask yourself is: Do I really need this? In most cases, DataStore2 or ProfileService will serve you well, though you won't be saving anything big or complex. If you are looking to store large, complex data, then Robase is something you will want in your arsenal.
 
-Developing a game on Roblox means that you will have used one of the following: [DataStoreService](), DataStore2, or ProfileService; the latter two of which being wrappers/managers for the former.  
-This informs me that you are currently saving simple player data: number of coins, stats and levels, minor inventory data, etc. 
+Firebase's Spark plan provides you with 1GB storage in total per database/project and 10GB data downloaded per month. The Blaze plan is priced at how much you are using each, billed each month; each GB of storage costs $5 per month and each GB downloaded costs $1 per month. With the Blaze plan, a database using 1GB of storage and 100GB downloaded per month will be estimated to pay $105 per month. In addition to this you get other bonuses. 
+
+The differences between the Spark and Blaze plan is documented [here](https://firebase.google.com/pricing)
+
+[This example profile](https://pastebin.com/5zhfsfJb) shows just how complex and large data can be even when it has been optimised for storage. This profile will take up 3.6KB of data, that's not so much, right? Now imagine you have 100,000 unique players playing your game, that's now ~352MB, over a third of the capacity for the free plan. That's **a lot** of data!
+
+But this is just player data, what about things that happen in a server? Think about: an experience-wide event, like "Double XP" and how would you handle it; or even the optimised metadata for every minigame played; FFlags deployment system. There is a lot of things you can do in the backend of your database and it can be controlled remotely. [This example server data]() gives an example look at how a Firebase structure could be setup as a Lua table.  
+This structure is approximately 2KB in storage. `ServerData.PlayedMinigames.Games` is approximately 1.5KB in size, each minigame's data equating to 105.5B. 
+What if we asked how much this could grow? Imagine we have a small experience, with about 20,000 visits per day. Now lets say that on average every visit garners 1.8 minigame plays, we can scale this up to how much the database will grow each day. For 20,000 visits we would have 36,000 minigames played - that's roughly 3.62MB!
+
+Just how scalable and manageable is this? Well first we have to allow some assumptions:
+
++ We reserve 500MB in data for player data, the server can use the rest of it.
+
++ Growth is static and the number of visists remain the same.
+
++ Minigames Played to Visits ratio is 1.8.
+
+```lua
+local MaxServerData = 1 * 1024 * 1024 * 1024 -- 1GB in Bytes
+local VisitsPerDay = 20 * 1000 -- 20,000 Visits per day
+local MinigamesVisitsRatio = 1.8 -- Every visit receives on average 1.8 minigame plays
+local MinigamesPerDay = VisitsPerDay * MinigamesVisitsRatio -- do mult
+
+local MinigamesStorageCostPerDay = 105.5 * MinigamesPerDay -- in Bytes/day
+
+local MaxUsage = MaxServerData / 2
+local DaysUntilMaxUsage = MaxUsage / MinigamesStorageCostPerDay
+print(DaysUntilMaxUsage)
+
+-->> 141.35...
+```
+
+!!! info "Info"
+    This is just one example of what one can do with large data. The possibiblities are down to your imagination.
 
 ### Accessing deeply-nested keys
 
@@ -47,41 +66,4 @@ Being able to access a deeply-nested key can be helpful for a few reasons:
 + Saves unnecessary lines of code rooting through tables
 + Saves on sanity checks: `if table.that.this then end`
 
-As an example, we will use the following data structure:
-
-``` lua
-local PlayerProfile = {
-    Stats = {
-
-    }
-
-    Inventory = {
-        Pages = {
-
-        }
-
-        _metadata = {
-            _totalSlots = 8,
-            _totalPages = 1,
-        }
-    },
-
-    InAppPurchases = {
-        ["GamepassId"] = {
-            PurchasedOn = "1/1/1970 00:00 UTC",
-
-        }
-    },
-
-    _metadata = {
-        _playTime = 0,
-        _lastSessionDuration = 0,
-        _currentSessionDuration = 0,
-        _totalLevel = 10,
-        _sessionLastLocked = "1/1/1970 00:00 UTC",
-        _sessionLocked = true,
-        _lastAutoSave = "1/1/1970 00:00 UTC",
-        _lastManualSave = "1/1/1970 00:00 UTC",
-    }
-}
-```
+###

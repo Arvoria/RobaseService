@@ -16,3 +16,11 @@
 #why-robase {
     color:hsl(0, 0%, 10%)
 }
+
+.md-typeset a:hover {
+    text-decoration: underline;
+}
+
+.md-typeset a {
+    font-weight: bold;
+}
