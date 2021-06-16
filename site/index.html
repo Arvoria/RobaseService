@@ -1,0 +1,516 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="canonical" href="http://info.arvorian.com/Robase-2.0.0/">
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.8">
+    
+    
+      
+        <title>Robase Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.ca7ac06f.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.f1a3b89f.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,400i,700%7CFira+Code&display=fallback">
+        <style>:root{--md-text-font-family:"Montserrat";--md-code-font-family:"Fira Code"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="stylesheets/extra.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <script>function __prefix(e){return new URL(".",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#robase" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="Robase Documentation" class="md-header__button md-logo" aria-label="Robase Documentation" data-md-component="logo">
+      
+  <img src="img/ai-logo-flat.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Robase Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Robase
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/Arvoria/Robase-2.0.0/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Arvoria/Robase-2.0.0
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="Robase Documentation" class="md-nav__button md-logo" aria-label="Robase Documentation" data-md-component="logo">
+      
+  <img src="img/ai-logo-flat.svg" alt="logo">
+
+    </a>
+    Robase Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/Arvoria/Robase-2.0.0/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Arvoria/Robase-2.0.0
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Robase
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        Robase
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-robase" class="md-nav__link">
+    Why Robase?
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Robase?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#storing-a-large-amount-of-data" class="md-nav__link">
+    Storing a large amount of data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessing-deeply-nested-keys" class="md-nav__link">
+    Accessing deeply-nested keys
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="introduction/" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-robase" class="md-nav__link">
+    Why Robase?
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Robase?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#storing-a-large-amount-of-data" class="md-nav__link">
+    Storing a large amount of data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accessing-deeply-nested-keys" class="md-nav__link">
+    Accessing deeply-nested keys
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/Arvoria/Robase-2.0.0/edit/master/docs/index.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="robase">Robase</h1>
+<div class="admonition warning">
+<p class="admonition-title">Site in progress</p>
+<p>This website is still a work in progress and changes are being made daily.</p>
+</div>
+<p>Robase is a RESTful API wrapper for Firebase Realtime Database - written in untyped Luau - for Roblox Developers seeking an external database service with a simple to use wrapper.</p>
+<p>As mentioned, Robase seeks to be simple to use, but this is one of two core aims of this project. The second aim is to be an easy replacement to <a href="">DataStoreService</a>. You can find useful code to help with replacing old DataStore code and transferring data <a href="#examples">here</a>.</p>
+<hr />
+<h2 id="why-robase">Why Robase?</h2>
+<p>Robase was developed to solve a few problem areas of DataStores</p>
+<ul>
+<li>
+<p>Storing large amounts of data (&gt;4MB) is impossible without using external databases</p>
+</li>
+<li>
+<p>DataStores are only accessible at one point, Robase can access any key no matter how deeply nested it may be and get or update it's data (Explained later on).</p>
+</li>
+<li>
+<p>Easily extensible and wrappable and should allow for "managers" to be easily made for your data.</p>
+</li>
+<li>
+<p>Thanks to <a href="">Promises</a> you can be sure each async function yields and returns a value, thus no worry over race conditions.</p>
+</li>
+</ul>
+<h3 id="storing-a-large-amount-of-data"><strong>Storing a large amount of data</strong></h3>
+<p>If you're developing a game on Roblox it is very likely you have encountered <a href="">DataStoreService</a> and you may have even used <a href="">ProfileService</a> or <a href="">DataStore2</a> for easier management of your data. You will also likely be saving simple player data: how much money they have; which missions they have completed; what buffs they may have from Gamepasses or Developer Products; etc. However, there could come a point where a player's data could exceed the 4MB limitation of DataStores, this would result in the partial loss of the data. It is unlikely you will reach this limitation if you are only looking to store <em>simple</em> data, Robase, however, is best used if you're looking to store more complex data: exact inventory content; several different skill tree buffs; a list of missions and their completion steps with completed steps flagged as such.</p>
+<p>Firebase has a free plan (<a href="">Spark</a>) which limits you to:</p>
+<ul>
+<li>
+<p>1GB Storage capacity</p>
+</li>
+<li>
+<p>10GB of downloads (Get requests) per month#</p>
+</li>
+</ul>
+<p>However, the "pay as you go" plan (<a href="">Blaze</a>) is enticing with:</p>
+<ul>
+<li>
+<p>Storage costs $5/GB/mo (Storing 2GB = $10/month)</p>
+</li>
+<li>
+<p>Downloaded data costs $1/GB/mo (100GB downloaded in a month = $100)</p>
+</li>
+</ul>
+<h3 id="accessing-deeply-nested-keys"><strong>Accessing deeply-nested keys</strong></h3>
+<p>Being able to directly access a deeply-nested key is extremely helpful, not only is it simple to do, it also saves on downloading an entire key, quite possibly, for multiple ocassions.</p>
+<p>As an example, we will use the following data structure:</p>
+<pre><code class="language-lua">local Profile = {
+    Inventory = {
+        _metadata = {
+            _currentPage = 1,
+            _isFull = false,
+            _totalCapacity = 32,
+            _numItems = 0,
+        }
+
+        Pages = {
+            [1] = {
+                Slots = {
+                    [1] = {--[[Item Data]]},
+                    [2] = {--[[Item Data]]},
+                    [3] = {--[[Item Data]]},
+                    [4] = {--[[Item Data]]},
+                    [5] = {--[[Item Data]]},
+                    [6] = {--[[Item Data]]},
+                    [7] = {--[[Item Data]]},
+                    [8] = {--[[Item Data]]},
+                }
+            },
+            ...
+        }
+    },
+    Skills = {
+        [&quot;Woodcutting&quot;] = {
+            Title = &quot;Woodcutting&quot;,
+            Aliases = { },
+            Level = 5,
+            Description = &quot;Speeds up woodcutting&quot;,
+        },
+        ...
+    }
+
+    Missions = {
+        InProgress = {
+            [&quot;QuestId&quot;] = {
+                Stage = &quot;some stage Id&quot;,
+            },
+            ...
+        },
+
+        Completed = {
+            &quot;QuestId&quot;, &quot;QuestId2&quot;, ...
+        }
+    }
+
+
+}
+</code></pre>
+<p>Accessing and navigating this data structure, which could expand even further than it does, could be very daunting. First you would need to get the data at the base key, then you would need to assign a variable to point to a given key in this data structure (<code>Data.Missions.Completed</code> for example), and then you could access it.<br />
+However, with Robase and Firebase, you could perform a single <code>GetAsync</code> request to<br />
+<code>"{Data}/Missions/Completed"</code> where <code>{Data}</code> is the top-level key to access a Player's data. No longer do you need to perform sanity checks to see if the data exists or not, if it's not in the database Robase will tell you that and what specifically went wrong! If this data is non-existent, then you can create or do something about it.</p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+      
+        
+        <a href="introduction/" class="md-footer__link md-footer__link--next" aria-label="Next: Introduction" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Introduction
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": ".", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "assets/javascripts/workers/search.b0710199.min.js", "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.76f349be.min.js"></script>
+      
+    
+  </body>
+</html>
