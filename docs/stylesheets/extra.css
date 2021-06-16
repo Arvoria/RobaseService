@@ -1,0 +1,18 @@
+:root>* {
+    --md-primary-fg-color: hsl(0, 0%, 10%); 
+    --md-primary-bg-color: hsl(0, 0%, 100%);
+    --md-default-fg-color: hsl(0, 0%, 0%);
+    --md-default-bg-color: hsl(0, 0%, 100%);
+    --md-accent-fg-color: hsl(0, 0%, 0%);
+    --md-accent-bg-color: hsl(0, 0%, 0%);
+    --md-typeset-a-color: hsl(0, 0%, 0%);
+    --md-typeset-color: hsl(0, 0%, 30%);
+}
+
+#robase {
+    color: hsl(0, 0%, 0%);
+}
+
+#why-robase {
+    color:hsl(0, 0%, 10%)
+}

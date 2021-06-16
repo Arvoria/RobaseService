@@ -1,0 +1,26 @@
+site_name: Robase Documentation
+site_url: http://info.arvorian.com/Robase-2.0.0/
+repo_url: https://github.com/Arvoria/Robase-2.0.0
+repo_name: Arvoria/Robase-2.0.0
+
+markdown_extensions:
+  - admonition
+
+extra_css: 
+  - stylesheets/extra.css
+
+theme:
+  name: material
+  font:
+    text: Montserrat
+    code: Fira Code
+
+  logo: img/ai-logo-flat.svg
+
+  extra:
+    social:
+      icon: fontawesome/brands/twitter.svg
+      link: https://twitter.com/ArvorianDevs_
+    social:
+      icon: fontawesome/brands/github.svg
+      link: https://github.com/Arvoria
