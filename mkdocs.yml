@@ -5,6 +5,8 @@ repo_name: Arvoria/Robase-2.0.0
 
 markdown_extensions:
   - admonition
+  - pymdownx.superfences
+  - pymdownx.details
 
 extra_css: 
   - stylesheets/extra.css
@@ -12,7 +14,7 @@ extra_css:
 theme:
   name: material
   font:
-    text: Karla
+    text: Encode Sans
     code: Fira Code
 
   logo: img/ai-logo-flat.svg
@@ -24,3 +26,17 @@ theme:
     social:
       icon: fontawesome/brands/github.svg
       link: https://github.com/Arvoria
+
+nav: 
+  - 'Home': 'index.md'
+  - "About":
+    - 'Introduction': 'introduction.md'
+    - 'Why Robase?': 'introduction/#whats-the-purpose'
+    - 'Limitations': 'introduction/#storage-limitations'
+  - "Guide": 
+    - 'Installing Robase': 'Guide/installation.md'
+    - 'Setting up Robase': 'Guide/setup.md'
+    - 'Robase Examples': 'Guide/examples.md'
+  - "API Reference": 'api.md'
+    
+

@@ -1,6 +1,7 @@
 # Introduction
 
-Robase (formerly: Roblox-Firebase) has been in development since Summer 2020 and has been released since Early-Fall 2020. Development first began when the need to store larger and larger data grew and it became apparent that DataStores were not going to be the answer; ever.
+!!! summary
+    Robase (formerly: Roblox-Firebase) has been in development since Summer 2020 and has been released since Early-Fall 2020. Development first began when the need to store larger and larger data grew and it became apparent that DataStores were not going to be the answer; ever.
 
 !!! summary "Prerequisite knowledge"
     If you are planning on writing a manager similar to ProfileService using RobaseSevrice, knowledge of [Promises](https://eryn.io/roblox-lua-promise/) will likely be needed.
