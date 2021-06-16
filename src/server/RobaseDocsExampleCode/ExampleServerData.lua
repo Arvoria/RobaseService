@@ -190,7 +190,4 @@ local ServerData = {
     }
 }
 
-local s = game.HttpService:JSONEncode(ServerData.Games)
-print(#s/1024)
-
 return ServerData

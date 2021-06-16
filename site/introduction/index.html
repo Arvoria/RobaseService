@@ -269,8 +269,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    
+  <a href="#wrapping-robase-and-managing-your-data" class="md-nav__link">
+    Wrapping Robase and managing your data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-promises" class="md-nav__link">
+    Why Promises?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-updates" class="md-nav__link">
+    Dynamic Updates
   </a>
   
 </li>
@@ -336,8 +350,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    
+  <a href="#wrapping-robase-and-managing-your-data" class="md-nav__link">
+    Wrapping Robase and managing your data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-promises" class="md-nav__link">
+    Why Promises?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-updates" class="md-nav__link">
+    Dynamic Updates
   </a>
   
 </li>
@@ -366,24 +394,28 @@
                 
                 <h1 id="introduction">Introduction</h1>
 <p>Robase (formerly: Roblox-Firebase) has been in development since Summer 2020 and has been released since Early-Fall 2020. Development first began when the need to store larger and larger data grew and it became apparent that DataStores were not going to be the answer; ever.</p>
+<div class="admonition summary">
+<p class="admonition-title">Prerequisite knowledge</p>
+<p>If you are planning on writing a manager similar to ProfileService using RobaseSevrice, knowledge of <a href="https://eryn.io/roblox-lua-promise/">Promises</a> will likely be needed.</p>
+</div>
 <hr />
 <h2 id="whats-the-purpose">What's the purpose?</h2>
-<p>Unfortunately, DataStores have issues:</p>
+<p>RobaseService aims to provide a reliable and safe method of saving and loading data, no matter how big or small. But what lets DataStoreService down? Let me explain:</p>
 <ul>
 <li>
-<p>You are limited to 4MB of data per key</p>
+<p>You are limited to 4MB of data per key, with keys having a smaller max length than Firebase.</p>
 </li>
 <li>
-<p>You can only access top-level keys (<code>Player.UserId</code>s) and must define a path to a given point with table notation. (<code>table.this.that</code>).</p>
+<p>You can only access top-level keys (generally, this is <code>Player.UserId</code>) and must define a path to a given point with table notation. (<code>table.this.that</code>).</p>
 </li>
 <li>
-<p>Exposing the internals of the API allow Robase to be easily extended upon and wrapped around to create a "manager" for your database; similar to the <a href="">ProfileService</a> or <a href="">DataStore2</a> modules.</p>
+<p>DataStoreService's internals are not exposed, meaning it is a strenuous task to figure out how exactly every method works as well as some involved research. Robase is open-sourced, this means that it's source code is available to everyone and can be looked at and researched easily - especially with the source documentation! This will make extending and wrapping RobaseSevrice simpler and creating a manager similar to <a href="https://kampfkarren.github.io/Roblox/">DataStore2</a> by Kampfkarren or <a href="https://madstudioroblox.github.io/ProfileService/">ProfileService</a> by loleris.</p>
 </li>
 <li>
-<p><a href="">Promises</a> ensure race safety. Every async function will yield until a value is retrieved.</p>
+<p>The methods are not guranteed to be race condition free, Robase uses <a href="https://eryn.io/roblox-lua-promise/">Promises</a> by evaera to ensure race safety. Every async function will yield until a value is retrieved, and every regular function returns a Promise so that you can do something yourself (if you have the knowhow).</p>
 </li>
 <li>
-<p>Cannot be updated dynamically, from anywhere, at anytime. This makes systems such as FFlags not possible, A/B Testing extraneous, and timed-events that can turn on at a moment's notice in a live game - impossible.</p>
+<p>Cannot be updated dynamically, from anywhere, at anytime. This makes systems such as FFlags not possible, A/B Testing extraneous, and timed-events that can turn on at a moment's notice in a live game - impossible. With Robase however, this is very simple.</p>
 </li>
 </ul>
 <h3 id="storage-limitations">Storage limitations</h3>
@@ -391,7 +423,8 @@
 <p>Firebase's Spark plan provides you with 1GB storage in total per database/project and 10GB data downloaded per month. The Blaze plan is priced at how much you are using each, billed each month; each GB of storage costs $5 per month and each GB downloaded costs $1 per month. With the Blaze plan, a database using 1GB of storage and 100GB downloaded per month will be estimated to pay $105 per month. In addition to this you get other bonuses. </p>
 <p>The differences between the Spark and Blaze plan is documented <a href="https://firebase.google.com/pricing">here</a></p>
 <p><a href="https://pastebin.com/5zhfsfJb">This example profile</a> shows just how complex and large data can be even when it has been optimised for storage. This profile will take up 3.6KB of data, that's not so much, right? Now imagine you have 100,000 unique players playing your game, that's now ~352MB, over a third of the capacity for the free plan. That's <strong>a lot</strong> of data!</p>
-<p>But this is just player data, what about things that happen in a server? Think about: an experience-wide event, like "Double XP" and how would you handle it; or even the optimised metadata for every minigame played; FFlags deployment system. There is a lot of things you can do in the backend of your database and it can be controlled remotely. <a href="">This example server data</a> gives an example look at how a Firebase structure could be setup as a Lua table.<br />
+<p>But this is just player data, what about things that happen in a server? Think about: an experience-wide event, like "Double XP" and how would you handle it; or even the optimised metadata for every minigame played; FFlags deployment system. There is a lot of things you can do in the backend of your database and it can be controlled remotely.  </p>
+<p><a href="https://pastebin.com/98ZMUN4r">This example server data</a> gives an example look at how a Firebase structure could be setup as a Lua table.<br />
 This structure is approximately 2KB in storage. <code>ServerData.PlayedMinigames.Games</code> is approximately 1.5KB in size, each minigame's data equating to 105.5B. 
 What if we asked how much this could grow? Imagine we have a small experience, with about 20,000 visits per day. Now lets say that on average every visit garners 1.8 minigame plays, we can scale this up to how much the database will grow each day. For 20,000 visits we would have 36,000 minigames played - that's roughly 3.62MB!</p>
 <p>Just how scalable and manageable is this? Well first we have to allow some assumptions:</p>
@@ -421,16 +454,65 @@ print(DaysUntilMaxUsage)
 </code></pre>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>This is just one example of what one can do with large data. The possibiblities are down to your imagination.</p>
+<p>This is just one example of what one can do with large data. The possibilities are down to your imagination.</p>
 </div>
 <h3 id="accessing-deeply-nested-keys">Accessing deeply-nested keys</h3>
 <p>Being able to access a deeply-nested key can be helpful for a few reasons:</p>
 <ul>
 <li>It can save on <code>HttpService</code> budget and lowers the amount of downloaded data</li>
 <li>Saves unnecessary lines of code rooting through tables</li>
-<li>Saves on sanity checks: <code>if table.that.this then end</code></li>
+<li>Gruesome sanity checks are a thing of the past! Making a request to a key using <code>::GetAsync()</code> will always return profound information:<br />
+<code>(success: boolean, value: string | table)</code><br />
+    Success is either true or false - if the information was retrieved or sent successfully.<br />
+    Value will be the response body with a successful request or the whole response dictionary if it fails.</li>
 </ul>
-<h3 id="_1"></h3>
+<h3 id="wrapping-robase-and-managing-your-data">Wrapping Robase and managing your data</h3>
+<p>Writing your own manager similar to DataStore2 or ProfileService may seem daunting at first, but as long as you are safe and secure when handling your data, it does not need to be as developed and can simply be a primitive version of them, but take note:</p>
+<div class="admonition info">
+<p class="admonition-title">Key Information</p>
+<ul>
+<li>
+<p>Cache is a necessity;</p>
+</li>
+<li>
+<p>Session-Locking is recommended;</p>
+</li>
+<li>
+<p>You should write parsers to form keys to access data when needed;</p>
+</li>
+<li>
+<p>Downloading the whole database for each server is cumbersome and can lead to eating through your data usage, only access data thats needed, de-serialise your data appropriately;</p>
+</li>
+<li>
+<p>Check out the source code for insight into how the code works!</p>
+</li>
+</ul>
+</div>
+<h3 id="why-promises">Why Promises?</h3>
+<div class="admonition quote">
+<p class="admonition-title">Quote</p>
+<p>The way Roblox models asynchronous operations by default is by yielding (stopping) the thread and then resuming it when the future value is available. This model is not ideal because:</p>
+<ul>
+<li>
+<p>Functions you call can yield without warning, or only yield sometimes, leading to unpredictable and surprising results. Accidentally yielding the thread is the source of a large class of bugs and race conditions that Roblox developers run into.</p>
+</li>
+<li>
+<p>It is difficult to deal with running multiple asynchronous operations concurrently and then retrieve all of their values at the end without extraneous machinery.</p>
+</li>
+<li>
+<p>When an asynchronous operation fails or an error is encountered, Lua functions usually either raise an error or return a success value followed by the actual value. Both of these methods lead to repeating the same tired patterns many times over for checking if the operation was successful.</p>
+</li>
+<li>
+<p>Yielding lacks easy access to introspection and the ability to cancel an operation if the value is no longer needed.</p>
+</li>
+</ul>
+<p>Source: <em><a href="https://eryn.io/roblox-lua-promise/#why-you-should-use-promises">why you should use promises</a></em></p>
+</div>
+<h3 id="dynamic-updates">Dynamic Updates</h3>
+<p>Every key in your Firebase Realtime Database can be modified from the Firebase Console. This allows for some unique behaviour that you couldn't otherwise do without loading up the client and entering the game yourself to modify DataStores through the command line - which is slow, and can be complicated.</p>
+<p>With a Realtime Database you can have functions that check keys periodically or do something at specific times, or enable/disable beta features/content for your players depending on the value received.</p>
+<p>As noted in our example, Double XP is a perfect example of a timed event that can run via your database. You can set a key, say "Activate" to true, and then watch as your game-code updates and displays that the event is in progress and updates accordingly.</p>
+<p>You can have Fast Flags for your game, this is the deployment system Roblox uses to enable and disable content, it's also why bugs can just appear out of nowhere sometime.</p>
                 
               
               
