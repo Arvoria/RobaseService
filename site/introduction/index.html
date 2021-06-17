@@ -294,8 +294,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#wrapping-robase-and-managing-your-data" class="md-nav__link">
-    Wrapping Robase and managing your data
+  <a href="#extending-robase-and-managing-your-data" class="md-nav__link">
+    Extending Robase and managing your data
   </a>
   
 </li>
@@ -486,8 +486,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#wrapping-robase-and-managing-your-data" class="md-nav__link">
-    Wrapping Robase and managing your data
+  <a href="#extending-robase-and-managing-your-data" class="md-nav__link">
+    Extending Robase and managing your data
   </a>
   
 </li>
@@ -529,8 +529,7 @@
                 
                 
                 <h1 id="introduction">Introduction</h1>
-<details class="summary" open="open"><summary>Summary</summary><p>Robase (formerly: Roblox-Firebase) has been in development since Summer 2020 and has been released since Early-Fall 2020. Development first began when the need to store larger and larger data grew and it became apparent that DataStores were not going to be the answer; ever.</p>
-</details>
+<p>Robase has been in development since June 2020 and has been released since August 2020. Development first began when the need to store larger and larger data grew and it became apparent that DataStores were not going to be the answer; ever.</p>
 <details class="summary"><summary>Extending the wrapper</summary><p>If you are planning on writing a manager similar to ProfileService using RobaseService, knowledge of <a href="https://eryn.io/roblox-lua-promise/">Promises</a> will likely be needed.</p>
 </details>
 <hr />
@@ -601,7 +600,7 @@ What if we asked how much this could grow? Imagine we have a small experience, w
     Success is either true or false - if the information was retrieved or sent successfully.<br />
     Value will be the response body with a successful request or the whole response dictionary if it fails.</li>
 </ul>
-<h3 id="wrapping-robase-and-managing-your-data">Wrapping Robase and managing your data</h3>
+<h3 id="extending-robase-and-managing-your-data">Extending Robase and managing your data</h3>
 <p>Writing your own manager similar to DataStore2 or ProfileService may seem daunting at first, but as long as you are safe and secure when handling your data, it does not need to be as developed and can simply be a primitive version of them, but take note:</p>
 <div class="admonition info">
 <p class="admonition-title">Key Information</p>
@@ -641,8 +640,8 @@ What if we asked how much this could grow? Imagine we have a small experience, w
 <p>Yielding lacks easy access to introspection and the ability to cancel an operation if the value is no longer needed.</p>
 </li>
 </ul>
-<p>Source: <em><a href="https://eryn.io/roblox-lua-promise/#why-you-should-use-promises">why you should use promises</a></em></p>
 </div>
+<p>Source: <em><a href="https://eryn.io/roblox-lua-promise/#why-you-should-use-promises">why you should use promises</a></em></p>
 <h3 id="dynamic-updates">Dynamic Updates</h3>
 <p>Every key in your Firebase Realtime Database can be modified from the Firebase Console. This allows for some unique behaviour that you couldn't otherwise do without loading up the client and entering the game yourself to modify DataStores through the command line - which is slow, and can be complicated.</p>
 <p>With a Realtime Database you can have functions that check keys periodically or do something at specific times, or enable/disable beta features/content for your players depending on the value received.</p>

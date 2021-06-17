@@ -338,9 +338,80 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Robase Examples
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         Robase Examples
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#saving-data" class="md-nav__link">
+    Saving data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#loading-data" class="md-nav__link">
+    Loading data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-data" class="md-nav__link">
+    Updating data
+  </a>
+  
+    <nav class="md-nav" aria-label="Updating data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#updating-a-single-dictionary" class="md-nav__link">
+    Updating a single Dictionary
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-updating-a-list-of-dictionaries" class="md-nav__link">
+    Batch Updating a list of Dictionaries
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deleting-data" class="md-nav__link">
+    Deleting data
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -386,6 +457,62 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#saving-data" class="md-nav__link">
+    Saving data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#loading-data" class="md-nav__link">
+    Loading data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-data" class="md-nav__link">
+    Updating data
+  </a>
+  
+    <nav class="md-nav" aria-label="Updating data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#updating-a-single-dictionary" class="md-nav__link">
+    Updating a single Dictionary
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch-updating-a-list-of-dictionaries" class="md-nav__link">
+    Batch Updating a list of Dictionaries
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deleting-data" class="md-nav__link">
+    Deleting data
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -406,6 +533,158 @@
 <p class="admonition-title">Warning</p>
 <p>This page is still in the process of being documented.</p>
 </div>
+<h2 id="saving-data">Saving data</h2>
+<p>Saving data is straight forward with Robase. <code>:SetAsync()</code> will default to using a <code>PUT</code> request if one is not provided. </p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">PlayerRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;Players&quot;</span><span class="p">)</span> <span class="c1">-- Key is where you store player data, not necessarily (root) or &quot;&quot;</span>
+<span class="kd">local</span> <span class="n">PlayerData</span> <span class="o">=</span> <span class="p">{</span> <span class="cm">--[[ Some Data Here ]]</span> <span class="p">}</span>
+
+<span class="kd">local</span> <span class="n">Success</span><span class="p">,</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">PlayerRobase</span><span class="p">:</span><span class="n">SetAsync</span><span class="p">(</span><span class="s2">&quot;PlayerUserId&quot;</span><span class="p">,</span> <span class="n">PlayerData</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+<h2 id="loading-data">Loading data</h2>
+<p>Loading data is also really simple, similar to DataStoreService, we do:
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">PlayerRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;Players&quot;</span><span class="p">)</span>
+<span class="kd">local</span> <span class="n">Success</span><span class="p">,</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">PlayerRobase</span><span class="p">:</span><span class="n">GetAsync</span><span class="p">(</span><span class="s2">&quot;PlayerUserId&quot;</span><span class="p">)</span>
+<span class="kd">local</span> <span class="n">Data</span> <span class="o">=</span> <span class="p">(</span><span class="n">Success</span> <span class="ow">and</span> <span class="n">Result</span><span class="o">~=</span><span class="kc">nil</span><span class="p">)</span> <span class="ow">and</span> <span class="n">Result</span>
+</code></pre></div>
+</td></tr></table></p>
+<h2 id="updating-data">Updating data</h2>
+<p>Updating with Robase is just like DataStoreService, you provide a key, a transform function for the data, and bada-bing bada-boom your code updates.</p>
+<p>However, Robase has one key advantage: Batch Updating. This is useful if you have a list of keys to update together.</p>
+<h3 id="updating-a-single-dictionary">Updating a single Dictionary</h3>
+<p>This is going to be your de-facto saving method, just like DataStoreService this is method you use when changing data. It's most useful when updating a single player, for example.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">PlayersRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;Players&quot;</span><span class="p">)</span>
+
+<span class="kd">local</span> <span class="n">NewData</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">Level</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">Coins</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="p">}</span>
+
+<span class="kd">local</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">oldData</span><span class="p">)</span>
+    <span class="kr">return</span> <span class="n">NewData</span><span class="p">.</span><span class="n">Level</span> <span class="o">&gt;</span> <span class="n">oldData</span><span class="p">.</span><span class="n">Level</span> <span class="ow">and</span> <span class="n">newData</span> <span class="ow">or</span> <span class="n">oldData</span>    
+<span class="kr">end</span>
+
+<span class="kd">local</span> <span class="n">Success</span><span class="p">,</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">PlayersRobase</span><span class="p">:</span><span class="n">UpdateAsync</span><span class="p">(</span><span class="s2">&quot;PlayerUserId&quot;</span><span class="p">,</span> <span class="n">Callback</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+<h3 id="batch-updating-a-list-of-dictionaries">Batch Updating a list of Dictionaries</h3>
+<p>Okay, so what's this fancy batch updating? It's simple! Lets say you have some server data and some player data that you wish to save, you could do something like this:</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">GlobalRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+<span class="kd">local</span> <span class="n">UpdatedCache</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">Players</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">Player1</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">Level</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+            <span class="n">Coins</span> <span class="o">=</span> <span class="mi">2345</span><span class="p">,</span>
+        <span class="p">},</span>
+
+        <span class="n">Player2</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">Level</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">Coins</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="n">Server</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">LastUpdatedAt</span> <span class="o">=</span> <span class="nb">os.date</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">local</span> <span class="n">Callbacks</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">Players</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">oldPlayersData</span><span class="p">)</span>
+        <span class="kr">return</span> <span class="n">Cache</span><span class="p">.</span><span class="n">Players</span>
+    <span class="kr">end</span><span class="p">,</span>
+
+    <span class="n">Server</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">oldServerData</span><span class="p">)</span>
+        <span class="kr">return</span> <span class="n">Cache</span><span class="p">.</span><span class="n">Server</span>
+    <span class="kr">end</span>
+<span class="p">}</span>
+
+<span class="kd">local</span> <span class="n">Success</span><span class="p">,</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">GlobalRobase</span><span class="p">:</span><span class="n">BatchUpdateAsync</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">Callbacks</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+<p>What if we want to award every active player with free levels, almost instantly?
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">PlayersRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;Players&quot;</span><span class="p">)</span>
+
+<span class="kd">local</span> <span class="n">Callbacks</span> <span class="o">=</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="kr">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">player</span> <span class="kr">in</span> <span class="nb">pairs</span><span class="p">(</span><span class="n">game</span><span class="p">.</span><span class="n">Players</span><span class="p">:</span><span class="n">GetPlayers</span><span class="p">())</span> <span class="kr">do</span> <span class="c1">-- Populate Callbacks</span>
+    <span class="n">Callbacks</span><span class="p">[</span><span class="n">player</span><span class="p">.</span><span class="n">UserId</span><span class="p">]</span> <span class="o">=</span> <span class="kr">function</span><span class="p">(</span><span class="n">oldData</span><span class="p">)</span>
+        <span class="kr">return</span> <span class="n">oldData</span><span class="p">.</span><span class="n">Level</span> <span class="o">+</span> <span class="mi">5</span>
+    <span class="kr">end</span>
+<span class="kr">end</span>
+
+<span class="kd">local</span> <span class="n">Success</span><span class="p">,</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">PlayersRobase</span><span class="p">:</span><span class="n">BatchUpdateAsync</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">Callbacks</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This sort of functionality would probably be best used for events, where you can wait for some value to get toggled and then this code would run.</p>
+</div>
+<h2 id="deleting-data">Deleting data</h2>
+<p>There are only a few edge cases where deleting data from the Realtime Database is down to the end-user or client, one scenario in particular is allowing player's to wipe their data and restart anew.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">PlayersRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;Players&quot;</span><span class="p">)</span>
+
+<span class="kd">local</span> <span class="n">Success</span><span class="p">,</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">PlayersRobase</span><span class="p">:</span><span class="n">DeleteAsync</span><span class="p">(</span><span class="s2">&quot;SomeUserId&quot;</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
                 
               
               

@@ -397,7 +397,7 @@
         
           <li class="md-nav__item">
   <a href="#robaseservicegetrobase" class="md-nav__link">
-    RobaseService::GetRobase
+    RobaseService:GetRobase
   </a>
   
 </li>
@@ -417,42 +417,42 @@
         
           <li class="md-nav__item">
   <a href="#robasegetasync" class="md-nav__link">
-    Robase::GetAsync
+    Robase:GetAsync
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#robasesetasync" class="md-nav__link">
-    Robase::SetAsync
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#robaseupdateasync" class="md-nav__link">
-    Robase::UpdateAsync
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#robasedeleteasync" class="md-nav__link">
-    Robase::DeleteAsync
+    Robase:SetAsync
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#robaseincrementasync" class="md-nav__link">
-    Robase::IncrementAsync
+    Robase:IncrementAsync
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#robasedeleteasync" class="md-nav__link">
+    Robase:DeleteAsync
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#robaseupdateasync" class="md-nav__link">
+    Robase:UpdateAsync
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#robasebatchupdateasync" class="md-nav__link">
-    Robase::BatchUpdateAsync
+    Robase:BatchUpdateAsync
   </a>
   
 </li>
@@ -512,7 +512,7 @@
         
           <li class="md-nav__item">
   <a href="#robaseservicegetrobase" class="md-nav__link">
-    RobaseService::GetRobase
+    RobaseService:GetRobase
   </a>
   
 </li>
@@ -532,42 +532,42 @@
         
           <li class="md-nav__item">
   <a href="#robasegetasync" class="md-nav__link">
-    Robase::GetAsync
+    Robase:GetAsync
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#robasesetasync" class="md-nav__link">
-    Robase::SetAsync
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#robaseupdateasync" class="md-nav__link">
-    Robase::UpdateAsync
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#robasedeleteasync" class="md-nav__link">
-    Robase::DeleteAsync
+    Robase:SetAsync
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#robaseincrementasync" class="md-nav__link">
-    Robase::IncrementAsync
+    Robase:IncrementAsync
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#robasedeleteasync" class="md-nav__link">
+    Robase:DeleteAsync
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#robaseupdateasync" class="md-nav__link">
+    Robase:UpdateAsync
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#robasebatchupdateasync" class="md-nav__link">
-    Robase::BatchUpdateAsync
+    Robase:BatchUpdateAsync
   </a>
   
 </li>
@@ -600,15 +600,75 @@
 <p>This page is still in the process of being documented.</p>
 </div>
 <h2 id="robaseservice">RobaseService</h2>
-<h3 id="robaseservicenew"><code>RobaseService.new</code></h3>
-<h3 id="robaseservicegetrobase"><code>RobaseService::GetRobase</code></h3>
+<details class="stop" open="open"><summary>Caution</summary><p>RobaseService cannot be used without first instantiating it with <code>.new</code> and providing a Firebase Database Url and a Secrets Authentication Token.</p>
+</details>
+<hr />
+<h4 id="robaseservicenew">RobaseService.new</h4>
+<p><div class="highlight"><pre><span></span><code><span class="n">RobaseService</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">baseUrl</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span>
+    <span class="c1">--&gt; RobaseService</span>
+</code></pre></div>
+Used to instantiate a new RobaseService with the provided Url and Auth Token.</p>
+<h4 id="robaseservicegetrobase">RobaseService:GetRobase</h4>
+<p><div class="highlight"><pre><span></span><code><span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="p">[</span><span class="n">scope</span><span class="p">:</span> <span class="n">string</span><span class="p">])</span>
+    <span class="c1">--&gt; Robase</span>
+</code></pre></div>
+Used to retrieve a Robase object with a path supplied from scope and name.</p>
 <h2 id="robase">Robase</h2>
-<h3 id="robasegetasync"><code>Robase::GetAsync</code></h3>
-<h3 id="robasesetasync"><code>Robase::SetAsync</code></h3>
-<h3 id="robaseupdateasync"><code>Robase::UpdateAsync</code></h3>
-<h3 id="robasedeleteasync"><code>Robase::DeleteAsync</code></h3>
-<h3 id="robaseincrementasync"><code>Robase::IncrementAsync</code></h3>
-<h3 id="robasebatchupdateasync"><code>Robase::BatchUpdateAsync</code></h3>
+<details class="warning" open="open"><summary>Caution</summary><p>Robase will handle failed requests automatically by throwing an error. They will never return <code>(false, any)</code> but they can return <code>(true, nil)</code></p>
+</details>
+<hr />
+<h4 id="robasegetasync">Robase:GetAsync</h4>
+<p><div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">GetAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span>
+    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+</code></pre></div>
+Retrieves the data stored at the given key within the Robase.</p>
+<h4 id="robasesetasync">Robase:SetAsync</h4>
+<p><div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">SetAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">any</span><span class="p">,</span> <span class="p">[</span><span class="n">method</span><span class="p">:</span> <span class="n">string</span><span class="p">])</span>
+    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+</code></pre></div>
+Adds data into the Robase at the key specified using the given method.</p>
+<p>The <code>method</code> parameter is optional and is mainly used internally to differentiate requests.</p>
+<ul>
+<li>
+<p><code>PUT</code>/<code>PATCH</code>/<code>DELETE</code>/<code>POST</code> are all valid method types.</p>
+</li>
+<li>
+<p>Defaults to <code>PUT</code> requests.</p>
+</li>
+</ul>
+<h4 id="robaseincrementasync">Robase:IncrementAsync</h4>
+<div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">IncrementAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="p">[</span><span class="n">delta</span><span class="p">:</span> <span class="n">integer</span><span class="p">])</span>
+    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+</code></pre></div>
+<details class="stop"><summary>Usage restrictions</summary><ul>
+<li>
+<p>You can only use <code>::IncrementAsync</code> on keys with integer values!</p>
+</li>
+<li>
+<p>Delta <em>must</em> be an integer or nil!</p>
+</li>
+</ul>
+</details>
+<p>Increments the data stored at the given key by the supplied delta. This only works on key's which have an integer value and with an integer-only delta (ex. 1.5 will not work)</p>
+<p>Delta is an optional parameter and will default to 1 if not supplied.</p>
+<h4 id="robasedeleteasync">Robase:DeleteAsync</h4>
+<div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">DeleteAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span>
+    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+</code></pre></div>
+<div class="admonition stop">
+<p class="admonition-title">Dangerous</p>
+<p>This method is incredible dangerous. It can delete entire trees of data and cannot be rolled back. It will return the data previously stored at the key given.</p>
+</div>
+<h4 id="robaseupdateasync">Robase:UpdateAsync</h4>
+<p><div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">UpdateAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="p">[</span><span class="n">cache</span><span class="p">:</span> <span class="n">table</span><span class="p">])</span>
+    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+</code></pre></div>
+Retrieves data from the Robase at the key given, or from the cache if provided and transforms it using the callback function and updates the key with a new value.</p>
+<h4 id="robasebatchupdateasync">Robase:BatchUpdateAsync</h4>
+<p><div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">BatchUpdateAsync</span><span class="p">(</span><span class="n">baseKey</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">:</span> <span class="n">table</span><span class="p">,</span> <span class="p">[</span><span class="n">cache</span><span class="p">:</span> <span class="n">table</span><span class="p">])</span>
+    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+</code></pre></div>
+Similar in functionality to <code>:UpdateAsync</code> except will take a baseKey and then use the keys from the callbacks array to form a key to update using the provided callback function to update the value.</p>
                 
               
               

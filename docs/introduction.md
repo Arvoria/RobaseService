@@ -1,7 +1,6 @@
 # Introduction
 
-???+ summary
-    Robase (formerly: Roblox-Firebase) has been in development since Summer 2020 and has been released since Early-Fall 2020. Development first began when the need to store larger and larger data grew and it became apparent that DataStores were not going to be the answer; ever.
+Robase has been in development since June 2020 and has been released since August 2020. Development first began when the need to store larger and larger data grew and it became apparent that DataStores were not going to be the answer; ever.
 
 ??? summary "Extending the wrapper"
     If you are planning on writing a manager similar to ProfileService using RobaseService, knowledge of [Promises](https://eryn.io/roblox-lua-promise/) will likely be needed.
@@ -75,7 +74,7 @@ Being able to access a deeply-nested key can be helpful for a few reasons:
     Success is either true or false - if the information was retrieved or sent successfully.  
     Value will be the response body with a successful request or the whole response dictionary if it fails.
 
-### Wrapping Robase and managing your data
+### Extending Robase and managing your data
 
 Writing your own manager similar to DataStore2 or ProfileService may seem daunting at first, but as long as you are safe and secure when handling your data, it does not need to be as developed and can simply be a primitive version of them, but take note:
 
@@ -103,7 +102,7 @@ Writing your own manager similar to DataStore2 or ProfileService may seem daunti
     
     + Yielding lacks easy access to introspection and the ability to cancel an operation if the value is no longer needed.
 
-    Source: *[why you should use promises](https://eryn.io/roblox-lua-promise/#why-you-should-use-promises)*
+Source: *[why you should use promises](https://eryn.io/roblox-lua-promise/#why-you-should-use-promises)*
 
 
 ### Dynamic Updates
