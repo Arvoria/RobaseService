@@ -7,24 +7,35 @@ markdown_extensions:
   - admonition
   - pymdownx.superfences
   - pymdownx.details
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.tilde
+  - pymdownx.mark
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+      options:
+        custom_icons:
+          - overrides/.icons
 
 extra_css: 
   - stylesheets/extra.css
+  - stylesheets/admonitions/stop.css
 
 theme:
   name: material
+  custom_dir: overrides
   font:
     text: Encode Sans
     code: Fira Code
-
   logo: img/ai-logo-flat.svg
 
-  extra:
-    social:
-      icon: fontawesome/brands/twitter.svg
+extra:
+  social:
+    - icon: fontawesome/brands/twitter
       link: https://twitter.com/ArvorianDevs_
-    social:
-      icon: fontawesome/brands/github.svg
+  social:
+    - icon: octicons/logo-github-16
       link: https://github.com/Arvoria
 
 nav: 

@@ -5,12 +5,17 @@ For our examples, we will install `RobaseService` into `ReplicatedStorage`. Note
 
 ## Method A: Roblox Model (via Roblox Studio)
 
+!!! stop "Hold that thought"
+    Roblox Models can be outdated, the suggested installation method is Method B.
+
 !!! todo
-    Write documentation for Roblox Model
+    Write documentation for Roblox Model.
 
 ## Method B: Filesystem (via Rojo)
-+ Copy `src/shared/RobaseService` directory into your codebase
++ Go to the [Github Releases]() and download the latest stable release of RobaseService. Save it somewhere meaningful so you only need to download it once.
 
-+ Rename the folder to RobaseService
++ Open your working directory in your preferred IDE and sync your files with an empty studio using [Rojo]()!
 
-+ Use an extension like [Rojo](https://rojo.space) to sync your files into studio, or build a place file!
++ Copy the source wherever you wish, ReplicatedStorage is recommended.
+
++ Continue developing!

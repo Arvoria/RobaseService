@@ -1,10 +1,10 @@
 # Introduction
 
-!!! summary
+???+ summary
     Robase (formerly: Roblox-Firebase) has been in development since Summer 2020 and has been released since Early-Fall 2020. Development first began when the need to store larger and larger data grew and it became apparent that DataStores were not going to be the answer; ever.
 
-!!! summary "Prerequisite knowledge"
-    If you are planning on writing a manager similar to ProfileService using RobaseSevrice, knowledge of [Promises](https://eryn.io/roblox-lua-promise/) will likely be needed.
+??? summary "Extending the wrapper"
+    If you are planning on writing a manager similar to ProfileService using RobaseService, knowledge of [Promises](https://eryn.io/roblox-lua-promise/) will likely be needed.
 
 ---
 
@@ -16,9 +16,9 @@ RobaseService aims to provide a reliable and safe method of saving and loading d
 
 + You can only access top-level keys (generally, this is `Player.UserId`) and must define a path to a given point with table notation. (`table.this.that`).
 
-+ DataStoreService's internals are not exposed, meaning it is a strenuous task to figure out how exactly every method works as well as some involved research. Robase is open-sourced, this means that it's source code is available to everyone and can be looked at and researched easily - especially with the source documentation! This will make extending and wrapping RobaseSevrice simpler and creating a manager similar to [DataStore2](https://kampfkarren.github.io/Roblox/) by Kampfkarren or [ProfileService](https://madstudioroblox.github.io/ProfileService/) by loleris.
++ DataStoreService's internals are not exposed, meaning it is a strenuous task to figure out how exactly every method works as well as some involved research. Robase is open-sourced, this means that it's source code is available to everyone and can be looked at and researched easily - especially with the source documentation! This will make extending and wrapping RobaseService simpler and creating a manager similar to [DataStore2](https://kampfkarren.github.io/Roblox/) by Kampfkarren or [ProfileService](https://madstudioroblox.github.io/ProfileService/) by loleris.
 
-+ The methods are not guranteed to be race condition free, Robase uses [Promises](https://eryn.io/roblox-lua-promise/) by evaera to ensure race safety. Every async function will yield until a value is retrieved, and every regular function returns a Promise so that you can do something yourself (if you have the knowhow).
++ The methods are not guranteed to be race condition free, Robase uses [Promises](https://eryn.io/roblox-lua-promise/) by evaera to ensure race safety. Every async function will yield until a value is retrieved. {--In a future release, synchronous operations which return the promise may become available--}
 
 + Cannot be updated dynamically, from anywhere, at anytime. This makes systems such as FFlags not possible, A/B Testing extraneous, and timed-events that can turn on at a moment's notice in a live game - impossible. With Robase however, this is very simple.
 
