@@ -168,7 +168,30 @@ function Robase:IncrementAsync(key, delta)
     return self:SetAsync(key, data, "PUT")
 end
 
-function Robase:BatchUpdateAsync(baseKey, uploadKeyValues, uploadCallbacks, cache)
+function Robase:BatchUpdateAsync(baseKey, callbacks, cache)
+    assert(typeof(callbacks) == "table", ("Bad argument 2, table expected got %s"):format(typeof(callbacks)))
+
+    local updated = { }
+
+    for key, updateFunc in pairs(callbacks) do
+        assert(typeof(updateFunc)=="function", ("Callbacks[%s] function expected got %s"):format(key, typeof(updateFunc)))
+
+        local success, data
+        if cache~=nil and cache[key] then
+            data = cache[key]
+            success = (data~=nil)
+        else
+            success, data = self:GetAsync(("%s/%s"):format(baseKey, key))
+        end
+        assert(data ~= nil or not success, "Something went wrong retrieving data, make sure a key exists for a callback function to perform on")
+
+        updated[key] = updateFunc(data)
+    end
+
+    return self:SetAsync(baseKey, updated, "PATCH")
+end
+
+--[[function Robase:BatchUpdateAsync(baseKey, uploadKeyValues, uploadCallbacks, cache)
     local t1,t2 = typeof(uploadKeyValues), typeof(uploadCallbacks)
     assert(t1 == "table", "Bad argument 2, table expected got " .. t1)
     assert(t2 == "table", "Bad argument 3, table expected got " .. t2)
@@ -193,6 +216,6 @@ function Robase:BatchUpdateAsync(baseKey, uploadKeyValues, uploadCallbacks, cach
     end
 
     return self:SetAsync(baseKey, updated, "PATCH")
-end
+end]]
 
 return Robase

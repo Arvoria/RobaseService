@@ -167,7 +167,6 @@ return function()
 
     describe("BatchUpdateAsync", function()
         it("should update multiple child nodes from a baseKey with relevant callback functions", function()
-            local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
             local calledAt = os.date()
 
             local Callbacks = {
@@ -185,35 +184,11 @@ return function()
                 end
             }
 
-            local success, data = PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+            local success, data = PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
 
             expect(success).to.equal(true)
             expect(data).to.be.ok()
             expect(data.Server.LastUpdated).to.equal(calledAt)
-        end)
-
-        it("should throw an error if the keyValues are not a table", function()
-            expect(function()
-                local Data = "Players&Server" -- this isn't a dictionary of database keys and their values
-                local calledAt = os.date()
-
-                local Callbacks = {
-                    ["Players"] = function(old)
-                        for _, plr in pairs(old) do
-                            plr.Level += 10
-                            plr.Coins += 100
-                        end
-                        return old
-                    end,
-
-                    ["Server"] = function(old)
-                        old.LastUpdated = calledAt
-                        return old
-                    end
-                }
-
-                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
-            end).to.throw()
         end)
 
         it("should throw an error if the callbacks are not a table", function()
@@ -221,13 +196,12 @@ return function()
                 local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
                 local Callbacks = "ThisShouldThrow" -- wait a minute this isn't a table of functions
 
-                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
             end).to.throw()
         end)
 
-        it("should throw an error if a callback function cannot be found for a key", function()
+        it("should throw an error if a key cannot be found for a callback function", function()
             expect(function()
-                local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
                 local calledAt = os.date()
 
                 local Callbacks = {
@@ -245,13 +219,12 @@ return function()
                     end
                 }
 
-                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
             end).to.throw()
         end)
 
         it("should throw an error if an element of the callbacks table is not a function", function()
             expect(function()
-                local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
                 local calledAt = os.date()
 
                 local Callbacks = {
@@ -266,7 +239,7 @@ return function()
                     ["Server"] = calledAt
                 }
 
-                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
             end).to.throw()
         end)
     end)

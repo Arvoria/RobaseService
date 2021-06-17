@@ -1670,7 +1670,30 @@ function Robase:IncrementAsync(key, delta)
     return self:SetAsync(key, data, "PUT")
 end
 
-function Robase:BatchUpdateAsync(baseKey, uploadKeyValues, uploadCallbacks, cache)
+function Robase:BatchUpdateAsync(baseKey, callbacks, cache)
+    assert(typeof(callbacks) == "table", ("Bad argument 2, table expected got %s"):format(typeof(callbacks)))
+
+    local updated = { }
+
+    for key, updateFunc in pairs(callbacks) do
+        assert(typeof(updateFunc)=="function", ("Callbacks[%s] function expected got %s"):format(key, typeof(updateFunc)))
+
+        local success, data
+        if cache~=nil and cache[key] then
+            data = cache[key]
+            success = (data~=nil)
+        else
+            success, data = self:GetAsync(("%s/%s"):format(baseKey, key))
+        end
+        assert(data ~= nil or not success, "Something went wrong retrieving data, make sure a key exists for a callback function to perform on")
+
+        updated[key] = updateFunc(data)
+    end
+
+    return self:SetAsync(baseKey, updated, "PATCH")
+end
+
+--[[function Robase:BatchUpdateAsync(baseKey, uploadKeyValues, uploadCallbacks, cache)
     local t1,t2 = typeof(uploadKeyValues), typeof(uploadCallbacks)
     assert(t1 == "table", "Bad argument 2, table expected got " .. t1)
     assert(t2 == "table", "Bad argument 3, table expected got " .. t2)
@@ -1695,7 +1718,7 @@ function Robase:BatchUpdateAsync(baseKey, uploadKeyValues, uploadCallbacks, cach
     end
 
     return self:SetAsync(baseKey, updated, "PATCH")
-end
+end]]
 
 return Robase</string>
           </Properties>
@@ -2001,7 +2024,6 @@ end</string>
 
     describe("BatchUpdateAsync", function()
         it("should update multiple child nodes from a baseKey with relevant callback functions", function()
-            local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
             local calledAt = os.date()
 
             local Callbacks = {
@@ -2019,35 +2041,11 @@ end</string>
                 end
             }
 
-            local success, data = PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+            local success, data = PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
 
             expect(success).to.equal(true)
             expect(data).to.be.ok()
             expect(data.Server.LastUpdated).to.equal(calledAt)
-        end)
-
-        it("should throw an error if the keyValues are not a table", function()
-            expect(function()
-                local Data = "Players&amp;Server" -- this isn't a dictionary of database keys and their values
-                local calledAt = os.date()
-
-                local Callbacks = {
-                    ["Players"] = function(old)
-                        for _, plr in pairs(old) do
-                            plr.Level += 10
-                            plr.Coins += 100
-                        end
-                        return old
-                    end,
-
-                    ["Server"] = function(old)
-                        old.LastUpdated = calledAt
-                        return old
-                    end
-                }
-
-                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
-            end).to.throw()
         end)
 
         it("should throw an error if the callbacks are not a table", function()
@@ -2055,13 +2053,12 @@ end</string>
                 local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
                 local Callbacks = "ThisShouldThrow" -- wait a minute this isn't a table of functions
 
-                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
             end).to.throw()
         end)
 
-        it("should throw an error if a callback function cannot be found for a key", function()
+        it("should throw an error if a key cannot be found for a callback function", function()
             expect(function()
-                local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
                 local calledAt = os.date()
 
                 local Callbacks = {
@@ -2079,13 +2076,12 @@ end</string>
                     end
                 }
 
-                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
             end).to.throw()
         end)
 
         it("should throw an error if an element of the callbacks table is not a function", function()
             expect(function()
-                local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
                 local calledAt = os.date()
 
                 local Callbacks = {
@@ -2100,7 +2096,7 @@ end</string>
                     ["Server"] = calledAt
                 }
 
-                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Data, Callbacks)
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
             end).to.throw()
         end)
     end)
@@ -4010,7 +4006,551 @@ return TestSession
       <Properties>
         <string name="Name">Server</string>
       </Properties>
-      <Item class="Script" referent="28">
+      <Item class="Folder" referent="28">
+        <Properties>
+          <string name="Name">RobaseDocsExampleCode</string>
+        </Properties>
+        <Item class="ModuleScript" referent="29">
+          <Properties>
+            <string name="Name">ExampleProfile</string>
+            <string name="Source">local PlayerProfile = {
+    Stats = {
+        Example1 = 20,
+        Example2= 20,
+        Example3 = 20,
+        Example4 = 20,
+        Example5 = 20,
+        Example6 = 20,
+        Example7= 20,
+        Example8 = 20,
+        Example9 = 20,
+        Example10 = 20,
+    },
+
+    Equipped = {
+        Pages = {
+            Armour = {
+                Helmet = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Body = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Legs = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Feet = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Weapon = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Accessories = {
+                    Rings = {
+                        [1] = {
+                            BlankTemplate = {
+                                ItemId = "nil",
+                                Quantity = 0,
+                                Effects = {
+                                    Buffs = { "BuffId_A" },
+                                    Debuffs = { "DebuffId_K" }
+                                }
+                            }
+                        },
+
+                        [2] = {
+                            BlankTemplate = {
+                                ItemId = "nil",
+                                Quantity = 0,
+                                Effects = {
+                                    Buffs = { "BuffId_A" },
+                                    Debuffs = { "DebuffId_K" }
+                                }
+                            }
+                        }
+                    },
+
+                    Necklace = {
+                        BlankTemplate = {
+                            ItemId = "nil",
+                            Quantity = 0,
+                            Effects = {
+                                Buffs = { "BuffId_A" },
+                                Debuffs = { "DebuffId_K" }
+                            }
+                        }
+                    }
+                }
+            },
+
+            Tools = {
+                BlankTool1 = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                BlankTool2 = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                BlankTool3 = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+            },
+
+            Special = {
+                Achievement = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Title = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    Inventory = {
+        Pages = {
+            [1] = {
+                Slots = {
+                    [1] = {
+                        BlankTemplate = {
+                            ItemId = "nil",
+                            Quantity = 0,
+                            Effects = {
+                                Buffs = { "BuffId_A" },
+                                Debuffs = { "DebuffId_K" }
+                            }
+                        }
+                    },
+                    [2] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [3] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [4] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [5] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [6] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [7] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [8] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                }
+            }
+        },
+
+        _metadata = {
+            _totalSlots = 8,
+            _totalPages = 1,
+        }
+    },
+
+    InAppPurchases = {
+        "GamepassId1", "GamepassId2", "GamepassId3", "GamepassId4",
+        "DevProductA", "DevProductB", "DevProductC", "DevProductD", "DevProductE", "DevProductF",
+    },
+
+    Missions = {
+        Completed = {
+            ["QuestId1"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+            ["QuestId2"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+            ["QuestId3"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+            ["QuestId4"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+            ["QuestId5"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+        },
+
+        InProgress = {
+            ["QuestId6"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+            ["QuestId7"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+        }
+    },
+
+    _metadata = {
+        _playTime = 0,
+        _lastSessionDuration = 0,
+        _currentSessionDuration = 0,
+        _totalLevel = 10,
+        _lastSession = "1/1/1970 00:00 UTC",
+        _sessionLocked = true,
+        _lastAutoSave = "1/1/1970 00:00 UTC",
+        _lastManualSave = "1/1/1970 00:00 UTC",
+        _questsCompleted = 5,
+        _didLoadFromLastSession = true,
+        _canSave = true,
+    }
+}
+
+return PlayerProfile</string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="30">
+          <Properties>
+            <string name="Name">ExampleServerData</string>
+            <string name="Source">local ServerData = {
+    Events = {
+        BonusExp = {
+            Dates = {
+                Start = "1/1/1970 00:00 UTC",
+                End = "1/7/1970 00:00 UTC",
+            },
+            Title = "Double XP",
+            Description = "All experience is doubled!",
+            _metadata = {
+                _active = false
+            }
+        }
+    },
+
+    PlayedMinigames = {
+
+        Games = {
+
+            ["GameId-A"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-B"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-C"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-D"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-E"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-F"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-G"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-H"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-I"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-J"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-K"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-L"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-M"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-N"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            
+        },
+
+        _metadata = {
+            _totalPlayed = math.huge,
+            _totalTimePlayed = math.huge,
+            _averageTimePlayed = math.huge,
+            _highestScore = 0,
+        }
+    },
+
+    FastFlags = {
+        OverrideHumanoidOnSpawn = false,
+        PlayerConnectShowLoadingInterface = true,
+        CustomToolOverride = false,
+        CustomExperienceEvents = true,
+    }
+}
+
+return ServerData</string>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="Script" referent="31">
         <Properties>
           <string name="Name">TestEZRobase</string>
           <string name="Source">local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -4024,26 +4564,11 @@ TestEZ.TestBootstrap:run(Tests)</string>
       </Item>
     </Item>
   </Item>
-  <Item class="SoundService" referent="29">
+  <Item class="SoundService" referent="32">
     <Properties>
       <string name="Name">SoundService</string>
       <bool name="RespectFilteringEnabled">true</bool>
     </Properties>
-  </Item>
-  <Item class="StarterPlayer" referent="30">
-    <Properties>
-      <string name="Name">StarterPlayer</string>
-    </Properties>
-    <Item class="StarterPlayerScripts" referent="31">
-      <Properties>
-        <string name="Name">StarterPlayerScripts</string>
-      </Properties>
-      <Item class="Folder" referent="32">
-        <Properties>
-          <string name="Name">Client</string>
-        </Properties>
-      </Item>
-    </Item>
   </Item>
   <Item class="Workspace" referent="33">
     <Properties>
