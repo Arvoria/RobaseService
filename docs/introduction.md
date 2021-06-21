@@ -9,17 +9,19 @@ Robase has been in development since June 2020 and has been released since Augus
 
 ## What's the purpose?
 
-RobaseService aims to provide a reliable and safe method of saving and loading data, no matter how big or small. But what lets DataStoreService down? Let me explain:
+RobaseService aims to provide a reliable and safe method of saving and loading data, no matter how big or small. But what does it offer that DataStoreService doesn't?
 
-+ You are limited to 4MB of data per key, with keys having a smaller max length than Firebase.
+But what lets DataStoreService down? Let me explain:
 
-+ You can only access top-level keys (generally, this is `Player.UserId`) and must define a path to a given point with table notation. (`table.this.that`).
++ You are no longer limited to 4MB of data per key, your database can hold 1GB of storage and you have complete control over how everything is stored.
 
-+ DataStoreService's internals are not exposed, meaning it is a strenuous task to figure out how exactly every method works as well as some involved research. Robase is open-sourced, this means that it's source code is available to everyone and can be looked at and researched easily - especially with the source documentation! This will make extending and wrapping RobaseService simpler and creating a manager similar to [DataStore2](https://kampfkarren.github.io/Roblox/) by Kampfkarren or [ProfileService](https://madstudioroblox.github.io/ProfileService/) by loleris.
++ You can access any key within the realtime database, simple use "/" to separate the keys. With DataStores you only have access to one point, making querying difficult and ensuring all data exists a slog with sanity checks.
 
-+ The methods are not guranteed to be race condition free, Robase uses [Promises](https://eryn.io/roblox-lua-promise/) by evaera to ensure race safety. Every async function will yield until a value is retrieved. {--In a future release, synchronous operations which return the promise may become available--}
++ Robase is open-sourced, this means that it's source code is available to everyone and can be looked at and researched easily {-- - especially with the source documentation--}! This will make extending and wrapping RobaseService simpler and creating a extension similar to [DataStore2](https://kampfkarren.github.io/Roblox/) by Kampfkarren or a manager like [ProfileService](https://madstudioroblox.github.io/ProfileService/) by loleris.
 
-+ Cannot be updated dynamically, from anywhere, at anytime. This makes systems such as FFlags not possible, A/B Testing extraneous, and timed-events that can turn on at a moment's notice in a live game - impossible. With Robase however, this is very simple.
++ The methods are not guranteed to be race condition free, Robase uses [Promises](https://eryn.io/roblox-lua-promise/) by evaera to ensure race safety. Every async function will yield until a value is retrieved. {--In a future release, methods which return the promise may become available--}
+
++ Cannot be updated dynamically whenever and however you please. In order to update a DataStore you have to go into a live-game or studio and use the Command Bar to force a key to change, sometimes this just isn't practical.
 
 ### Storage limitations
 
@@ -107,10 +109,10 @@ Source: *[why you should use promises](https://eryn.io/roblox-lua-promise/#why-y
 
 ### Dynamic Updates
 
-Every key in your Firebase Realtime Database can be modified from the Firebase Console. This allows for some unique behaviour that you couldn't otherwise do without loading up the client and entering the game yourself to modify DataStores through the command line - which is slow, and can be complicated.
+Every key in your Firebase Realtime Database can be modified from the Firebase Console. This allows for some unique behaviour that you couldn't otherwise do without loading up the client and entering the game yourself to modify DataStores through the command bar - which is slow, and can be complicated.
 
 With a Realtime Database you can have functions that check keys periodically or do something at specific times, or enable/disable beta features/content for your players depending on the value received.
 
 As noted in our example, Double XP is a perfect example of a timed event that can run via your database. You can set a key, say "Activate" to true, and then watch as your game-code updates and displays that the event is in progress and updates accordingly.
 
-You can have Fast Flags for your game, this is the deployment system Roblox uses to enable and disable content, it's also why bugs can just appear out of nowhere sometime.
+You can create Fast Flag deployment for your game. This is the deployment system Roblox uses to enable and disable content. 

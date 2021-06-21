@@ -2,32 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>http://info.arvorian.com/Robase-2.0.0/</loc>
-         <lastmod>2021-06-17</lastmod>
+         <lastmod>2021-06-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://info.arvorian.com/Robase-2.0.0/api/</loc>
-         <lastmod>2021-06-17</lastmod>
+         <lastmod>2021-06-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://info.arvorian.com/Robase-2.0.0/introduction/</loc>
-         <lastmod>2021-06-17</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>http://info.arvorian.com/Robase-2.0.0/Guide/examples/</loc>
-         <lastmod>2021-06-17</lastmod>
+         <lastmod>2021-06-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://info.arvorian.com/Robase-2.0.0/Guide/installation/</loc>
-         <lastmod>2021-06-17</lastmod>
+         <lastmod>2021-06-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://info.arvorian.com/Robase-2.0.0/Guide/setup/</loc>
-         <lastmod>2021-06-17</lastmod>
+         <lastmod>2021-06-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://info.arvorian.com/Robase-2.0.0/Guide/usage/</loc>
+         <lastmod>2021-06-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

@@ -11,6 +11,10 @@ markdown_extensions:
   - pymdownx.caret
   - pymdownx.tilde
   - pymdownx.mark
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - footnotes
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
@@ -32,10 +36,7 @@ theme:
 
 extra:
   social:
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/ArvorianDevs_
-  social:
-    - icon: octicons/logo-github-16
+    - icon: fontawesome/brands/github
       link: https://github.com/Arvoria
 
 nav: 
@@ -45,9 +46,9 @@ nav:
     - 'Why Robase?': 'introduction/#whats-the-purpose'
     - 'Limitations': 'introduction/#storage-limitations'
   - "Guide": 
-    - 'Installing Robase': 'Guide/installation.md'
-    - 'Setting up Robase': 'Guide/setup.md'
-    - 'Robase Examples': 'Guide/examples.md'
+    - 'Installation': 'Guide/installation.md'
+    - 'Setup': 'Guide/setup.md'
+    - 'Usage Guide': 'Guide/usage.md'
   - "API Reference": 'api.md'
     
 
