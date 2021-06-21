@@ -26,10 +26,11 @@ function RobaseService:GetRobase(name, scope)
         error("You must instantiate RobaseService with a BaseUrl to use the RobaseService API")
     end
 
-    scope = scope or self.BaseUrl
-    local path = scope .. HttpService:UrlEncode(name or "")
+    name = name and HttpService:UrlEncode(name) or ""
+    scope = scope and HttpService:UrlEncode(scope) or ""
 
-    return Robase.new(path, self)
+    local formattedUrl = self.BaseUrl .. scope .. "/" .. name
+    return Robase.new(formattedUrl, self)
 end
 
 return RobaseService

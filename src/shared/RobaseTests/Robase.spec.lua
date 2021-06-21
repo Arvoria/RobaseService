@@ -1,6 +1,5 @@
 return function()
 
-    local HttpService = game:GetService("HttpService")
     local Shared = script.Parent.Parent
     local RobaseService = require(Shared.RobaseService)
     RobaseService = RobaseService.new(
