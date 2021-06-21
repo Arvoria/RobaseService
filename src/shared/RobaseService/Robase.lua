@@ -29,7 +29,7 @@ local function findHttpMethod(method)
     return nil
 end
 
-local function getRequestOptions(key, data, method, robase)
+local function generateRequestOptions(key, data, method, robase)
     if typeof(key)~="string" then
         error(string.format("Bad argument 1 string expected got %s", typeof(key)))
     end
@@ -70,11 +70,21 @@ function Robase.new(path, robaseService)
     return setmetatable(self, Robase)
 end
 
-function Robase:GetAsync(key)
-    local options = getRequestOptions(key, nil, "GET", self)
-    local GetRequest = HttpWrapper:Request(options) --> Promise object
+function Robase:Get(key)
+    local options = generateRequestOptions(key, nil, "GET", self)
+    return HttpWrapper:Request(options)
+end
 
-    local success, value = GetRequest:await()
+function Robase:Set(key, data, method)
+    local options = generateRequestOptions(key, data, method, self)
+    options.Headers = {
+        ["Content-Type"] = "application/json"
+    }
+    return HttpWrapper:Request(options)
+end
+
+function Robase:GetAsync(key)
+    local success, value = self:Get(key):await()
 
     if not success then
         local err = string.format("%d Error: %s", value.StatusCode, value.StatusMessage)
@@ -86,13 +96,7 @@ function Robase:GetAsync(key)
 end
 
 function Robase:SetAsync(key, data, method)
-    local options = getRequestOptions(key, data, method, self)
-    options.Headers = {
-        ["Content-Type"] = "application/json"
-    }
-    local SetRequest = HttpWrapper:Request(options)
-
-    local success, value = SetRequest:await()
+    local success, value = self:Set(key, data, method):await()
 
     if not success then
         local err = string.format("%d Error: %s", value.StatusCode, value.StatusMessage)
