@@ -27,13 +27,13 @@ But what lets DataStoreService down? Let me explain:
 
 Before using Robase something you may want to ask yourself is: Do I really need this? In most cases, DataStore2 or ProfileService will serve you well, though you won't be saving anything big or complex. If you are looking to store large, complex data, then Robase is something you will want in your arsenal.
 
-Firebase's Spark plan provides you with 1GB storage in total per database/project and 10GB data downloaded per month. The Blaze plan is priced at how much you are using each, billed each month; each GB of storage costs $5 per month and each GB downloaded costs $1 per month. With the Blaze plan, a database using 1GB of storage and 100GB downloaded per month will be estimated to pay $105 per month. In addition to this you get other bonuses. 
+Firebase's Spark plan provides you with 1GB storage in total per database/project and 10GB data downloaded per month. The Blaze plan is priced at how much you use, billed each month; each GB of storage costs $5 per month and each GB downloaded costs $1 per month. With the Blaze plan, a database using 1GB of storage and 100GB downloaded per month will be estimated to pay $105 per month. In addition to this you get other bonuses. 
 
 The differences between the Spark and Blaze plan is documented [here](https://firebase.google.com/pricing)
 
-[This example profile](https://pastebin.com/5zhfsfJb) shows just how complex and large data can be even when it has been optimised for storage. This profile will take up 3.6KB of data, that's not so much, right? Now imagine you have 100,000 unique players playing your game, that's now ~352MB, over a third of the capacity for the free plan. That's **a lot** of data!
+[This example profile](https://pastebin.com/5zhfsfJb) shows just how complex and large data can be even when it has been vaguely optimised for storage. This profile will take up 3.6KB of data, that's not so much, right? Now imagine you have 100,000 unique players playing your game, that's now ~352MB, over a third of the capacity for the free plan. That's **a lot** of data!
 
-But this is just player data, what about things that happen in a server? Think about: an experience-wide event, like "Double XP" and how would you handle it; or even the optimised metadata for every minigame played; FFlags deployment system. There is a lot of things you can do in the backend of your database and it can be controlled remotely.  
+But this is just player data, what about things that happen in a server? Think about: an experience-wide event, like "Double XP" and how you would handle it; or even the optimised metadata for every minigame played; FFlags deployment system. There is a lot of things you can do in the backend of your database and it can be controlled remotely.  
 
 [This example server data](https://pastebin.com/98ZMUN4r) gives an example look at how a Firebase structure could be setup as a Lua table.  
 This structure is approximately 2KB in storage. `ServerData.PlayedMinigames.Games` is approximately 1.5KB in size, each minigame's data equating to 105.5B. 
@@ -43,9 +43,9 @@ Just how scalable and manageable is this? Well first we have to allow some assum
 
 + We reserve 500MB in data for player data, the server can use the rest of it.
 
-+ Growth is static and the number of visists remain the same.
++ Growth is static and the number of visits/plays per day remains the same (20,000).
 
-+ Minigames Played to Visits ratio is 1.8.
++ Minigames Played to Experience Visits ratio is 1.8.
 
 ```lua
 local MaxServerData = 1 * 1024 * 1024 * 1024 -- 1GB in Bytes
@@ -72,8 +72,8 @@ Being able to access a deeply-nested key can be helpful for a few reasons:
 + It can save on `HttpService` budget and lowers the amount of downloaded data
 + Saves unnecessary lines of code rooting through tables
 + Gruesome sanity checks are a thing of the past! Making a request to a key using `::GetAsync()` will always return profound information:  
-    `(success: boolean, value: string | table)`  
-    Success is either true or false - if the information was retrieved or sent successfully.  
+    `(success: boolean, value: any)`  
+    Success is either true or an error is thrown.  
     Value will be the response body with a successful request or the whole response dictionary if it fails.
 
 ### Extending Robase and managing your data
