@@ -55,7 +55,10 @@ local ExampleRobase = RobaseService:GetRobase("PlayerData")
 But, what if we want to access a deeper element in our database, and setup a Robase at that point? Well, we can, and it's very simple! Just provide a scope with the name! So for this example, we will access the "Players" array within "BatchUpdateMe". 
 
 ```lua
-local ExampleRobase = RobaseService:GetRobase("Players", "PlayerData/GetDataHere/BatchUpdateMe")
+local ExampleRobase = RobaseService:GetRobase(
+    "Players", --> "Name" of the key to search for
+    "PlayerData/GetDataHere/BatchUpdateMe" --> "Scope" of where to search for "Name"
+)
 ```
 
 ### Providing no information
