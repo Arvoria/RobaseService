@@ -555,10 +555,10 @@
 </ul>
 <h3 id="storage-limitations">Storage limitations</h3>
 <p>Before using Robase something you may want to ask yourself is: Do I really need this? In most cases, DataStore2 or ProfileService will serve you well, though you won't be saving anything big or complex. If you are looking to store large, complex data, then Robase is something you will want in your arsenal.</p>
-<p>Firebase's Spark plan provides you with 1GB storage in total per database/project and 10GB data downloaded per month. The Blaze plan is priced at how much you are using each, billed each month; each GB of storage costs $5 per month and each GB downloaded costs $1 per month. With the Blaze plan, a database using 1GB of storage and 100GB downloaded per month will be estimated to pay $105 per month. In addition to this you get other bonuses. </p>
+<p>Firebase's Spark plan provides you with 1GB storage in total per database/project and 10GB data downloaded per month. The Blaze plan is priced at how much you use, billed each month; each GB of storage costs $5 per month and each GB downloaded costs $1 per month. With the Blaze plan, a database using 1GB of storage and 100GB downloaded per month will be estimated to pay $105 per month. In addition to this you get other bonuses. </p>
 <p>The differences between the Spark and Blaze plan is documented <a href="https://firebase.google.com/pricing">here</a></p>
-<p><a href="https://pastebin.com/5zhfsfJb">This example profile</a> shows just how complex and large data can be even when it has been optimised for storage. This profile will take up 3.6KB of data, that's not so much, right? Now imagine you have 100,000 unique players playing your game, that's now ~352MB, over a third of the capacity for the free plan. That's <strong>a lot</strong> of data!</p>
-<p>But this is just player data, what about things that happen in a server? Think about: an experience-wide event, like "Double XP" and how would you handle it; or even the optimised metadata for every minigame played; FFlags deployment system. There is a lot of things you can do in the backend of your database and it can be controlled remotely.  </p>
+<p><a href="https://pastebin.com/5zhfsfJb">This example profile</a> shows just how complex and large data can be even when it has been vaguely optimised for storage. This profile will take up 3.6KB of data, that's not so much, right? Now imagine you have 100,000 unique players playing your game, that's now ~352MB, over a third of the capacity for the free plan. That's <strong>a lot</strong> of data!</p>
+<p>But this is just player data, what about things that happen in a server? Think about: an experience-wide event, like "Double XP" and how you would handle it; or even the optimised metadata for every minigame played; FFlags deployment system. There is a lot of things you can do in the backend of your database and it can be controlled remotely.  </p>
 <p><a href="https://pastebin.com/98ZMUN4r">This example server data</a> gives an example look at how a Firebase structure could be setup as a Lua table.<br />
 This structure is approximately 2KB in storage. <code>ServerData.PlayedMinigames.Games</code> is approximately 1.5KB in size, each minigame's data equating to 105.5B. 
 What if we asked how much this could grow? Imagine we have a small experience, with about 20,000 visits per day. Now lets say that on average every visit garners 1.8 minigame plays, we can scale this up to how much the database will grow each day. For 20,000 visits we would have 36,000 minigames played - that's roughly 3.62MB!</p>
@@ -568,10 +568,10 @@ What if we asked how much this could grow? Imagine we have a small experience, w
 <p>We reserve 500MB in data for player data, the server can use the rest of it.</p>
 </li>
 <li>
-<p>Growth is static and the number of visists remain the same.</p>
+<p>Growth is static and the number of visits/plays per day remains the same (20,000).</p>
 </li>
 <li>
-<p>Minigames Played to Visits ratio is 1.8.</p>
+<p>Minigames Played to Experience Visits ratio is 1.8.</p>
 </li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">MaxServerData</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="c1">-- 1GB in Bytes</span>
@@ -597,8 +597,8 @@ What if we asked how much this could grow? Imagine we have a small experience, w
 <li>It can save on <code>HttpService</code> budget and lowers the amount of downloaded data</li>
 <li>Saves unnecessary lines of code rooting through tables</li>
 <li>Gruesome sanity checks are a thing of the past! Making a request to a key using <code>::GetAsync()</code> will always return profound information:<br />
-<code>(success: boolean, value: string | table)</code><br />
-    Success is either true or false - if the information was retrieved or sent successfully.<br />
+<code>(success: boolean, value: any)</code><br />
+    Success is either true or an error is thrown.<br />
     Value will be the response body with a successful request or the whole response dictionary if it fails.</li>
 </ul>
 <h3 id="extending-robase-and-managing-your-data">Extending Robase and managing your data</h3>

@@ -604,41 +604,48 @@
 </details>
 <hr />
 <h4 id="robaseservicenew">RobaseService.new</h4>
-<p><div class="highlight"><pre><span></span><code><span class="n">RobaseService</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">baseUrl</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span>
-    <span class="c1">--&gt; RobaseService</span>
+<p><div class="highlight"><pre><span></span><code><span class="c1">--@tparam baseUrl: string, the URL of your database, this can be seen from within the Realtime Database view of the Firebase Console</span>
+<span class="c1">--@tparam token: string, the authentication token of your Firebase Realtime Database, currently the only supported authentication method is Database Secrets.</span>
+<span class="c1">--@treturn RobaseService, a custom RobaseService for the Database specified at the baseUrl</span>
+<span class="n">RobaseService</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">baseUrl</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span> <span class="c1">--&gt; RobaseService</span>
 </code></pre></div>
 Used to instantiate a new RobaseService with the provided Url and Auth Token.</p>
 <h4 id="robaseservicegetrobase">RobaseService:GetRobase</h4>
-<p><div class="highlight"><pre><span></span><code><span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">([</span><span class="n">name</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="p">[</span><span class="n">scope</span><span class="p">:</span> <span class="n">string</span><span class="p">]])</span>
-    <span class="c1">--&gt; Robase</span>
+<p><div class="highlight"><pre><span></span><code><span class="c1">--@tparam[opt] name: string, the name of the key in the database you want to access</span>
+<span class="c1">--@tparam[opt] scope: string, the scope of the database, this is the location that will be searched from for &#39;name&#39;</span>
+<span class="c1">--@treturn Robase, the Robase object created to perform work on</span>
+<span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">([</span><span class="n">name</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="p">[</span><span class="n">scope</span><span class="p">:</span> <span class="n">string</span><span class="p">]])</span> <span class="c1">--&gt; Robase</span>
 </code></pre></div>
 Used to retrieve a Robase object with a path supplied from scope and name.</p>
 <h2 id="robase">Robase</h2>
-<details class="warning" open="open"><summary>Caution</summary><p>Robase will handle failed requests automatically by throwing an error. They will never return <code>(false, any)</code> but they can return <code>(true, nil)</code></p>
+<details class="warning" open="open"><summary>Caution</summary><p>Robase will handle failed requests automatically by throwing an error. They will never return <code>(false, any)</code> but they can return <code>(true, nil)</code>, for this reason it is recommended to wrap your method calls with a <a href="https://developer.roblox.com/en-us/api-reference/lua-docs/Lua-Globals">pcall</a>.</p>
 </details>
 <hr />
 <h4 id="robasegetasync">Robase:GetAsync</h4>
-<p><div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">GetAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span>
-    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+<p><div class="highlight"><pre><span></span><code><span class="c1">--@tparam key: string, the key (or url path separating keys with &quot;/&quot;) you wish to access within the Robase object</span>
+<span class="c1">--@treturn Success: bool, states whether or not the request succeeded, if it fails Robase will throw an error so this value is always true, if you wish to catch errors, use pcalls.</span>
+<span class="c1">--@treturn Result: any, the result of the request, this is the Response Body</span>
+<span class="n">Robase</span><span class="p">:</span><span class="n">GetAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span> <span class="c1">--&gt; Success: Boolean, Result: any</span>
 </code></pre></div>
 Retrieves the data stored at the given key within the Robase.</p>
 <h4 id="robasesetasync">Robase:SetAsync</h4>
-<p><div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">SetAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">any</span><span class="p">,</span> <span class="p">[</span><span class="n">method</span><span class="p">:</span> <span class="n">string</span><span class="p">])</span>
-    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+<p><div class="highlight"><pre><span></span><code><span class="c1">--@tparam key: string, the key (or url path separating keys with &quot;/&quot;) you wish to add data to</span>
+<span class="c1">--@tparam data: table, the data to be added to the database</span>
+<span class="c1">--@tparam[opt=&quot;PUT&quot;] method: string, the method type to use</span>
+<span class="c1">--@treturn Success: bool, states whether or not the request succeeded, if it fails Robase will throw an error so this value is always true, if you wish to catch errors, use pcalls.</span>
+<span class="c1">--@treturn Result: any, the result of the request, this is the Response Body</span>
+<span class="n">Robase</span><span class="p">:</span><span class="n">SetAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">any</span><span class="p">,</span> <span class="p">[</span><span class="n">method</span><span class="p">:</span> <span class="n">string</span><span class="p">])</span> <span class="c1">--&gt; Success: Boolean, Result: any</span>
 </code></pre></div>
 Adds data into the Robase at the key specified using the given method.</p>
-<p>The <code>method</code> parameter is optional and is mainly used internally to differentiate requests.</p>
 <ul>
-<li>
-<p><code>PUT</code>/<code>PATCH</code>/<code>DELETE</code>/<code>POST</code> are all valid method types.</p>
-</li>
-<li>
-<p>Defaults to <code>PUT</code> requests.</p>
-</li>
+<li><code>PUT</code>/<code>PATCH</code>/<code>DELETE</code>/<code>POST</code> are all valid method types.</li>
 </ul>
 <h4 id="robaseincrementasync">Robase:IncrementAsync</h4>
-<div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">IncrementAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="p">[</span><span class="n">delta</span><span class="p">:</span> <span class="n">integer</span><span class="p">])</span>
-    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+<div class="highlight"><pre><span></span><code><span class="c1">--@tparam key: string, the key (or url path separating keys with &quot;/&quot;) you wish to increment</span>
+<span class="c1">--@tparam[opt=1] delta: integer, the</span>
+<span class="c1">--@treturn Success: bool, states whether or not the request succeeded, if it fails Robase will throw an error so this value is always true, if you wish to catch errors, use pcalls.</span>
+<span class="c1">--@treturn Result: any, the result of the request, this is the Response Body</span>
+<span class="n">Robase</span><span class="p">:</span><span class="n">IncrementAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="p">[</span><span class="n">delta</span><span class="p">:</span> <span class="n">integer</span><span class="p">])</span> <span class="c1">--&gt; Success: Boolean, Result: any</span>
 </code></pre></div>
 <details class="stop"><summary>Usage restrictions</summary><ul>
 <li>
@@ -652,23 +659,33 @@ Adds data into the Robase at the key specified using the given method.</p>
 <p>Increments the data stored at the given key by the supplied delta. This only works on key's which have an integer value and with an integer-only delta (ex. 1.5 will not work)</p>
 <p>Delta is an optional parameter and will default to 1 if not supplied.</p>
 <h4 id="robasedeleteasync">Robase:DeleteAsync</h4>
-<div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">DeleteAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span>
-    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+<div class="highlight"><pre><span></span><code><span class="c1">--@tparam key: string, the key (or url path separating keys with &quot;/&quot;) you wish to delete</span>
+<span class="c1">--@treturn Success: bool, states whether or not the request succeeded, if it fails Robase will throw an error so this value is always true, if you wish to catch errors, use pcalls.</span>
+<span class="c1">--@treturn Result: any, the result of the request, this is the Response Body</span>
+<span class="n">Robase</span><span class="p">:</span><span class="n">DeleteAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span> <span class="c1">--&gt; Success: Boolean, Result: any</span>
 </code></pre></div>
 <div class="admonition stop">
 <p class="admonition-title">Dangerous</p>
-<p>This method is incredible dangerous. It can delete entire trees of data and cannot be rolled back. It will return the data previously stored at the key given.</p>
+<p>This method is incredibly dangerous. It can delete entire trees of data and cannot be rolled back. It will return the data previously stored at the key given.</p>
 </div>
 <h4 id="robaseupdateasync">Robase:UpdateAsync</h4>
-<p><div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">UpdateAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="p">[</span><span class="n">cache</span><span class="p">:</span> <span class="n">table</span><span class="p">])</span>
-    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+<p><div class="highlight"><pre><span></span><code><span class="c1">--@tparam key: string, the key (or url path separating keys with &quot;/&quot;) you wish to update</span>
+<span class="c1">--@tparam callback: function, the  updater function used to modify the data, it must return a table</span>
+<span class="c1">--@tparam[opt] cache: table, the data currently stored in the current session located from the key, generally newer than a GetAsync(key) but you should always update the database first before updating the cache.</span>
+<span class="c1">--@treturn Success: bool, states whether or not the request succeeded, if it fails Robase will throw an error so this value is always true, if you wish to catch errors, use pcalls.</span>
+<span class="c1">--@treturn Result: any, the result of the request, this is the Response Body</span>
+<span class="n">Robase</span><span class="p">:</span><span class="n">UpdateAsync</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="p">[</span><span class="n">cache</span><span class="p">:</span> <span class="n">table</span><span class="p">])</span> <span class="c1">--&gt; Success: Boolean, Result: any</span>
 </code></pre></div>
 Retrieves data from the Robase at the key given, or from the cache if provided and transforms it using the callback function and updates the key with a new value.</p>
 <h4 id="robasebatchupdateasync">Robase:BatchUpdateAsync</h4>
-<p><div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">BatchUpdateAsync</span><span class="p">(</span><span class="n">baseKey</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">:</span> <span class="n">table</span><span class="p">,</span> <span class="p">[</span><span class="n">cache</span><span class="p">:</span> <span class="n">table</span><span class="p">])</span>
-    <span class="c1">--&gt; Success: Boolean, Result: any</span>
+<p><div class="highlight"><pre><span></span><code><span class="c1">--@tparam baseKey: string, the baseKey (or url path separating keys with &quot;/&quot;) you wish to update the  specified keys of (provided by the keys in the callbacks table)</span>
+<span class="c1">--@tparam callbacks: table, a table of updater functions the keys should be named according to the keys in the database you wish to update</span>
+<span class="c1">--@tparam[opt] cache: table, the data currently stored in the current session located from baseKey, generally newer than a GetAsync(key) but you should always update the database first before updating the cache.</span>
+<span class="c1">--@treturn Success: bool, states whether or not the request succeeded, if it fails Robase will throw an error so this value is always true, if you wish to catch errors, use pcalls.</span>
+<span class="c1">--@treturn Result: any, the result of the request, this is the Response Body</span>
+<span class="n">Robase</span><span class="p">:</span><span class="n">BatchUpdateAsync</span><span class="p">(</span><span class="n">baseKey</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">:</span> <span class="n">table</span><span class="p">,</span> <span class="p">[</span><span class="n">cache</span><span class="p">:</span> <span class="n">table</span><span class="p">])</span> <span class="c1">--&gt; Success: Boolean, Result: any</span>
 </code></pre></div>
-Similar in functionality to <code>:UpdateAsync</code> except will take a baseKey and then use the keys from the callbacks array to form a key to update using the provided callback function to update the value.</p>
+Similar in functionality to <code>:UpdateAsync</code> except given a baseKey, it will modify keys (given by the keys of the callbacks array) with the provided updater functions.</p>
                 
               
               

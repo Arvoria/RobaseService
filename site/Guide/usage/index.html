@@ -695,7 +695,10 @@
 </code></pre></div>
 <h3 id="providing-a-name-and-a-scope">Providing a name and a scope</h3>
 <p>But, what if we want to access a deeper element in our database, and setup a Robase at that point? Well, we can, and it's very simple! Just provide a scope with the name! So for this example, we will access the "Players" array within "BatchUpdateMe". </p>
-<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">ExampleRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;Players&quot;</span><span class="p">,</span> <span class="s2">&quot;PlayerData/GetDataHere/BatchUpdateMe&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">ExampleRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span>
+    <span class="s2">&quot;Players&quot;</span><span class="p">,</span> <span class="c1">--&gt; &quot;Name&quot; of the key to search for</span>
+    <span class="s2">&quot;PlayerData/GetDataHere/BatchUpdateMe&quot;</span> <span class="c1">--&gt; &quot;Scope&quot; of where to search for &quot;Name&quot;</span>
+<span class="p">)</span>
 </code></pre></div>
 <h3 id="providing-no-information">Providing no information</h3>
 <p>This method is used solely yo grab the entire database, top-level keys and all! This allows us to perform <code>:GetAsync()</code> requests into any top-level key and get the table or data located at that point, like so:</p>
