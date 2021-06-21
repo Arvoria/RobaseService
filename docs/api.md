@@ -17,7 +17,7 @@ Used to instantiate a new RobaseService with the provided Url and Auth Token.
 
 #### RobaseService:GetRobase
 ```{.lua}
-RobaseService:GetRobase(name: string, [scope: string])
+RobaseService:GetRobase([name: string, [scope: string]])
     --> Robase
 ```
 Used to retrieve a Robase object with a path supplied from scope and name.
