@@ -19,8 +19,13 @@
 
 .md-typeset a:hover {
     text-decoration: underline;
+    color: hsl(194, 100%, 57%);
 }
 
 .md-typeset a {
-    font-weight: bold;
+    color: hsl(194, 100%, 57%);
+}
+
+code {
+    white-space: pre-wrap;
 }
