@@ -655,7 +655,7 @@
 <p class="admonition-title">Warning</p>
 <p>This page is still in the process of being documented.</p>
 </div>
-<p>In the following examples we will go over and take a look into the Robase Test Database. The structure of which can be seen below.</p>
+<p>In the following examples, we will go over and take a look into the Robase Test Database. The structure of which can be seen below.</p>
 <p align="center"><img alt="Robase Test Database" src="../../img/robase-test-db.png" /></p>
 <p>Although it is not an ideal structure, it is just an example of what one could potentially look like. It is solely used to test Robase functionality and nothing more, you should not read into the naming of these keys as they are <em>display only</em> and provide no functional or tangible purpose outside of testing.</p>
 <div class="admonition warning">
@@ -667,7 +667,7 @@
 <p>To begin using Robase you must first initialise it. This requires two parameters: <code>baseUrl</code> and <code>token</code>. You can go <a href="">here</a> to learn more about acquiring these and how to safely store them.</p>
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
-<p>For security purposes it is <strong>highly</strong> recommended that you do <strong>not</strong> store your Database Url and Database Secrets in plain-text in your code. Consider using DataStoreService to handle this securely.</p>
+<p>For security purposes it is <strong>highly</strong> recommended that you do <strong>not</strong> store your Database Url and Database Secrets in plain text in your code. Consider using DataStoreService to handle this securely.</p>
 </div>
 <div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">ExampleRobaseService</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">.</span><span class="n">new</span><span class="p">(</span>
     <span class="s2">&quot;https://your-firebase-realtime-database-url&quot;</span><span class="p">,</span> <span class="c1">--&gt; baseUrl</span>
@@ -675,13 +675,13 @@
 <span class="p">)</span>
 </code></pre></div>
 <h2 id="getting-a-robase">Getting a Robase</h2>
-<p>You can retrieve a Robase a number of ways at any level in your database. You can do this using the <code>:GetRobase()</code> method of RobaseService. This method has no required parameters - so you can access top-level elements in your database without creating new Robase objects for them - though, it is recommended to provide a name and create individual Robase objects for each top-level element you wish to work on, purely for readability-sake.</p>
+<p>You can retrieve a Robase object several ways at any level in your database. You can do this using the <code class="highlight"><span class="p">:</span><span class="n">GetRobase</span><span class="p">()</span></code> method of RobaseService. This method has no required parameters - so you can access top-level elements in your database without creating new Robase objects for them - though, it is recommended to provide a name and create individual Robase objects for each top-level element you wish to work on, purely for readability-sake.</p>
 <ul>
 <li>
 <p><code>name</code> The name of the element in your database that you wish to point the Robase to.</p>
 </li>
 <li>
-<p><code>scope</code> The depth of the database, this is put before the name in the Url</p>
+<p><code>scope</code> The depth of the database, it is put before the name in the Url</p>
 </li>
 </ul>
 <p>We will cover using both of these and neither of these in the following sections.</p>
@@ -690,18 +690,18 @@
 <p>Do not prefix or suffix your name, keys, or scopes with "/", RobaseService will do this for you.</p>
 </div>
 <h3 id="providing-a-name-without-scope">Providing a name without scope</h3>
-<p>This is simply put going to search the top-level of your database for the provided name, in our example we have "PlayerData", so let's setup our Robase there.</p>
+<p>This is simply put going to search the top-level of your database for the provided name, in our example, we have "PlayerData", so let's set up our Robase there.</p>
 <div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">ExampleRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;PlayerData&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="providing-a-name-and-a-scope">Providing a name and a scope</h3>
-<p>But, what if we want to access a deeper element in our database, and setup a Robase at that point? Well, we can, and it's very simple! Just provide a scope with the name! So for this example, we will access the "Players" array within "BatchUpdateMe". </p>
+<p>But, what if we want to access a deeper element in our database, and set up a Robase at that point? Well, we can, and it's very simple! Just provide a scope with the name! So for this example, we will access the "Players" array within "BatchUpdateMe". </p>
 <div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">ExampleRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span>
     <span class="s2">&quot;Players&quot;</span><span class="p">,</span> <span class="c1">--&gt; &quot;Name&quot; of the key to search for</span>
     <span class="s2">&quot;PlayerData/GetDataHere/BatchUpdateMe&quot;</span> <span class="c1">--&gt; &quot;Scope&quot; of where to search for &quot;Name&quot;</span>
 <span class="p">)</span>
 </code></pre></div>
 <h3 id="providing-no-information">Providing no information</h3>
-<p>This method is used solely yo grab the entire database, top-level keys and all! This allows us to perform <code>:GetAsync()</code> requests into any top-level key and get the table or data located at that point, like so:</p>
+<p>This method is used solely to grab the entire database, top-level keys and all! This allows us to perform <code>:GetAsync()</code> requests into any top-level key and get the table or data located at that point, like so:</p>
 <div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">ExampleRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">()</span>
 </code></pre></div>
 <p>It's that simple. So now you have your Robase, what next?</p>
@@ -715,13 +715,13 @@
 <h2 id="saving-data">Saving data</h2>
 <p>There are a few saving options in Robase, these are quite similar to DataStoreService:</p>
 <ul>
-<li><code>SetAsync</code> will create new data or replace old data at the given key using a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT">PUT</a> request, if no method is provided.</li>
+<li><code>SetAsync</code> will create new data or replace old data at the given key using a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT">PUT</a> request if no method is provided.</li>
 <li><code>UpdateAsync</code> will modify the data at the given key using a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH">PATCH</a> request.</li>
 <li><code>BatchUpdateAsync</code> will modify a set of keys using a PATCH request.</li>
 </ul>
 <p>The decision to use PUT over <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST">POST</a> requests by default was an easy one to make - it's idempotent, meaning successive calls will always provide the same response and will have zero side effects.</p>
 <h3 id="using-setasync">Using SetAsync</h3>
-<p>First, we will cover the basic <code>SetAsync</code> method. This time round, we will create a Robase at "GetDataHere".</p>
+<p>First, we will cover the basic <code>SetAsync</code> method. This time around, we will create a Robase at "GetDataHere".</p>
 <div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">ExampleRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;GetDataHere&quot;</span><span class="p">,</span> <span class="s2">&quot;PlayerData&quot;</span><span class="p">)</span>
 <span class="kd">local</span> <span class="n">NewData</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">Admin</span> <span class="o">=</span> <span class="kc">false</span>
@@ -733,8 +733,8 @@
 <span class="n">ExampleRobase</span><span class="p">:</span><span class="n">SetAsync</span><span class="p">(</span><span class="s2">&quot;ExtraConfig&quot;</span><span class="p">,</span> <span class="n">NewData</span><span class="p">,</span> <span class="s2">&quot;PUT&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="updating-your-data">Updating your data</h3>
-<p>In most cases though, you will want to opt for updating your data instead, in this case we <code>UpdateAsync</code>. This method has one key difference from DataStoreService: the <code>cache</code> parameter. Robase was made with caches in mind such that you use less requests and can take advantage of the powerful <code>BatchUpdateAsync</code> method. You can extend upon this feature nicely by writing your own data handler module and having your saving/updating use Write-through - change the database first, and then the cache. Though, we will not be showcasing this functionality here.</p>
-<p>Currently, neither of these methods support retries and this functionality will have to be written at the callsite of these methods.</p>
+<p>In most cases though, you will want to opt for updating your data instead, in this case, we <code>UpdateAsync</code>. This method has one key difference from DataStoreService: the <code>cache</code> parameter. Robase was made with caches in mind such that you will use fewer requests and can take advantage of the powerful <code>BatchUpdateAsync</code> method. You can extend upon this feature nicely by writing a custom data handler module and having your saving/updating use Write-through - change the database first, and then the cache. Though, we will not be showcasing this functionality here.</p>
+<p>Currently, neither of these methods support retries and this functionality will have to be written at the call site of these methods.</p>
 <h4 id="using-updateasync">Using UpdateAsync</h4>
 <p>For this example, we will create a Robase at "PlayerData" and we will be updating the "GetDataHere" key.</p>
 <div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">ExampleRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;PlayerData&quot;</span><span class="p">)</span>
@@ -752,7 +752,7 @@
 </code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>You can <em>only</em> update or modify keys which are a table, you cannot send a request directly to "UpdateWhatever", this will fail.</p>
+<p>You can <em>only</em> update or modify keys that are a table, you cannot send a request directly to "UpdateWhatever", this will fail.</p>
 </div>
 <h4 id="using-batchupdateasync">Using BatchUpdateAsync</h4>
 <p>This is where things get a teeny bit more complicated, for this method you <em>must</em> define your callback methods and populate a table with them. This time, we will modify the data located at "BatchUpdateMe" within "GetDataHere".</p>
@@ -788,7 +788,7 @@
 <p>Just like DataStoreService, RobaseService offers an <code>IncrementAsync</code> function which works similarly to the aforementioned DataStoreService method.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Attempting to increment data which is not an integer will throw an error. Numbers and any other data type are not acceptable types to increment.</p>
+<p>Attempting to increment data that is not an integer will throw an error. Numbers and any other data type are not acceptable types to increment.</p>
 </div>
 <p>Again, we will be creating our Robase at "GetDataHere", but this time we will perform two basic operations on the "IncrementThat" key.</p>
 <div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">ExampleRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;GetDataHere&quot;</span><span class="p">,</span> <span class="s2">&quot;PlayerData&quot;</span><span class="p">)</span>
@@ -798,7 +798,7 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">Result</span><span class="p">)</span> <span class="c1">--&gt;&gt; 75</span>
 </code></pre></div>
 <h2 id="deleting-data">Deleting Data</h2>
-<p>For whatever reason you have decided to completely wipe some data from your database, why you would want to do this is your own reason, but this method exists, so lets demonstrate it:</p>
+<p>For whatever reason, you have decided to completely wipe some data from your database, why you would want to do this is your own reason, but this method exists, so let's demonstrate it:</p>
 <div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">ExampleRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;GetDataHere&quot;</span><span class="p">,</span> <span class="s2">&quot;PlayerData&quot;</span><span class="p">)</span>
 <span class="kd">local</span> <span class="n">Success</span><span class="p">,</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">ExampleRobase</span><span class="p">:</span><span class="n">DeleteAsync</span><span class="p">(</span><span class="s2">&quot;IPutThisHereRemotely&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">Result</span><span class="p">)</span> <span class="c1">--&gt;&gt; true</span>
@@ -807,7 +807,7 @@
 <div class="highlight"><pre><span></span><code><span class="n">Success</span><span class="p">,</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">ExampleRobase</span><span class="p">:</span><span class="n">SetAsync</span><span class="p">(</span><span class="s2">&quot;IPutThisHereRemotely&quot;</span><span class="p">,</span> <span class="n">Result</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">Result</span><span class="p">)</span> <span class="c1">--&gt;&gt; true</span>
 </code></pre></div>
-<p>The main use-case that I can think of for ever wanting to properly use this, is if you provide clients with the option to delete their data from the database, other than that.</p>
+<p>The main use-case that I can think of for wanting to properly use this, ever, is if you provide clients with the option to delete their data from the database.</p>
                 
               
               
