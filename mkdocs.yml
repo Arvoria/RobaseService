@@ -15,6 +15,17 @@ markdown_extensions:
   - pymdownx.snippets
   - attr_list
   - footnotes
+  - def_list
+  - pymdownx.highlight:
+      extend_pygments_lang: [
+        "name": "lua-api-ref",
+        "lang": "lua",
+        "options": [
+          css_class: "apiref"
+        ]
+      ]
+  - pymdownx.tasklist:
+      custom_checkbox: true
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
