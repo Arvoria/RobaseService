@@ -3,7 +3,7 @@
 !!! warning 
     This page is still in the process of being documented.
 
-In the following examples we will go over and take a look into the Robase Test Database. The structure of which can be seen below.
+In the following examples, we will go over and take a look into the Robase Test Database. The structure of which can be seen below.
 
 ![Robase Test Database](../img/robase-test-db.png)
 {: align=center}
@@ -20,7 +20,7 @@ Although it is not an ideal structure, it is just an example of what one could p
 To begin using Robase you must first initialise it. This requires two parameters: `baseUrl` and `token`. You can go [here]() to learn more about acquiring these and how to safely store them.
 
 !!! danger
-    For security purposes it is **highly** recommended that you do **not** store your Database Url and Database Secrets in plain-text in your code. Consider using DataStoreService to handle this securely.
+    For security purposes it is **highly** recommended that you do **not** store your Database Url and Database Secrets in plain text in your code. Consider using DataStoreService to handle this securely.
 
 ```lua
 local ExampleRobaseService = RobaseService.new(
@@ -31,11 +31,11 @@ local ExampleRobaseService = RobaseService.new(
 
 ## Getting a Robase
 
-You can retrieve a Robase a number of ways at any level in your database. You can do this using the `:GetRobase()` method of RobaseService. This method has no required parameters - so you can access top-level elements in your database without creating new Robase objects for them - though, it is recommended to provide a name and create individual Robase objects for each top-level element you wish to work on, purely for readability-sake.
+You can retrieve a Robase object several ways at any level in your database. You can do this using the `#!lua :GetRobase()` method of RobaseService. This method has no required parameters - so you can access top-level elements in your database without creating new Robase objects for them - though, it is recommended to provide a name and create individual Robase objects for each top-level element you wish to work on, purely for readability-sake.
 
 + `name` The name of the element in your database that you wish to point the Robase to.
 
-+ `scope` The depth of the database, this is put before the name in the Url
++ `scope` The depth of the database, it is put before the name in the Url
 
 We will cover using both of these and neither of these in the following sections.
 
@@ -44,7 +44,7 @@ We will cover using both of these and neither of these in the following sections
 
 ### Providing a name without scope
 
-This is simply put going to search the top-level of your database for the provided name, in our example we have "PlayerData", so let's setup our Robase there.
+This is simply put going to search the top-level of your database for the provided name, in our example, we have "PlayerData", so let's set up our Robase there.
 
 ```lua
 local ExampleRobase = RobaseService:GetRobase("PlayerData")
@@ -52,7 +52,7 @@ local ExampleRobase = RobaseService:GetRobase("PlayerData")
 
 ### Providing a name and a scope
 
-But, what if we want to access a deeper element in our database, and setup a Robase at that point? Well, we can, and it's very simple! Just provide a scope with the name! So for this example, we will access the "Players" array within "BatchUpdateMe". 
+But, what if we want to access a deeper element in our database, and set up a Robase at that point? Well, we can, and it's very simple! Just provide a scope with the name! So for this example, we will access the "Players" array within "BatchUpdateMe". 
 
 ```lua
 local ExampleRobase = RobaseService:GetRobase(
@@ -63,7 +63,7 @@ local ExampleRobase = RobaseService:GetRobase(
 
 ### Providing no information
 
-This method is used solely yo grab the entire database, top-level keys and all! This allows us to perform `:GetAsync()` requests into any top-level key and get the table or data located at that point, like so:
+This method is used solely to grab the entire database, top-level keys and all! This allows us to perform `:GetAsync()` requests into any top-level key and get the table or data located at that point, like so:
 
 ```lua
 local ExampleRobase = RobaseService:GetRobase()
@@ -87,7 +87,7 @@ The above code will print out the table located at "GetDataHere".
 
 There are a few saving options in Robase, these are quite similar to DataStoreService:
 
-+ `SetAsync` will create new data or replace old data at the given key using a [PUT](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT) request, if no method is provided.
++ `SetAsync` will create new data or replace old data at the given key using a [PUT](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT) request if no method is provided.
 + `UpdateAsync` will modify the data at the given key using a [PATCH](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH) request.
 + `BatchUpdateAsync` will modify a set of keys using a PATCH request.
 
@@ -95,7 +95,7 @@ The decision to use PUT over [POST](https://developer.mozilla.org/en-US/docs/Web
 
 ### Using SetAsync
 
-First, we will cover the basic `SetAsync` method. This time round, we will create a Robase at "GetDataHere".
+First, we will cover the basic `SetAsync` method. This time around, we will create a Robase at "GetDataHere".
 
 ```lua
 local ExampleRobase = RobaseService:GetRobase("GetDataHere", "PlayerData")
@@ -111,9 +111,9 @@ ExampleRobase:SetAsync("ExtraConfig", NewData, "PUT")
 
 ### Updating your data
 
-In most cases though, you will want to opt for updating your data instead, in this case we `UpdateAsync`. This method has one key difference from DataStoreService: the `cache` parameter. Robase was made with caches in mind such that you use less requests and can take advantage of the powerful `BatchUpdateAsync` method. You can extend upon this feature nicely by writing your own data handler module and having your saving/updating use Write-through - change the database first, and then the cache. Though, we will not be showcasing this functionality here.
+In most cases though, you will want to opt for updating your data instead, in this case, we `UpdateAsync`. This method has one key difference from DataStoreService: the `cache` parameter. Robase was made with caches in mind such that you will use fewer requests and can take advantage of the powerful `BatchUpdateAsync` method. You can extend upon this feature nicely by writing a custom data handler module and having your saving/updating use Write-through - change the database first, and then the cache. Though, we will not be showcasing this functionality here.
 
-Currently, neither of these methods support retries and this functionality will have to be written at the callsite of these methods.
+Currently, neither of these methods support retries and this functionality will have to be written at the call site of these methods.
 
 #### Using UpdateAsync
 
@@ -135,7 +135,7 @@ end)
 ```
 
 !!! warning
-    You can *only* update or modify keys which are a table, you cannot send a request directly to "UpdateWhatever", this will fail.
+    You can *only* update or modify keys that are a table, you cannot send a request directly to "UpdateWhatever", this will fail.
 
 #### Using BatchUpdateAsync
 
@@ -176,7 +176,7 @@ local Success, Result = ExampleRobase:BatchUpdateAsync("BatchUpdateMe", Updaters
 Just like DataStoreService, RobaseService offers an `IncrementAsync` function which works similarly to the aforementioned DataStoreService method.
 
 !!! warning
-    Attempting to increment data which is not an integer will throw an error. Numbers and any other data type are not acceptable types to increment.
+    Attempting to increment data that is not an integer will throw an error. Numbers and any other data type are not acceptable types to increment.
 
 Again, we will be creating our Robase at "GetDataHere", but this time we will perform two basic operations on the "IncrementThat" key.
 
@@ -190,7 +190,7 @@ print(Result) -->> 75
 
 ## Deleting Data
 
-For whatever reason you have decided to completely wipe some data from your database, why you would want to do this is your own reason, but this method exists, so lets demonstrate it:
+For whatever reason, you have decided to completely wipe some data from your database, why you would want to do this is your own reason, but this method exists, so let's demonstrate it:
 
 ```lua
 local ExampleRobase = RobaseService:GetRobase("GetDataHere", "PlayerData")
@@ -205,4 +205,4 @@ Success, Result = ExampleRobase:SetAsync("IPutThisHereRemotely", Result)
 print(Result) -->> true
 ```
 
-The main use-case that I can think of for ever wanting to properly use this, is if you provide clients with the option to delete their data from the database, other than that.
+The main use-case that I can think of for wanting to properly use this, ever, is if you provide clients with the option to delete their data from the database.

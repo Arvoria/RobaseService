@@ -15,19 +15,19 @@ But what lets DataStoreService down? Let me explain:
 
 + You are no longer limited to 4MB of data per key, your database can hold 1GB of storage and you have complete control over how everything is stored.
 
-+ You can access any key within the realtime database, simple use "/" to separate the keys. With DataStores you only have access to one point, making querying difficult and ensuring all data exists a slog with sanity checks.
++ You can access any key within the real-time database, simply use "/" to separate the keys. With DataStores you only have access to one point, making querying difficult and ensuring all data exists a slog with sanity checks.
 
-+ Robase is open-sourced, this means that it's source code is available to everyone and can be looked at and researched easily {-- - especially with the source documentation--}! This will make extending and wrapping RobaseService simpler and creating a extension similar to [DataStore2](https://kampfkarren.github.io/Roblox/) by Kampfkarren or a manager like [ProfileService](https://madstudioroblox.github.io/ProfileService/) by loleris.
++ Robase is open-sourced, this means that its source code is available to everyone and can be looked at and researched easily {-- - especially with the source documentation--}! This will make extending and wrapping RobaseService simpler and creating an extension similar to [DataStore2](https://kampfkarren.github.io/Roblox/) by Kampfkarren or a manager like [ProfileService](https://madstudioroblox.github.io/ProfileService/) by loleris.
 
-+ The methods are not guranteed to be race condition free, Robase uses [Promises](https://eryn.io/roblox-lua-promise/) by evaera to ensure race safety. Every async function will yield until a value is retrieved. {--In a future release, methods which return the promise may become available--}
++ The methods are not guaranteed to be race condition free, Robase uses [Promises](https://eryn.io/roblox-lua-promise/) by evaera to ensure race safety. Every async function will yield until a value is retrieved. [{++In a future release, methods which return the promise may become available++}](../api/)
 
-+ Cannot be updated dynamically whenever and however you please. In order to update a DataStore you have to go into a live-game or studio and use the Command Bar to force a key to change, sometimes this just isn't practical.
++ Cannot be updated dynamically whenever and however you please. To update a DataStore you have to go into a live game or studio and use the Command Bar to force a key to change, sometimes this just isn't practical.
 
 ### Storage limitations
 
-Before using Robase something you may want to ask yourself is: Do I really need this? In most cases, DataStore2 or ProfileService will serve you well, though you won't be saving anything big or complex. If you are looking to store large, complex data, then Robase is something you will want in your arsenal.
+Before using Robase something you may want to ask yourself is: Do I need this? In most cases, DataStore2 or ProfileService will serve you well, though you won't be saving anything big or complex. If you are looking to store large, complex data, then Robase is something you will want in your arsenal.
 
-Firebase's Spark plan provides you with 1GB storage in total per database/project and 10GB data downloaded per month. The Blaze plan is priced at how much you use, billed each month; each GB of storage costs $5 per month and each GB downloaded costs $1 per month. With the Blaze plan, a database using 1GB of storage and 100GB downloaded per month will be estimated to pay $105 per month. In addition to this you get other bonuses. 
+Firebase's Spark plan provides you with 1GB storage in total per database/project and 10GB of downloaded data per month. The Blaze plan is priced at how much you use, billed each month; each GB of storage costs $5 per month and each GB downloaded costs $1 per month. With the Blaze plan, a database using 1GB of storage and 100GB downloaded per month will be estimated to pay $105 per month. In addition to this, you get other bonuses. 
 
 The differences between the Spark and Blaze plan is documented [here](https://firebase.google.com/pricing)
 
@@ -35,9 +35,9 @@ The differences between the Spark and Blaze plan is documented [here](https://fi
 
 But this is just player data, what about things that happen in a server? Think about: an experience-wide event, like "Double XP" and how you would handle it; or even the optimised metadata for every minigame played; FFlags deployment system. There is a lot of things you can do in the backend of your database and it can be controlled remotely.  
 
-[This example server data](https://pastebin.com/98ZMUN4r) gives an example look at how a Firebase structure could be setup as a Lua table.  
+[This example server data](https://pastebin.com/98ZMUN4r) gives an example look at how a Firebase structure could be set up as a Lua table.  
 This structure is approximately 2KB in storage. `ServerData.PlayedMinigames.Games` is approximately 1.5KB in size, each minigame's data equating to 105.5B. 
-What if we asked how much this could grow? Imagine we have a small experience, with about 20,000 visits per day. Now lets say that on average every visit garners 1.8 minigame plays, we can scale this up to how much the database will grow each day. For 20,000 visits we would have 36,000 minigames played - that's roughly 3.62MB!
+What if we asked how much this could grow? Imagine we have a small experience, with about 20,000 visits per day. Now let us say that on average every visit garners 1.8 minigame plays, we can scale this up to how much the database will grow each day. For 20,000 visits we would have 36,000 minigames played - that's roughly 3.62MB!
 
 Just how scalable and manageable is this? Well first we have to allow some assumptions:
 
@@ -69,7 +69,7 @@ print(DaysUntilMaxUsage)
 
 Being able to access a deeply-nested key can be helpful for a few reasons:
 
-+ It can save on `HttpService` budget and lowers the amount of downloaded data
++ It can save on the `HttpService` budget and lowers the amount of downloaded data
 + Saves unnecessary lines of code rooting through tables
 + Gruesome sanity checks are a thing of the past! Making a request to a key using `::GetAsync()` will always return profound information:  
     `(success: boolean, value: any)`  
@@ -78,7 +78,7 @@ Being able to access a deeply-nested key can be helpful for a few reasons:
 
 ### Extending Robase and managing your data
 
-Writing your own manager similar to DataStore2 or ProfileService may seem daunting at first, but as long as you are safe and secure when handling your data, it does not need to be as developed and can simply be a primitive version of them, but take note:
+Writing a custom manager similar to DataStore2 or ProfileService may seem daunting at first, but as long as you are safe and secure when handling your data, it does not need to be as developed and can simply be a primitive version of them, but take note:
 
 !!! info "Key Information"
     + Cache is a necessity;
@@ -87,7 +87,7 @@ Writing your own manager similar to DataStore2 or ProfileService may seem daunti
 
     + You should write parsers to form keys to access data when needed;
 
-    + Downloading the whole database for each server is cumbersome and can lead to eating through your data usage, only access data thats needed, de-serialise your data appropriately;
+    + Downloading the whole database for each server is cumbersome and can lead to eating through your data usage, only access data that's needed, de-serialise your data appropriately;
 
     + Check out the source code for insight into how the code works!
 
@@ -109,10 +109,10 @@ Source: *[why you should use promises](https://eryn.io/roblox-lua-promise/#why-y
 
 ### Dynamic Updates
 
-Every key in your Firebase Realtime Database can be modified from the Firebase Console. This allows for some unique behaviour that you couldn't otherwise do without loading up the client and entering the game yourself to modify DataStores through the command bar - which is slow, and can be complicated.
+Every key in your Firebase Realtime Database can be modified from the Firebase Console. This allows for some unique behaviour that you couldn't otherwise do without loading up the client and entering the game yourself to modify DataStores through the command bar - which is slow and can be complicated.
 
-With a Realtime Database you can have functions that check keys periodically or do something at specific times, or enable/disable beta features/content for your players depending on the value received.
+With a Realtime Database, you can have functions that check keys periodically or do something at specific times, or enable/disable beta features/content for your players depending on the value received.
 
 As noted in our example, Double XP is a perfect example of a timed event that can run via your database. You can set a key, say "Activate" to true, and then watch as your game-code updates and displays that the event is in progress and updates accordingly.
 
-You can create Fast Flag deployment for your game. This is the deployment system Roblox uses to enable and disable content. 
+You can create a Fast-Flag deployment system for your game. This is the deployment system Roblox uses to enable and disable features. This is possible with DataStoreService but it isn't as easy or convenient.

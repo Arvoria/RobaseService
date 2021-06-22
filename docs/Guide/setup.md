@@ -21,7 +21,7 @@ local ExampleRobase = RobaseService:GetRobase("NAME")
 local Success, Result = ExampleRobase:GetAsync("KEY")
 ```
 
-Every method call to a `Robase` will return a `Success` and a `Result`, check the [API Reference]() for more detail information.
+Every method call to a `Robase` will return a `Success` and a `Result`, check the [API Reference](../../api/) for more detailed information.
 
 
 ## Transferring from DataStoreService
