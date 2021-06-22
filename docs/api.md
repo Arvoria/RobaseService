@@ -39,7 +39,7 @@ Used to retrieve a Robase object with a path supplied from scope and name.
 !!! warning "Caution"
     Robase will handle failed requests automatically by throwing an error. They will never return `(false, any)` but they can return `(true, nil)`, for this reason, it is recommended to wrap your method calls with a [pcall](https://developer.roblox.com/en-us/api-reference/lua-docs/Lua-Globals).
 
-### Promise-returing methods
+### Promise-returning methods
 
 Promise returning methods allow you to abstract over the original async methods of Robase so that you can implement custom functionality. This requires knowledge of Promises to implement and even further knowledge on them to perform meaningful tasks that Robase does not. These are retrieved synchronously but consumed asynchronously.
 
