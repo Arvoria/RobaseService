@@ -44,6 +44,12 @@ theme:
     text: Encode Sans
     code: Fira Code
   logo: img/ai-logo-flat.svg
+  features:
+    - navigation.expand
+    - navigation.top
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - toc.integrate
 
 extra:
   social:
@@ -52,14 +58,11 @@ extra:
 
 nav: 
   - 'Home': 'index.md'
-  - "About":
-    - 'Introduction': 'introduction.md'
-    - 'Why Robase?': 'introduction/#whats-the-purpose'
-    - 'Limitations': 'introduction/#storage-limitations'
+  - "About": 'introduction.md'
   - "Guide": 
     - 'Installation': 'Guide/installation.md'
-    - 'Setup': 'Guide/setup.md'
+    - 'Firebase Setup': 'Guide/firebase-setup.md'
+    - 'Robase Setup': 'Guide/robase-setup.md'
     - 'Usage Guide': 'Guide/usage.md'
   - "API Reference": 'api.md'
-    
-
+  - "Issue Reporting": 'issue-reporting.md'

@@ -7,10 +7,10 @@
     --md-default-bg-color: hsl(0, 0%, 13%);
 
     --md-typeset-color: hsl(0, 0%, 96%);
-    --md-typeset-a-color: hsla(202, 100%, 60%, 0.8);
+    --md-typeset-a-color: hsl(205, 100%, 65%);
 
-    --md-accent-fg-color: hsl(0, 0%, 80%);
-    --md-accent-bg-color: hsl(0, 0%, 10%);
+    --md-accent-fg-color: var(--md-typeset-a-color);
+    --md-accent-fg-color-transparent: var(--md-accent-fg-color);
 
     --md-code-hl-color: hsla(202, 100%, 60%, 0.6);
     --md-code-hl-number-color: rgb(250, 125, 100);
@@ -43,7 +43,15 @@
     color:hsl(0, 0%, 100%);
 }
 
+.md-tabs__item a:hover {
+    color:hsl(205, 100%, 65%);
+}
+
 code {
     white-space: pre-wrap;
 }
 
+div .api-ref .n {
+    color: rgb(43, 246, 253);
+    font-weight: bold;
+}
