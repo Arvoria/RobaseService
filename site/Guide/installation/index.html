@@ -156,6 +156,81 @@
       
       
         
+          
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../introduction/" class="md-tabs__link">
+      About
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
+        Guide
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../api/" class="md-tabs__link">
+      API Reference
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../issue-reporting/" class="md-tabs__link">
+      Issue Reporting
+    </a>
+  </li>
+
+      
+    </ul>
+  </div>
+</nav>
+        
       
       <main class="md-main" data-md-component="main">
         <div class="md-main__inner md-grid">
@@ -167,8 +242,12 @@
                   <div class="md-sidebar__inner">
                     
 
+  
 
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Robase Documentation" class="md-nav__button md-logo" aria-label="Robase Documentation" data-md-component="logo">
       
@@ -215,61 +294,10 @@
   
   
   
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
-      
-      <label class="md-nav__link" for="__nav_2">
-        About
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-      <nav class="md-nav" aria-label="About" data-md-level="1">
-        <label class="md-nav__title" for="__nav_2">
-          <span class="md-nav__icon md-icon"></span>
-          About
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-  
-  
-  
     <li class="md-nav__item">
       <a href="../../introduction/" class="md-nav__link">
-        Introduction
+        About
       </a>
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../introduction/#whats-the-purpose" class="md-nav__link">
-        Why Robase?
-      </a>
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../introduction/#storage-limitations" class="md-nav__link">
-        Limitations
-      </a>
-    </li>
-  
-
-          
-        </ul>
-      </nav>
     </li>
   
 
@@ -364,8 +392,20 @@
   
   
     <li class="md-nav__item">
-      <a href="../setup/" class="md-nav__link">
-        Setup
+      <a href="../firebase-setup/" class="md-nav__link">
+        Firebase Setup
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../robase-setup/" class="md-nav__link">
+        Robase Setup
       </a>
     </li>
   
@@ -404,51 +444,27 @@
   
 
     
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../issue-reporting/" class="md-nav__link">
+        Issue Reporting
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
                 </div>
               </div>
             
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#method-a-roblox-model-via-roblox-studio" class="md-nav__link">
-    Method A: Roblox Model (via Roblox Studio)
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#method-b-filesystem-via-rojo" class="md-nav__link">
-    Method B: Filesystem (via Rojo)
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
             
           
           <div class="md-content" data-md-component="content">
@@ -462,7 +478,7 @@
                 
                 <h1 id="installation">Installation</h1>
 <p>There are two methods to get up and running with Robase.<br />
-For our examples, we will install <code>RobaseService</code> into <code>ReplicatedStorage</code>. Note, it's okay to install RobaseService wherever you want.</p>
+It is recommended to install <code>RobaseService</code> into <code>ReplicatedStorage</code> or if you have a folder dedicated to packages or opensource modules, then that is even better. You can install it wherever you wish though.</p>
 <h2 id="method-a-roblox-model-via-roblox-studio">Method A: Roblox Model (via Roblox Studio)</h2>
 <div class="admonition stop">
 <p class="admonition-title">Caution</p>
@@ -478,13 +494,10 @@ For our examples, we will install <code>RobaseService</code> into <code>Replicat
 <p>Go to the <a href="https://github.com/Arvoria/Robase-2.0.0/releases">Github Releases</a> and download the latest stable release of RobaseService. Save it somewhere meaningful so you only need to download it once.</p>
 </li>
 <li>
-<p>Open your working directory in your preferred IDE and sync your files with an empty studio using <a href="https://rojo.space">Rojo</a>!</p>
+<p>Open your working directory in your preferred IDE and unzip the RobaseService zip folder into ReplicatedStorage or wherever you desire.</p>
 </li>
 <li>
-<p>Copy the source wherever you wish, ReplicatedStorage is recommended.</p>
-</li>
-<li>
-<p>Continue developing!</p>
+<p>Use <a href="https://rojo.space">Rojo</a> to sync your files into Roblox Studio from your IDE.</p>
 </li>
 </ul>
                 
@@ -498,6 +511,10 @@ For our examples, we will install <code>RobaseService</code> into <code>Replicat
           </div>
         </div>
         
+          <a href="#" class="md-top md-icon" title="Back to top" data-md-component="top" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
+          </a>
+        
       </main>
       
         
@@ -506,7 +523,7 @@ For our examples, we will install <code>RobaseService</code> into <code>Replicat
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../../introduction/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Introduction" rel="prev">
+        <a href="../../introduction/" class="md-footer__link md-footer__link--prev" aria-label="Previous: About" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -515,20 +532,20 @@ For our examples, we will install <code>RobaseService</code> into <code>Replicat
               <span class="md-footer__direction">
                 Previous
               </span>
-              Introduction
+              About
             </div>
           </div>
         </a>
       
       
         
-        <a href="../setup/" class="md-footer__link md-footer__link--next" aria-label="Next: Setup" rel="next">
+        <a href="../firebase-setup/" class="md-footer__link md-footer__link--next" aria-label="Next: Firebase Setup" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Setup
+              Firebase Setup
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -570,7 +587,7 @@ For our examples, we will install <code>RobaseService</code> into <code>Replicat
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.b0710199.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "navigation.tabs", "navigation.tabs.sticky", "toc.integrate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.b0710199.min.js", "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.76f349be.min.js"></script>
