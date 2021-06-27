@@ -6,6 +6,14 @@ RobaseService.BaseUrl = nil
 RobaseService.AuthKey = nil
 RobaseService.__index = RobaseService
 
+local function fixTrailingSlashes(url)
+
+    local foundTrailingSlashes = url:match("/+$")
+    url = foundTrailingSlashes and url:sub(1, url:len()-#foundTrailingSlashes) or url
+
+    return url
+end
+
 function RobaseService.new(baseUrl, token)
     if baseUrl == nil then
         error("Bad Argument 1 baseUrl expected, got nil")
@@ -14,7 +22,7 @@ function RobaseService.new(baseUrl, token)
     end
 
     local self = setmetatable({}, RobaseService)
-    self.BaseUrl = baseUrl
+    self.BaseUrl = fixTrailingSlashes(baseUrl)
     self.AuthKey = ".json?auth="..token
     return self
 end
