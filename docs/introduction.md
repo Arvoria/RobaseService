@@ -11,19 +11,18 @@ Robase has been in development since June 2020 and has been released since Augus
 
 RobaseService aims to provide a reliable and safe method of saving and loading data, no matter how big or small. But what does it offer that DataStoreService doesn't?
 
-But what lets DataStoreService down? Let me explain:
-
 + You are no longer limited to 4MB of data per key, your database can hold 1GB of storage and you have complete control over how everything is stored.
 
 + You can access any key within the real-time database, simply use "/" to separate the keys. With DataStores you only have access to one point, making querying difficult and ensuring all data exists a slog with sanity checks.
 
 + Robase is open-sourced, this means that its source code is available to everyone and can be looked at and researched easily {-- - especially with the source documentation--}! This will make extending and wrapping RobaseService simpler and creating an extension similar to [DataStore2](https://kampfkarren.github.io/Roblox/) by Kampfkarren or a manager like [ProfileService](https://madstudioroblox.github.io/ProfileService/) by loleris.
 
-+ The methods are not guaranteed to be race condition free, Robase uses [Promises](https://eryn.io/roblox-lua-promise/) by evaera to ensure race safety. Every async function will yield until a value is retrieved. [{++In a future release, methods which return the promise may become available++}](../api/)
++ The `Async` methods are guaranteed to be race condition free, Robase uses [Promises](https://eryn.io/roblox-lua-promise/) by evaera to ensure race safety. Every async function will yield until a value is retrieved.  
+As of Robase 2.0.1-beta, there are now promise-returning methods that give developers full freedom over how their requests are handled and the methods will pass back the promise to be operated on. These methods are documented [here](../api/#promise-returning-methods).
 
-+ Cannot be updated dynamically whenever and however you please. To update a DataStore you have to go into a live game or studio and use the Command Bar to force a key to change, sometimes this just isn't practical.
++ Can be updated dynamically whenever and however you please. To update a DataStore you have to go into a live game or studio and use the Command Bar to force a key to change, sometimes this just isn't practical. Doing this with Firebase however is simple to do and can be done from your browser, it's even accessible on your mobile! Just go to the Firebase Console and update it from the database view.
 
-### Storage limitations
+### Storage Freedom
 
 Before using Robase something you may want to ask yourself is: Do I need this? In most cases, DataStore2 or ProfileService will serve you well, though you won't be saving anything big or complex. If you are looking to store large, complex data, then Robase is something you will want in your arsenal.
 
@@ -33,7 +32,7 @@ The differences between the Spark and Blaze plan is documented [here](https://fi
 
 [This example profile](https://pastebin.com/5zhfsfJb) shows just how complex and large data can be even when it has been vaguely optimised for storage. This profile will take up 3.6KB of data, that's not so much, right? Now imagine you have 100,000 unique players playing your game, that's now ~352MB, over a third of the capacity for the free plan. That's **a lot** of data!
 
-But this is just player data, what about things that happen in a server? Think about: an experience-wide event, like "Double XP" and how you would handle it; or even the optimised metadata for every minigame played; FFlags deployment system. There is a lot of things you can do in the backend of your database and it can be controlled remotely.  
+But this is just player data, what about things that happen in a server? Think about: an experience-wide event, like "Double XP" and how you would handle it; or even the optimised metadata for every minigame played; or an FFlags deployment system. There are a lot of things you can do in the backend of your database and it can all be controlled remotely.
 
 [This example server data](https://pastebin.com/98ZMUN4r) gives an example look at how a Firebase structure could be set up as a Lua table.  
 This structure is approximately 2KB in storage. `ServerData.PlayedMinigames.Games` is approximately 1.5KB in size, each minigame's data equating to 105.5B. 
@@ -45,7 +44,7 @@ Just how scalable and manageable is this? Well first we have to allow some assum
 
 + Growth is static and the number of visits/plays per day remains the same (20,000).
 
-+ Minigames Played to Experience Visits ratio is 1.8.
++ Minigames Played to Experience Visits ratio is static at 1.8.
 
 ```lua
 local MaxServerData = 1 * 1024 * 1024 * 1024 -- 1GB in Bytes
@@ -71,7 +70,7 @@ Being able to access a deeply-nested key can be helpful for a few reasons:
 
 + It can save on the `HttpService` budget and lowers the amount of downloaded data
 + Saves unnecessary lines of code rooting through tables
-+ Gruesome sanity checks are a thing of the past! Making a request to a key using `::GetAsync()` will always return profound information:  
++ Gruesome sanity checks are a thing of the past! Making a request to a key using `:GetAsync()` will always return profound information:  
     `(success: boolean, value: any)`  
     Success is either true or an error is thrown.  
     Value will be the response body with a successful request or the whole response dictionary if it fails.
@@ -111,7 +110,7 @@ Source: *[why you should use promises](https://eryn.io/roblox-lua-promise/#why-y
 
 Every key in your Firebase Realtime Database can be modified from the Firebase Console. This allows for some unique behaviour that you couldn't otherwise do without loading up the client and entering the game yourself to modify DataStores through the command bar - which is slow and can be complicated.
 
-With a Realtime Database, you can have functions that check keys periodically or do something at specific times, or enable/disable beta features/content for your players depending on the value received.
+With a Realtime Database, you can have functions in-game that check keys periodically or do something at specific times, or enable/disable beta features/content for your players depending on the value received.
 
 As noted in our example, Double XP is a perfect example of a timed event that can run via your database. You can set a key, say "Activate" to true, and then watch as your game-code updates and displays that the event is in progress and updates accordingly.
 

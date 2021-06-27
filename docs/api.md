@@ -1,8 +1,5 @@
 # API Reference
 
-!!! warning 
-    This page is still in the process of being documented.
-
 ## RobaseService
 !!! stop "Caution"
     RobaseService cannot be used without first instantiating it with `.new` and providing a Firebase Database Url and a Secrets Authentication Token.
@@ -11,7 +8,9 @@
 
 Used to instantiate a new RobaseService with the provided Url and Auth Token.
 
-`#!lua-api-ref RobaseService.new(baseUrl: string, token: string) --> RobaseService`
+```{.lua .api-ref}
+RobaseService.new(baseUrl: string, token: string) --> RobaseService
+```
 : This method will create a new RobaseService for the provided database.
 
     `baseUrl: string`
@@ -24,14 +23,16 @@ Used to instantiate a new RobaseService with the provided Url and Auth Token.
 
 Used to retrieve a Robase object with a path supplied from scope and name.
 
-`#!lua-api-ref RobaseService:GetRobase([name: string, [scope: string]]) --> Robase`
+```{.lua .api-ref}
+RobaseService:GetRobase([name: string, [scope: string]]) --> Robase
+```
 :   This method will create a new Robase object at the path determined by scope and name.
 
     `name?: string`
-    :   Optional (but recommended) parameter for the name of the key you wish to locate the Robase object from.
+    :   Optional (but recommended) parameter for the name of the key that the Robase points toward.
 
     `scope?: string`
-    :   Optional parameter for the scope (directory depth) you wish to start searching for "name". This should be a path going through your database with keys separated by "/".
+    :   Optional parameter for the scope (directory path) you wish to start searching in for "name". This should be a path going through your database with keys separated by "/" like a file system!
 
 ---
 
@@ -47,7 +48,9 @@ Promise returning methods allow you to abstract over the original async methods 
 
 Returns a promise associated with retrieving a value from the database.
 
-`#!lua-api-ref Robase:Get(key: string) --> Promise`
+```{.lua .api-ref}
+Robase:Get(key: string) --> Promise
+```
 :   Returns a promise synchronously for an asynchronous get operation.
 
     `key: string`
@@ -59,7 +62,9 @@ Returns a promise associated with retrieving a value from the database.
 
 Returns a promise associated with adding a value into the database.
 
-`#!lua-api-ref Robase:Set(key: string, data: any [, method: string]) --> Promise`
+```{.lua .api-ref} 
+Robase:Set(key: string, data: any [, method: string]) --> Promise
+```
 :   Returns a promise synchronously for an asynchronous set operation.
 
     `key: string`
@@ -73,7 +78,7 @@ Returns a promise associated with adding a value into the database.
 
 ---
 
-### Async methods returning values
+### Async methods returning information
 
 The asynchronous methods of Robase are here to immediately retrieve information and perform operations on your database. These are simple and have no side effects outside of the HTTP Requests they perform. 
 These are useful if you don't wish to do anything on top of what Robase already does and just wish to use the core functions.
@@ -84,7 +89,9 @@ Internally, Robase uses the Promise-returning methods and consumes them with an 
 
 Retrieves the data stored at the given key within the Robase.
 
-`#!lua-api-ref Robase:GetAsync(key: string) --> Success: Boolean, Result: any`
+```{.lua .api-ref}
+Robase:GetAsync(key: string) --> Success: Boolean, Result: any
+```
 :   Retrieves data from the database from the given key.
 
     `key: string`
@@ -96,7 +103,9 @@ Retrieves the data stored at the given key within the Robase.
 
 Adds data into the Robase at the key specified using the given method.
 
-`#!lua-api-ref Robase:SetAsync(key: string, data: any, [method: string]) --> Success: Boolean, Result: any`
+```{.lua .api-ref}
+Robase:SetAsync(key: string, data: any, [method: string]) --> Success: Boolean, Result: any
+```
 :   Adds data into the Robase at the key specified using the given method if provided, or "PUT" otherwise.
 
     `key: string`
@@ -116,7 +125,9 @@ Increments the data stored at the given key by the supplied delta. This only wor
 
 Delta is an optional parameter and will default to 1 if not supplied.
 
-`#!lua-api-ref Robase:IncrementAsync(key: string, [delta: integer]) --> Success: Boolean, Result: any`
+```{.lua .api-ref}
+Robase:IncrementAsync(key: string, [delta: integer]) --> Success: Boolean, Result: any
+```
 :   This method will increment an integer-typed value belong to the given key by either 1 or delta
 
     `key: string`
@@ -128,14 +139,19 @@ Delta is an optional parameter and will default to 1 if not supplied.
         This parameter **must** be an integer, it can not be a number (5.7 for example).
 
 !!! stop "Usage restrictions"
-    + You can only use `::IncrementAsync` on keys with integer values!
+    + You can only use `:IncrementAsync` on keys with integer values!
 
     + Delta *must* be an integer or nil!
 
 ---
 
 #### Robase:DeleteAsync
-`#!lua-api-ref Robase:DeleteAsync(key: string) --> Success: Boolean, Result: any`
+
+Deletes the data at the specified key permanently.
+
+```{.lua .api-ref}
+Robase:DeleteAsync(key: string) --> Success: Boolean, Result: any
+```
 :   This method will delete a key entirely from the database and returns the previously stored value.
 
     `key: string`
@@ -150,7 +166,9 @@ Delta is an optional parameter and will default to 1 if not supplied.
 
 Retrieves data from the Robase at the given key, or from the cache if provided and transforms it using the callback function and updates the key with a new value.
 
-`#!lua-api-ref Robase:UpdateAsync(key, callback [, cache])`
+```{.lua .api-ref}
+Robase:UpdateAsync(key, callback [, cache])
+```
 :   This method will take a key and modify its data using the callback ('updater') function. Optionally, it can take in a cache table whose contents match that of the key you are updating.
 
     `key: string`
@@ -168,7 +186,9 @@ Retrieves data from the Robase at the given key, or from the cache if provided a
 
 Similar in functionality to `:UpdateAsync` except given a baseKey, it will modify keys with the provided updater (callback) functions.
 
-`#!lua-api-ref Robase:BatchUpdateAsync(baseKey, callbacks [, cache])`
+```{.lua .api-ref}
+Robase:BatchUpdateAsync(baseKey, callbacks [, cache])
+```
 :   This method takes in a baseKey and a table of callback ('updater') functions whose key's are children of the 'baseKey'. Optionally, it can take in a cache table whose keys match the callbacks table and should be the point of which baseKey starts in your database.
 
     `baseKey: string`

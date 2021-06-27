@@ -1,8 +1,5 @@
 # Usage Guide
 
-!!! warning 
-    This page is still in the process of being documented.
-
 In the following examples, we will go over and take a look into the Robase Test Database. The structure of which can be seen below.
 
 ![Robase Test Database](../img/robase-test-db.png)
@@ -11,13 +8,13 @@ In the following examples, we will go over and take a look into the Robase Test 
 Although it is not an ideal structure, it is just an example of what one could potentially look like. It is solely used to test Robase functionality and nothing more, you should not read into the naming of these keys as they are *display only* and provide no functional or tangible purpose outside of testing.
 
 !!! warning "Important"
-    These examples assume you have installed Robase already and have required it with a valid path.
+    These examples assume you have [installed](../installation/) Robase already and have required it with a valid path.
 
 ---
 
 ## Initialising RobaseService
 
-To begin using Robase you must first initialise it. This requires two parameters: `baseUrl` and `token`. You can go [here]() to learn more about acquiring these and how to safely store them.
+To begin using Robase you must first initialise it. This requires two parameters: `baseUrl` and `token`. You can go [here](../firebase-setup/) to learn more about acquiring these and how to safely store them.
 
 !!! danger
     For security purposes it is **highly** recommended that you do **not** store your Database Url and Database Secrets in plain text in your code. Consider using DataStoreService to handle this securely.
@@ -35,7 +32,11 @@ You can retrieve a Robase object several ways at any level in your database. You
 
 + `name` The name of the element in your database that you wish to point the Robase to.
 
-+ `scope` The depth of the database, it is put before the name in the Url
++ `scope` The location in your database you wish to search for `name`. Internally the `scope` goes before `name` in the Url, and would be constructed like so:
+```
+https://{database-url}/{scope}/{name}
+```
+The scope and name inputs are formatted like a directory so they use a "/" to separate keys.
 
 We will cover using both of these and neither of these in the following sections.
 
@@ -50,6 +51,9 @@ This is simply put going to search the top-level of your database for the provid
 local ExampleRobase = RobaseService:GetRobase("PlayerData")
 ```
 
+!!! info
+    The URL for this would look like this: `https://{database-url}/PlayerData.json?auth={token}`
+
 ### Providing a name and a scope
 
 But, what if we want to access a deeper element in our database, and set up a Robase at that point? Well, we can, and it's very simple! Just provide a scope with the name! So for this example, we will access the "Players" array within "BatchUpdateMe". 
@@ -61,6 +65,10 @@ local ExampleRobase = RobaseService:GetRobase(
 )
 ```
 
+!!! info
+    The URL for this would look like this:  
+    `https://{database-url}/{PlayerData/GetDataHere/BatchUpdateMe}/{Players}.json?auth={token}`
+
 ### Providing no information
 
 This method is used solely to grab the entire database, top-level keys and all! This allows us to perform `:GetAsync()` requests into any top-level key and get the table or data located at that point, like so:
@@ -68,7 +76,10 @@ This method is used solely to grab the entire database, top-level keys and all! 
 ```lua
 local ExampleRobase = RobaseService:GetRobase()
 ```
-
+!!! info
+    The URL for this would look like this:  
+    `https://{database-url}/`  
+    With subsequent method calls on the Robase adding the key at the end of the Url, followed by the json specifier and auth token key-value.
 It's that simple. So now you have your Robase, what next?
 
 ## Getting Data
@@ -95,7 +106,7 @@ The decision to use PUT over [POST](https://developer.mozilla.org/en-US/docs/Web
 
 ### Using SetAsync
 
-First, we will cover the basic `SetAsync` method. This time around, we will create a Robase at "GetDataHere".
+First, we will cover the basic `SetAsync` method. This time around, we will create a Robase at "GetDataHere" using the scope parameter to look in "PlayerData".
 
 ```lua
 local ExampleRobase = RobaseService:GetRobase("GetDataHere", "PlayerData")
@@ -109,11 +120,18 @@ local Success, Result = ExampleRobase:SetAsync("ExtraConfig", NewData, "PUT")
 ExampleRobase:SetAsync("ExtraConfig", NewData, "PUT")
 ```
 
+This example first creates a Robase at "GetDataHere" and then creates a new table with a single field: `Admin`, which is set to `false`.  
+We then tell the Robase that we wish to PUT that new field inside a new table inside the database at the key "ExtraConfig". We can do this in several different ways, as shown.
+
+A PUT request will simply check to see if the data already exists at the given key - and replace it if it does - or it will create a new key and add the data we supplied as it's value, in this case a table with a single field of `Admin`.
+
 ### Updating your data
 
-In most cases though, you will want to opt for updating your data instead, in this case, we `UpdateAsync`. This method has one key difference from DataStoreService: the `cache` parameter. Robase was made with caches in mind such that you will use fewer requests and can take advantage of the powerful `BatchUpdateAsync` method. You can extend upon this feature nicely by writing a custom data handler module and having your saving/updating use Write-through - change the database first, and then the cache. Though, we will not be showcasing this functionality here.
+In most cases though, you will want to opt for updating your data instead, in this case, we use `UpdateAsync`.  
+This method has one key difference from the [DataStoreService equivalent](https://developer.roblox.com/en-us/api-reference/function/GlobalDataStore/UpdateAsync): the `cache` parameter. Robase was made with caches in mind such that you will use fewer requests and can take advantage of the powerful `BatchUpdateAsync` method. You can extend upon this feature nicely by writing a custom data handler module and having your saving/updating use Write-through - change the database first, and then the cache. Though, we will not be showcasing this functionality here.
 
-Currently, neither of these methods support retries and this functionality will have to be written at the call site of these methods.
+!!! warning
+    Currently, neither of these methods support retries and this functionality will have to be written at the call site of these methods.
 
 #### Using UpdateAsync
 
@@ -129,9 +147,11 @@ ExampleRobase:UpdateAsync("GetDataHere", function(oldData)
     return NewData
 end)
 -- Again, the above is also equivalent to:
-local Success, Result = ExampleRobase:UpdateAsync("GetDataHere", function(oldData)
-    return NewData
-end)
+local Success, Result = ExampleRobase:UpdateAsync("GetDataHere", 
+    function(oldData)
+        return NewData
+    end
+)
 ```
 
 !!! warning

@@ -1,7 +1,7 @@
 # Installation
 
 There are two methods to get up and running with Robase.  
-For our examples, we will install `RobaseService` into `ReplicatedStorage`. Note, it's okay to install RobaseService wherever you want.
+It is recommended to install `RobaseService` into `ReplicatedStorage` or if you have a folder dedicated to packages or opensource modules, then that is even better. You can install it wherever you wish though.
 
 ## Method A: Roblox Model (via Roblox Studio)
 
@@ -14,8 +14,6 @@ For our examples, we will install `RobaseService` into `ReplicatedStorage`. Note
 ## Method B: Filesystem (via Rojo)
 + Go to the [Github Releases](https://github.com/Arvoria/Robase-2.0.0/releases) and download the latest stable release of RobaseService. Save it somewhere meaningful so you only need to download it once.
 
-+ Open your working directory in your preferred IDE and sync your files with an empty studio using [Rojo](https://rojo.space)!
++ Open your working directory in your preferred IDE and unzip the RobaseService zip folder into ReplicatedStorage or wherever you desire.
 
-+ Copy the source wherever you wish, ReplicatedStorage is recommended.
-
-+ Continue developing!
++ Use [Rojo](https://rojo.space) to sync your files into Roblox Studio from your IDE.
