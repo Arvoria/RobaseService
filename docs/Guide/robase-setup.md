@@ -1,9 +1,6 @@
 # Setting up Robase
 
-!!! warning 
-    This page is still in the process of being documented.
-
-`RobaseService` is made to be a replication of `DataStoreService` so that setup and transferring data is simple to do. 
+`RobaseService` is made to be a replication of `DataStoreService` so that setup and transferring data are simple to do. 
 
 ## Setup Example
 
@@ -17,12 +14,11 @@ Will now look like this:
 ```lua
 local RobaseServiceModule = require(path.to.robase)
 local RobaseService = RobaseServiceModule.new("URL", "AUTH")
-local ExampleRobase = RobaseService:GetRobase("NAME")
-local Success, Result = ExampleRobase:GetAsync("KEY")
+local ExampleRobase = RobaseService:GetRobase("Example")
+local Success, Result = ExampleRobase:GetAsync("123456789")
 ```
 
-Every method call to a `Robase` will return a `Success` and a `Result`, check the [API Reference](../../api/) for more detailed information.
-
+Every `Async` method call to a `Robase` will return a `Success` and a `Result`, check the [API Reference](../../api/#async-methods-returning-information) for more detailed information.
 
 ## Transferring from DataStoreService
 
@@ -41,7 +37,7 @@ local GlobalDataStore = game:GetDataStore(DataStoreName)
 local GlobalRobase = RobaseService:GetRobase(RobaseName)
 
 game:GetService("Players").PlayerAdded:Connect(function(player)
-    local DS_Key = string.format("%d", player.UserId) -- replace with DataStore key format, for example: string.format("Players/%d", player.UserId)
+    local DS_Key = string.format("%d", player.UserId) -- replace with DataStore key format
     local RobaseKey = string.format("%d", player.UserId) -- replace with Robase key format for example: string.format("Players/%d", player.UserId)
 
     local ExistsInRobase, Result = GlobalRobase:GetAsync(RobaseKey)
@@ -49,12 +45,10 @@ game:GetService("Players").PlayerAdded:Connect(function(player)
 
     if not ExistsInRobase and SavedData then
         -- Key does not exist in the Firebase and data was found in the DataStore
-        -- so we save it
+        -- so we save it,
         ExistsInRobase, Result = GlobalRobase:SetAsync(RobaseKey, SavedData, "POST")
-        
-        --[[if ExistsInRobase then
-            -- perform sanity checks however you wish            
-        end]]
+    else
+        -- do something else if required
     end
 end)
 ```
