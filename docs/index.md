@@ -2,7 +2,7 @@
     
 Robase is a RESTful API wrapper for Firebase Realtime Database - written in untyped Luau - for Roblox Developers seeking an external database service with a simple to use Luau wrapper.
 
-As mentioned, Robase seeks to be simple to use, but this is one of two core aims of this project. The second aim is to be an easy replacement to [DataStoreService](https://developer.roblox.com/en-us/api-reference/class/DataStoreService). You can find useful code to help with replacing old DataStore code and transferring data [here](Guide/setup/#transferring-from-datastoreservice).
+As mentioned, Robase seeks to be simple to use, but this is one of two core aims of this project. The second aim is to be an easy replacement to [DataStoreService](https://developer.roblox.com/en-us/api-reference/class/DataStoreService). You can find useful code to help with replacing old DataStore code and transferring data [here](Guide/robase-setup/#transferring-from-datastoreservice).
 
 ---
 

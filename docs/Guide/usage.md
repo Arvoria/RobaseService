@@ -204,7 +204,7 @@ Again, we will be creating our Robase at "GetDataHere", but this time we will pe
 local ExampleRobase = RobaseService:GetRobase("GetDataHere", "PlayerData")
 local Success, Result = ExampleRobase:IncrementAsync("IncrementThat")
 print(Result) -->> 51
-Success, Result = Example:Robase:IncrementAsync("IncrementThat", 24)
+Success, Result = ExampleRobase:IncrementAsync("IncrementThat", 24)
 print(Result) -->> 75
 ```
 
