@@ -1,6 +1,6 @@
 return function()
-    local Shared = script.Parent.Parent
-    local HttpWrapper = require(Shared.RobaseService.HttpWrapper)
+    local RobaseService = script.Parent.Parent
+    local HttpWrapper = require(RobaseService.HttpWrapper)
     local HttpService = game:GetService("HttpService")
 
     local testRequests = { }

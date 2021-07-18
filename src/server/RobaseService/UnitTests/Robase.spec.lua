@@ -1,10 +1,9 @@
 return function()
 
-    local Shared = script.Parent.Parent
-    local RobaseService = require(Shared.RobaseService)
-    RobaseService = RobaseService.new(
-        "https://robasestore-test-default-rtdb.europe-west1.firebasedatabase.app/",
-        "DOiy9dDWghkdUYJKiFLXV1MGYkPRuddjLTL3bQJi"
+    local RS = script.Parent.Parent
+    local RobaseService = require(RS).new(
+        "",
+        ""
     )
 
     local PlayerData = RobaseService:GetRobase("PlayerData")
@@ -71,40 +70,42 @@ return function()
 
     describe("GetAsync", function()
         it("should successfully retreive data", function()
-            local Data = PlayerData:GetAsync("GetDataHere")
+            local _, Data = PlayerData:GetAsync("GetDataHere")
             expect(Data).to.be.ok()
         end)
 
         it("should fail to retrieve data from unknown keys", function()
-            local success, value = PlayerData:GetAsync("DataDoesNotExist")
-            expect(success).to.equal(true)
-            expect(value).to.never.be.ok()
+            local Success, Data = PlayerData:GetAsync("DataDoesNotExist")
+            expect(Success).to.equal(true)
+            expect(Data).to.never.be.ok()
         end)
 
         it("should be able to perform on global level scope", function()
-            local Robase = RobaseService:GetRobase()
-            local _, Data = Robase:GetAsync("PlayerData")
-            local _, playerData = PlayerData:GetAsync("")
+            local EmptyRobase = RobaseService:GetRobase()
+            local _, PlrData = EmptyRobase:GetAsync("PlayerData")
+            local _, Data = PlayerData:GetAsync("")
 
-            expect(shallow_eq(Data, playerData, true)).to.equal(true)
+            expect(shallow_eq(PlrData, Data, true)).to.equal(true)
         end)
     end)
 
     describe("SetAsync", function()
         it("should successfully PUT data into the database if it does not exist", function()
             local key, value = "GetDataHere/IPutThisHereRemotely", true
-            local success, body = PlayerData:SetAsync(key, value, "PUT")
-            expect(success).to.equal(true)
-            expect(body).to.be.ok()
-            expect(body).to.equal(value)
+            local Success, Data = PlayerData:SetAsync(key, value, "PUT")
+
+            expect(Success).to.equal(true)
+            expect(Data).to.be.ok()
+            expect(Data).to.equal(value)
         end)
 
         it("should successfully replace data that exists in the database with a PUT request", function()
             local key, value = "GetDataHere/PutOverThis", 100
-            local success, body = PlayerData:SetAsync(key, value, "PUT")
-            expect(success).to.equal(true)
-            expect(body).to.be.ok()
-            expect(body).to.equal(value)
+            local Success, Data = PlayerData:SetAsync(key, value, "PUT")
+
+            expect(Success).to.equal(true)
+            expect(Data).to.be.ok()
+            expect(Data).to.equal(value)
         end)
 
         it("should throw an error if no key is specified", function()
@@ -115,17 +116,17 @@ return function()
 
         it("should manage malformed methods and set them to the default request method", function()
             local key, value = "GetDataHere/MalformedPutExample", "PuT"
-            local success, body = PlayerData:SetAsync(key, value, "PuT")
+            local Success, Data = PlayerData:SetAsync(key, value, "PuT")
 
-            expect(success).to.equal(true)
-            expect(body).to.be.ok()
-            expect(body).to.equal(value)
+            expect(Success).to.equal(true)
+            expect(Data).to.be.ok()
+            expect(Data).to.equal(value)
         end)
     end)
 
     describe("UpdateAsync", function()
         it("should update a key in the database", function()
-            local success, value = PlayerData:UpdateAsync(
+            local Success, Data = PlayerData:UpdateAsync(
                 "GetDataHere",
                 function(old)
                     old.UpdateWhatever ..= ", world!"
@@ -133,9 +134,9 @@ return function()
                 end
             )
 
-            expect(success).to.equal(true)
-            expect(value).to.be.ok()
-            expect(value.UpdateWhatever).to.equal("Hello, world!")
+            expect(Success).to.equal(true)
+            expect(Data).to.be.ok()
+            expect(Data.UpdateWhatever).to.equal("Hello, world!")
         end)
 
         it("should throw an error if the callback is not a function", function()
@@ -148,10 +149,10 @@ return function()
     describe("DeleteAsync", function()
         it("should delete a key from the database", function()
             local _, before = PlayerData:GetAsync("GetDataHere/DeleteMe")
-            local success, removed = PlayerData:DeleteAsync("GetDataHere/DeleteMe")
+            local Success, removed = PlayerData:DeleteAsync("GetDataHere/DeleteMe")
             local _, after = PlayerData:GetAsync("GetDataHere/DeleteMe")
 
-            expect(success).to.equal(true)
+            expect(Success).to.equal(true)
             expect(removed).to.be.ok()
             expect(removed).to.equal(before)
             expect(removed).to.never.equal(after)
@@ -168,22 +169,22 @@ return function()
         it("should increment integer-typed data - at a given key - by a set integer, delta", function()
             local key = "GetDataHere/IncrementThat"
             local delta = 25
-            local success, value = PlayerData:IncrementAsync(key, delta)
+            local Success, Data = PlayerData:IncrementAsync(key, delta)
             
-            expect(success).to.equal(true) -- success check
-            expect(value).to.be.ok() -- non-nil check
-            expect(value).to.be.a("number") -- number check
-            expect(value).to.equal(math.floor(value)) -- integer check
+            expect(Success).to.equal(true) -- success check
+            expect(Data).to.be.ok() -- non-nil check
+            expect(Data).to.be.a("number") -- number check
+            expect(Data).to.equal(math.floor(Data)) -- integer check
         end)
 
         it("should increment integer-typed data - at a given key - by 1 if delta is nil", function()
             local key = "GetDataHere/JustALevel"
-            local success, value = PlayerData:IncrementAsync(key)
+            local Success, Data = PlayerData:IncrementAsync(key)
             
-            expect(success).to.equal(true) -- success check
-            expect(value).to.be.ok() -- non-nil check
-            expect(value).to.be.a("number") -- number check
-            expect(value).to.equal(math.floor(value)) -- integer check
+            expect(Success).to.equal(true) -- success check
+            expect(Data).to.be.ok() -- non-nil check
+            expect(Data).to.be.a("number") -- number check
+            expect(Data).to.equal(math.floor(Data)) -- integer check
         end)
 
         it("should throw an error if delta is non-nil and non-integer", function()
@@ -222,9 +223,9 @@ return function()
                 end
             }
 
-            local success, data = PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
+            local Success, data = PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
 
-            expect(success).to.equal(true)
+            expect(Success).to.equal(true)
             expect(data).to.be.ok()
             expect(data.Server.LastUpdated).to.equal(calledAt)
         end)

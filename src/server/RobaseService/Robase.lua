@@ -84,11 +84,14 @@ function Robase:Set(key, data, method)
 end
 
 function Robase:GetAsync(key)
-    local success, value = self:Get(key):await()
+    local err
+    local success, value = self:Get(key):catch(function(response)
+        err = {response.StatusCode, response.StatusMessage}
+    end):await()
 
     if not success then
-        local err = string.format("%d Error: %s", value.StatusCode, value.StatusMessage)
-        error(err)
+        local msg = string.format("%d Error: %s", err[1], err[2])
+        error(msg)
     end
 
     value = value and HttpService:JSONDecode(value) or nil
@@ -96,11 +99,14 @@ function Robase:GetAsync(key)
 end
 
 function Robase:SetAsync(key, data, method)
-    local success, value = self:Set(key, data, method):await()
+    local err
+    local success, value = self:Set(key, data, method):catch(function(response)
+        err = {response.StatusCode, response.StatusMessage}
+    end):await()
 
     if not success then
-        local err = string.format("%d Error: %s", value.StatusCode, value.StatusMessage)
-        error(err)
+        local msg = string.format("%d Error: %s", err[1], err[2])
+        error(msg)
     end
 
     value = value and HttpService:JSONDecode(value) or nil

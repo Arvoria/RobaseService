@@ -1,7 +1,7 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Shared = ReplicatedStorage:WaitForChild("Shared")
-local TestEZModule = Shared:WaitForChild("TestEZ")
-local TestEZ = require(TestEZModule)
+local RobaseService = script.Parent.RobaseService
+local UnitTests = RobaseService.UnitTests
+local Tests = UnitTests:GetDescendants()
+local Shared = game:GetService("ReplicatedStorage").Shared
 
-local Tests = Shared:FindFirstChild("RobaseTests"):GetDescendants()
+local TestEZ = require(Shared.TestEZ)
 TestEZ.TestBootstrap:run(Tests)

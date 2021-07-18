@@ -1,0 +1,4802 @@
+<roblox version="4">
+  <Item class="Lighting" referent="0">
+    <Properties>
+      <string name="Name">Lighting</string>
+      <Color3 name="Ambient">
+        <R>0</R>
+        <G>0</G>
+        <B>0</B>
+      </Color3>
+      <float name="Brightness">2</float>
+      <bool name="GlobalShadows">true</bool>
+      <bool name="Outlines">false</bool>
+      <token name="Technology">1</token>
+    </Properties>
+  </Item>
+  <Item class="ReplicatedStorage" referent="1">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+    <Item class="Folder" referent="2">
+      <Properties>
+        <string name="Name">Shared</string>
+      </Properties>
+      <Item class="ModuleScript" referent="3">
+        <Properties>
+          <string name="Name">RobaseService</string>
+          <string name="Source">local Robase = require(script.Robase)
+local HttpService = game:GetService("HttpService")
+
+local RobaseService = { }
+RobaseService.BaseUrl = nil
+RobaseService.AuthKey = nil
+RobaseService.__index = RobaseService
+
+local function fixTrailingSlashes(url)
+
+    local foundTrailingSlashes = url:match("/+$")
+    url = foundTrailingSlashes and url:sub(1, url:len()-#foundTrailingSlashes) or url
+
+    return url
+end
+
+function RobaseService.new(baseUrl, token)
+    if baseUrl == nil then
+        error("Bad Argument 1 baseUrl expected, got nil")
+    elseif token==nil then
+        error("Bad Argument 2 token expected, got nil")
+    end
+
+    local self = setmetatable({}, RobaseService)
+    self.BaseUrl = fixTrailingSlashes(baseUrl)
+    self.AuthKey = ".json?auth="..token
+    return self
+end
+
+function RobaseService:GetRobase(name, scope)
+    if self.AuthKey==nil or self.AuthKey=="" then
+        error("You must instantiate RobaseService with an AuthKey to use the RobaseService API")
+    elseif self.BaseUrl==nil or self.BaseUrl=="" then
+        error("You must instantiate RobaseService with a BaseUrl to use the RobaseService API")
+    end
+
+    name = name and HttpService:UrlEncode(name) or ""
+    scope = scope and HttpService:UrlEncode(scope) or ""
+
+    local formattedUrl = self.BaseUrl .. scope .. "/" .. name
+    return Robase.new(formattedUrl, self)
+end
+
+return RobaseService</string>
+        </Properties>
+        <Item class="ModuleScript" referent="4">
+          <Properties>
+            <string name="Name">HttpWrapper</string>
+            <string name="Source">local HttpService = game:GetService("HttpService")
+local Promise = require(script.Parent:FindFirstChild("Promise"))
+
+local HttpWrapper = { }
+
+function HttpWrapper:Request(requestOptions)
+    if requestOptions == nil then
+        return Promise.reject("Argument 1 missing or nil")
+    elseif requestOptions.Url == nil then
+        return Promise.reject("Argument 1 missing Url field")
+    end
+
+    return Promise.new(function(resolve, reject)
+        local response = HttpService:RequestAsync(requestOptions)
+
+        if response.Success then
+            resolve(response.Body)
+        else
+            reject(response)
+        end
+    end)
+end
+
+return HttpWrapper</string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="5">
+          <Properties>
+            <string name="Name">Promise</string>
+            <string name="Source"><![CDATA[--[[
+	An implementation of Promises similar to Promise/A+.
+]]
+
+local ERROR_NON_PROMISE_IN_LIST = "Non-promise value passed into %s at index %s"
+local ERROR_NON_LIST = "Please pass a list of promises to %s"
+local ERROR_NON_FUNCTION = "Please pass a handler function to %s!"
+local MODE_KEY_METATABLE = {__mode = "k"}
+
+--[[
+	Creates an enum dictionary with some metamethods to prevent common mistakes.
+]]
+local function makeEnum(enumName, members)
+	local enum = {}
+
+	for _, memberName in ipairs(members) do
+		enum[memberName] = memberName
+	end
+
+	return setmetatable(enum, {
+		__index = function(_, k)
+			error(string.format("%s is not in %s!", k, enumName), 2)
+		end,
+		__newindex = function()
+			error(string.format("Creating new members in %s is not allowed!", enumName), 2)
+		end,
+	})
+end
+
+--[[
+	An object to represent runtime errors that occur during execution.
+	Promises that experience an error like this will be rejected with
+	an instance of this object.
+]]
+local Error do
+	Error = {
+		Kind = makeEnum("Promise.Error.Kind", {
+			"ExecutionError",
+			"AlreadyCancelled",
+			"NotResolvedInTime",
+			"TimedOut",
+		}),
+	}
+	Error.__index = Error
+
+	function Error.new(options, parent)
+		options = options or {}
+		return setmetatable({
+			error = tostring(options.error) or "[This error has no error text.]",
+			trace = options.trace,
+			context = options.context,
+			kind = options.kind,
+			parent = parent,
+			createdTick = os.clock(),
+			createdTrace = debug.traceback(),
+		}, Error)
+	end
+
+	function Error.is(anything)
+		if type(anything) == "table" then
+			local metatable = getmetatable(anything)
+
+			if type(metatable) == "table" then
+				return rawget(anything, "error") ~= nil and type(rawget(metatable, "extend")) == "function"
+			end
+		end
+
+		return false
+	end
+
+	function Error.isKind(anything, kind)
+		assert(kind ~= nil, "Argument #2 to Promise.Error.isKind must not be nil")
+
+		return Error.is(anything) and anything.kind == kind
+	end
+
+	function Error:extend(options)
+		options = options or {}
+
+		options.kind = options.kind or self.kind
+
+		return Error.new(options, self)
+	end
+
+	function Error:getErrorChain()
+		local runtimeErrors = { self }
+
+		while runtimeErrors[#runtimeErrors].parent do
+			table.insert(runtimeErrors, runtimeErrors[#runtimeErrors].parent)
+		end
+
+		return runtimeErrors
+	end
+
+	function Error:__tostring()
+		local errorStrings = {
+			string.format("-- Promise.Error(%s) --", self.kind or "?"),
+		}
+
+		for _, runtimeError in ipairs(self:getErrorChain()) do
+			table.insert(errorStrings, table.concat({
+				runtimeError.trace or runtimeError.error,
+				runtimeError.context,
+			}, "\n"))
+		end
+
+		return table.concat(errorStrings, "\n")
+	end
+end
+
+--[[
+	Packs a number of arguments into a table and returns its length.
+
+	Used to cajole varargs without dropping sparse values.
+]]
+local function pack(...)
+	return select("#", ...), { ... }
+end
+
+--[[
+	Returns first value (success), and packs all following values.
+]]
+local function packResult(success, ...)
+	return success, select("#", ...), { ... }
+end
+
+
+local function makeErrorHandler(traceback)
+	assert(traceback ~= nil)
+
+	return function(err)
+		-- If the error object is already a table, forward it directly.
+		-- Should we extend the error here and add our own trace?
+
+		if type(err) == "table" then
+			return err
+		end
+
+		return Error.new({
+			error = err,
+			kind = Error.Kind.ExecutionError,
+			trace = debug.traceback(tostring(err), 2),
+			context = "Promise created at:\n\n" .. traceback,
+		})
+	end
+end
+
+--[[
+	Calls a Promise executor with error handling.
+]]
+local function runExecutor(traceback, callback, ...)
+	return packResult(xpcall(callback, makeErrorHandler(traceback), ...))
+end
+
+--[[
+	Creates a function that invokes a callback with correct error handling and
+	resolution mechanisms.
+]]
+local function createAdvancer(traceback, callback, resolve, reject)
+	return function(...)
+		local ok, resultLength, result = runExecutor(traceback, callback, ...)
+
+		if ok then
+			resolve(unpack(result, 1, resultLength))
+		else
+			reject(result[1])
+		end
+	end
+end
+
+local function isEmpty(t)
+	return next(t) == nil
+end
+
+local Promise = {
+	Error = Error,
+	Status = makeEnum("Promise.Status", {"Started", "Resolved", "Rejected", "Cancelled"}),
+	_getTime = os.clock,
+	_timeEvent = game:GetService("RunService").Heartbeat,
+}
+Promise.prototype = {}
+Promise.__index = Promise.prototype
+
+--[[
+	Constructs a new Promise with the given initializing callback.
+
+	This is generally only called when directly wrapping a non-promise API into
+	a promise-based version.
+
+	The callback will receive 'resolve' and 'reject' methods, used to start
+	invoking the promise chain.
+
+	Second parameter, parent, is used internally for tracking the "parent" in a
+	promise chain. External code shouldn't need to worry about this.
+]]
+function Promise._new(traceback, callback, parent)
+	if parent ~= nil and not Promise.is(parent) then
+		error("Argument #2 to Promise.new must be a promise or nil", 2)
+	end
+
+	local self = {
+		-- Used to locate where a promise was created
+		_source = traceback,
+
+		_status = Promise.Status.Started,
+
+		-- A table containing a list of all results, whether success or failure.
+		-- Only valid if _status is set to something besides Started
+		_values = nil,
+
+		-- Lua doesn't like sparse arrays very much, so we explicitly store the
+		-- length of _values to handle middle nils.
+		_valuesLength = -1,
+
+		-- Tracks if this Promise has no error observers..
+		_unhandledRejection = true,
+
+		-- Queues representing functions we should invoke when we update!
+		_queuedResolve = {},
+		_queuedReject = {},
+		_queuedFinally = {},
+
+		-- The function to run when/if this promise is cancelled.
+		_cancellationHook = nil,
+
+		-- The "parent" of this promise in a promise chain. Required for
+		-- cancellation propagation upstream.
+		_parent = parent,
+
+		-- Consumers are Promises that have chained onto this one.
+		-- We track them for cancellation propagation downstream.
+		_consumers = setmetatable({}, MODE_KEY_METATABLE),
+	}
+
+	if parent and parent._status == Promise.Status.Started then
+		parent._consumers[self] = true
+	end
+
+	setmetatable(self, Promise)
+
+	local function resolve(...)
+		self:_resolve(...)
+	end
+
+	local function reject(...)
+		self:_reject(...)
+	end
+
+	local function onCancel(cancellationHook)
+		if cancellationHook then
+			if self._status == Promise.Status.Cancelled then
+				cancellationHook()
+			else
+				self._cancellationHook = cancellationHook
+			end
+		end
+
+		return self._status == Promise.Status.Cancelled
+	end
+
+	coroutine.wrap(function()
+		local ok, _, result = runExecutor(
+			self._source,
+			callback,
+			resolve,
+			reject,
+			onCancel
+		)
+
+		if not ok then
+			reject(result[1])
+		end
+	end)()
+
+	return self
+end
+
+function Promise.new(executor)
+	return Promise._new(debug.traceback(nil, 2), executor)
+end
+
+function Promise:__tostring()
+	return string.format("Promise(%s)", self:getStatus())
+end
+
+--[[
+	Promise.new, except pcall on a new thread is automatic.
+]]
+function Promise.defer(callback)
+	local traceback = debug.traceback(nil, 2)
+	local promise
+	promise = Promise._new(traceback, function(resolve, reject, onCancel)
+		local connection
+		connection = Promise._timeEvent:Connect(function()
+			connection:Disconnect()
+			local ok, _, result = runExecutor(traceback, callback, resolve, reject, onCancel)
+
+			if not ok then
+				reject(result[1])
+			end
+		end)
+	end)
+
+	return promise
+end
+
+-- Backwards compatibility
+Promise.async = Promise.defer
+
+--[[
+	Create a promise that represents the immediately resolved value.
+]]
+function Promise.resolve(...)
+	local length, values = pack(...)
+	return Promise._new(debug.traceback(nil, 2), function(resolve)
+		resolve(unpack(values, 1, length))
+	end)
+end
+
+--[[
+	Create a promise that represents the immediately rejected value.
+]]
+function Promise.reject(...)
+	local length, values = pack(...)
+	return Promise._new(debug.traceback(nil, 2), function(_, reject)
+		reject(unpack(values, 1, length))
+	end)
+end
+
+--[[
+	Runs a non-promise-returning function as a Promise with the
+  given arguments.
+]]
+function Promise._try(traceback, callback, ...)
+	local valuesLength, values = pack(...)
+
+	return Promise._new(traceback, function(resolve)
+		resolve(callback(unpack(values, 1, valuesLength)))
+	end)
+end
+
+--[[
+	Begins a Promise chain, turning synchronous errors into rejections.
+]]
+function Promise.try(...)
+	return Promise._try(debug.traceback(nil, 2), ...)
+end
+
+--[[
+	Returns a new promise that:
+		* is resolved when all input promises resolve
+		* is rejected if ANY input promises reject
+]]
+function Promise._all(traceback, promises, amount)
+	if type(promises) ~= "table" then
+		error(string.format(ERROR_NON_LIST, "Promise.all"), 3)
+	end
+
+	-- We need to check that each value is a promise here so that we can produce
+	-- a proper error rather than a rejected promise with our error.
+	for i, promise in pairs(promises) do
+		if not Promise.is(promise) then
+			error(string.format(ERROR_NON_PROMISE_IN_LIST, "Promise.all", tostring(i)), 3)
+		end
+	end
+
+	-- If there are no values then return an already resolved promise.
+	if #promises == 0 or amount == 0 then
+		return Promise.resolve({})
+	end
+
+	return Promise._new(traceback, function(resolve, reject, onCancel)
+		-- An array to contain our resolved values from the given promises.
+		local resolvedValues = {}
+		local newPromises = {}
+
+		-- Keep a count of resolved promises because just checking the resolved
+		-- values length wouldn't account for promises that resolve with nil.
+		local resolvedCount = 0
+		local rejectedCount = 0
+		local done = false
+
+		local function cancel()
+			for _, promise in ipairs(newPromises) do
+				promise:cancel()
+			end
+		end
+
+		-- Called when a single value is resolved and resolves if all are done.
+		local function resolveOne(i, ...)
+			if done then
+				return
+			end
+
+			resolvedCount = resolvedCount + 1
+
+			if amount == nil then
+				resolvedValues[i] = ...
+			else
+				resolvedValues[resolvedCount] = ...
+			end
+
+			if resolvedCount >= (amount or #promises) then
+				done = true
+				resolve(resolvedValues)
+				cancel()
+			end
+		end
+
+		onCancel(cancel)
+
+		-- We can assume the values inside `promises` are all promises since we
+		-- checked above.
+		for i, promise in ipairs(promises) do
+			newPromises[i] = promise:andThen(
+				function(...)
+					resolveOne(i, ...)
+				end,
+				function(...)
+					rejectedCount = rejectedCount + 1
+
+					if amount == nil or #promises - rejectedCount < amount then
+						cancel()
+						done = true
+
+						reject(...)
+					end
+				end
+			)
+		end
+
+		if done then
+			cancel()
+		end
+	end)
+end
+
+function Promise.all(promises)
+	return Promise._all(debug.traceback(nil, 2), promises)
+end
+
+function Promise.fold(list, callback, initialValue)
+	assert(type(list) == "table", "Bad argument #1 to Promise.fold: must be a table")
+	assert(type(callback) == "function", "Bad argument #2 to Promise.fold: must be a function")
+
+	local accumulator = Promise.resolve(initialValue)
+	return Promise.each(list, function(resolvedElement, i)
+		accumulator = accumulator:andThen(function(previousValueResolved)
+			return callback(previousValueResolved, resolvedElement, i)
+		end)
+	end):andThenReturn(accumulator)
+end
+
+function Promise.some(promises, amount)
+	assert(type(amount) == "number", "Bad argument #2 to Promise.some: must be a number")
+
+	return Promise._all(debug.traceback(nil, 2), promises, amount)
+end
+
+function Promise.any(promises)
+	return Promise._all(debug.traceback(nil, 2), promises, 1):andThen(function(values)
+		return values[1]
+	end)
+end
+
+function Promise.allSettled(promises)
+	if type(promises) ~= "table" then
+		error(string.format(ERROR_NON_LIST, "Promise.allSettled"), 2)
+	end
+
+	-- We need to check that each value is a promise here so that we can produce
+	-- a proper error rather than a rejected promise with our error.
+	for i, promise in pairs(promises) do
+		if not Promise.is(promise) then
+			error(string.format(ERROR_NON_PROMISE_IN_LIST, "Promise.allSettled", tostring(i)), 2)
+		end
+	end
+
+	-- If there are no values then return an already resolved promise.
+	if #promises == 0 then
+		return Promise.resolve({})
+	end
+
+	return Promise._new(debug.traceback(nil, 2), function(resolve, _, onCancel)
+		-- An array to contain our resolved values from the given promises.
+		local fates = {}
+		local newPromises = {}
+
+		-- Keep a count of resolved promises because just checking the resolved
+		-- values length wouldn't account for promises that resolve with nil.
+		local finishedCount = 0
+
+		-- Called when a single value is resolved and resolves if all are done.
+		local function resolveOne(i, ...)
+			finishedCount = finishedCount + 1
+
+			fates[i] = ...
+
+			if finishedCount >= #promises then
+				resolve(fates)
+			end
+		end
+
+		onCancel(function()
+			for _, promise in ipairs(newPromises) do
+				promise:cancel()
+			end
+		end)
+
+		-- We can assume the values inside `promises` are all promises since we
+		-- checked above.
+		for i, promise in ipairs(promises) do
+			newPromises[i] = promise:finally(
+				function(...)
+					resolveOne(i, ...)
+				end
+			)
+		end
+	end)
+end
+
+--[[
+	Races a set of Promises and returns the first one that resolves,
+	cancelling the others.
+]]
+function Promise.race(promises)
+	assert(type(promises) == "table", string.format(ERROR_NON_LIST, "Promise.race"))
+
+	for i, promise in pairs(promises) do
+		assert(Promise.is(promise), string.format(ERROR_NON_PROMISE_IN_LIST, "Promise.race", tostring(i)))
+	end
+
+	return Promise._new(debug.traceback(nil, 2), function(resolve, reject, onCancel)
+		local newPromises = {}
+		local finished = false
+
+		local function cancel()
+			for _, promise in ipairs(newPromises) do
+				promise:cancel()
+			end
+		end
+
+		local function finalize(callback)
+			return function (...)
+				cancel()
+				finished = true
+				return callback(...)
+			end
+		end
+
+		if onCancel(finalize(reject)) then
+			return
+		end
+
+		for i, promise in ipairs(promises) do
+			newPromises[i] = promise:andThen(finalize(resolve), finalize(reject))
+		end
+
+		if finished then
+			cancel()
+		end
+	end)
+end
+
+--[[
+	Iterates serially over the given an array of values, calling the predicate callback on each before continuing.
+	If the predicate returns a Promise, we wait for that Promise to resolve before continuing to the next item
+	in the array. If the Promise the predicate returns rejects, the Promise from Promise.each is also rejected with
+	the same value.
+
+	Returns a Promise containing an array of the return values from the predicate for each item in the original list.
+]]
+function Promise.each(list, predicate)
+	assert(type(list) == "table", string.format(ERROR_NON_LIST, "Promise.each"))
+	assert(type(predicate) == "function", string.format(ERROR_NON_FUNCTION, "Promise.each"))
+
+	return Promise._new(debug.traceback(nil, 2), function(resolve, reject, onCancel)
+		local results = {}
+		local promisesToCancel = {}
+
+		local cancelled = false
+
+		local function cancel()
+			for _, promiseToCancel in ipairs(promisesToCancel) do
+				promiseToCancel:cancel()
+			end
+		end
+
+		onCancel(function()
+			cancelled = true
+
+			cancel()
+		end)
+
+		-- We need to preprocess the list of values and look for Promises.
+		-- If we find some, we must register our andThen calls now, so that those Promises have a consumer
+		-- from us registered. If we don't do this, those Promises might get cancelled by something else
+		-- before we get to them in the series because it's not possible to tell that we plan to use it
+		-- unless we indicate it here.
+
+		local preprocessedList = {}
+
+		for index, value in ipairs(list) do
+			if Promise.is(value) then
+				if value:getStatus() == Promise.Status.Cancelled then
+					cancel()
+					return reject(Error.new({
+						error = "Promise is cancelled",
+						kind = Error.Kind.AlreadyCancelled,
+						context = string.format(
+							"The Promise that was part of the array at index %d passed into Promise.each was already cancelled when Promise.each began.\n\nThat Promise was created at:\n\n%s",
+							index,
+							value._source
+						),
+					}))
+				elseif value:getStatus() == Promise.Status.Rejected then
+					cancel()
+					return reject(select(2, value:await()))
+				end
+
+				-- Chain a new Promise from this one so we only cancel ours
+				local ourPromise = value:andThen(function(...)
+					return ...
+				end)
+
+				table.insert(promisesToCancel, ourPromise)
+				preprocessedList[index] = ourPromise
+			else
+				preprocessedList[index] = value
+			end
+		end
+
+		for index, value in ipairs(preprocessedList) do
+			if Promise.is(value) then
+				local success
+				success, value = value:await()
+
+				if not success then
+					cancel()
+					return reject(value)
+				end
+			end
+
+			if cancelled then
+				return
+			end
+
+			local predicatePromise = Promise.resolve(predicate(value, index))
+
+			table.insert(promisesToCancel, predicatePromise)
+
+			local success, result = predicatePromise:await()
+
+			if not success then
+				cancel()
+				return reject(result)
+			end
+
+			results[index] = result
+		end
+
+		resolve(results)
+	end)
+end
+
+--[[
+	Is the given object a Promise instance?
+]]
+function Promise.is(object)
+	if type(object) ~= "table" then
+		return false
+	end
+
+	local objectMetatable = getmetatable(object)
+
+	if objectMetatable == Promise then
+		-- The Promise came from this library.
+		return true
+	elseif objectMetatable == nil then
+		-- No metatable, but we should still chain onto tables with andThen methods
+		return type(object.andThen) == "function"
+	elseif
+		type(objectMetatable) == "table"
+		and type(rawget(objectMetatable, "__index")) == "table"
+		and type(rawget(rawget(objectMetatable, "__index"), "andThen")) == "function"
+	then
+		-- Maybe this came from a different or older Promise library.
+		return true
+	end
+
+	return false
+end
+
+--[[
+	Converts a yielding function into a Promise-returning one.
+]]
+function Promise.promisify(callback)
+	return function(...)
+		return Promise._try(debug.traceback(nil, 2), callback, ...)
+	end
+end
+
+--[[
+	Creates a Promise that resolves after given number of seconds.
+]]
+do
+	-- uses a sorted doubly linked list (queue) to achieve O(1) remove operations and O(n) for insert
+
+	-- the initial node in the linked list
+	local first
+	local connection
+
+	function Promise.delay(seconds)
+		assert(type(seconds) == "number", "Bad argument #1 to Promise.delay, must be a number.")
+		-- If seconds is -INF, INF, NaN, or less than 1 / 60, assume seconds is 1 / 60.
+		-- This mirrors the behavior of wait()
+		if not (seconds >= 1 / 60) or seconds == math.huge then
+			seconds = 1 / 60
+		end
+
+		return Promise._new(debug.traceback(nil, 2), function(resolve, _, onCancel)
+			local startTime = Promise._getTime()
+			local endTime = startTime + seconds
+
+			local node = {
+				resolve = resolve,
+				startTime = startTime,
+				endTime = endTime,
+			}
+
+			if connection == nil then -- first is nil when connection is nil
+				first = node
+				connection = Promise._timeEvent:Connect(function()
+					local threadStart = Promise._getTime()
+
+					while first ~= nil and first.endTime < threadStart do
+						local current = first
+						first = current.next
+
+						if first == nil then
+							connection:Disconnect()
+							connection = nil
+						else
+							first.previous = nil
+						end
+
+						current.resolve(Promise._getTime() - current.startTime)
+					end
+				end)
+			else -- first is non-nil
+				if first.endTime < endTime then -- if `node` should be placed after `first`
+					-- we will insert `node` between `current` and `next`
+					-- (i.e. after `current` if `next` is nil)
+					local current = first
+					local next = current.next
+
+					while next ~= nil and next.endTime < endTime do
+						current = next
+						next = current.next
+					end
+
+					-- `current` must be non-nil, but `next` could be `nil` (i.e. last item in list)
+					current.next = node
+					node.previous = current
+
+					if next ~= nil then
+						node.next = next
+						next.previous = node
+					end
+				else
+					-- set `node` to `first`
+					node.next = first
+					first.previous = node
+					first = node
+				end
+			end
+
+			onCancel(function()
+				-- remove node from queue
+				local next = node.next
+
+				if first == node then
+					if next == nil then -- if `node` is the first and last
+						connection:Disconnect()
+						connection = nil
+					else -- if `node` is `first` and not the last
+						next.previous = nil
+					end
+					first = next
+				else
+					local previous = node.previous
+					-- since `node` is not `first`, then we know `previous` is non-nil
+					previous.next = next
+
+					if next ~= nil then
+						next.previous = previous
+					end
+				end
+			end)
+		end)
+	end
+end
+
+--[[
+	Rejects the promise after `seconds` seconds.
+]]
+function Promise.prototype:timeout(seconds, rejectionValue)
+	local traceback = debug.traceback(nil, 2)
+
+	return Promise.race({
+		Promise.delay(seconds):andThen(function()
+			return Promise.reject(rejectionValue == nil and Error.new({
+				kind = Error.Kind.TimedOut,
+				error = "Timed out",
+				context = string.format(
+					"Timeout of %d seconds exceeded.\n:timeout() called at:\n\n%s",
+					seconds,
+					traceback
+				),
+			}) or rejectionValue)
+		end),
+		self,
+	})
+end
+
+function Promise.prototype:getStatus()
+	return self._status
+end
+
+--[[
+	Creates a new promise that receives the result of this promise.
+
+	The given callbacks are invoked depending on that result.
+]]
+function Promise.prototype:_andThen(traceback, successHandler, failureHandler)
+	self._unhandledRejection = false
+
+	-- Create a new promise to follow this part of the chain
+	return Promise._new(traceback, function(resolve, reject)
+		-- Our default callbacks just pass values onto the next promise.
+		-- This lets success and failure cascade correctly!
+
+		local successCallback = resolve
+		if successHandler then
+			successCallback = createAdvancer(
+				traceback,
+				successHandler,
+				resolve,
+				reject
+			)
+		end
+
+		local failureCallback = reject
+		if failureHandler then
+			failureCallback = createAdvancer(
+				traceback,
+				failureHandler,
+				resolve,
+				reject
+			)
+		end
+
+		if self._status == Promise.Status.Started then
+			-- If we haven't resolved yet, put ourselves into the queue
+			table.insert(self._queuedResolve, successCallback)
+			table.insert(self._queuedReject, failureCallback)
+		elseif self._status == Promise.Status.Resolved then
+			-- This promise has already resolved! Trigger success immediately.
+			successCallback(unpack(self._values, 1, self._valuesLength))
+		elseif self._status == Promise.Status.Rejected then
+			-- This promise died a terrible death! Trigger failure immediately.
+			failureCallback(unpack(self._values, 1, self._valuesLength))
+		elseif self._status == Promise.Status.Cancelled then
+			-- We don't want to call the success handler or the failure handler,
+			-- we just reject this promise outright.
+			reject(Error.new({
+				error = "Promise is cancelled",
+				kind = Error.Kind.AlreadyCancelled,
+				context = "Promise created at\n\n" .. traceback,
+			}))
+		end
+	end, self)
+end
+
+function Promise.prototype:andThen(successHandler, failureHandler)
+	assert(
+		successHandler == nil or type(successHandler) == "function",
+		string.format(ERROR_NON_FUNCTION, "Promise:andThen")
+	)
+	assert(
+		failureHandler == nil or type(failureHandler) == "function",
+		string.format(ERROR_NON_FUNCTION, "Promise:andThen")
+	)
+
+	return self:_andThen(debug.traceback(nil, 2), successHandler, failureHandler)
+end
+
+--[[
+	Used to catch any errors that may have occurred in the promise.
+]]
+function Promise.prototype:catch(failureCallback)
+	assert(
+		failureCallback == nil or type(failureCallback) == "function",
+		string.format(ERROR_NON_FUNCTION, "Promise:catch")
+	)
+	return self:_andThen(debug.traceback(nil, 2), nil, failureCallback)
+end
+
+--[[
+	Like andThen, but the value passed into the handler is also the
+	value returned from the handler.
+]]
+function Promise.prototype:tap(tapCallback)
+	assert(type(tapCallback) == "function", string.format(ERROR_NON_FUNCTION, "Promise:tap"))
+	return self:_andThen(debug.traceback(nil, 2), function(...)
+		local callbackReturn = tapCallback(...)
+
+		if Promise.is(callbackReturn) then
+			local length, values = pack(...)
+			return callbackReturn:andThen(function()
+				return unpack(values, 1, length)
+			end)
+		end
+
+		return ...
+	end)
+end
+
+--[[
+	Calls a callback on `andThen` with specific arguments.
+]]
+function Promise.prototype:andThenCall(callback, ...)
+	assert(type(callback) == "function", string.format(ERROR_NON_FUNCTION, "Promise:andThenCall"))
+	local length, values = pack(...)
+	return self:_andThen(debug.traceback(nil, 2), function()
+		return callback(unpack(values, 1, length))
+	end)
+end
+
+--[[
+	Shorthand for an andThen handler that returns the given value.
+]]
+function Promise.prototype:andThenReturn(...)
+	local length, values = pack(...)
+	return self:_andThen(debug.traceback(nil, 2), function()
+		return unpack(values, 1, length)
+	end)
+end
+
+--[[
+	Cancels the promise, disallowing it from rejecting or resolving, and calls
+	the cancellation hook if provided.
+]]
+function Promise.prototype:cancel()
+	if self._status ~= Promise.Status.Started then
+		return
+	end
+
+	self._status = Promise.Status.Cancelled
+
+	if self._cancellationHook then
+		self._cancellationHook()
+	end
+
+	if self._parent then
+		self._parent:_consumerCancelled(self)
+	end
+
+	for child in pairs(self._consumers) do
+		child:cancel()
+	end
+
+	self:_finalize()
+end
+
+--[[
+	Used to decrease the number of consumers by 1, and if there are no more,
+	cancel this promise.
+]]
+function Promise.prototype:_consumerCancelled(consumer)
+	if self._status ~= Promise.Status.Started then
+		return
+	end
+
+	self._consumers[consumer] = nil
+
+	if next(self._consumers) == nil then
+		self:cancel()
+	end
+end
+
+--[[
+	Used to set a handler for when the promise resolves, rejects, or is
+	cancelled. Returns a new promise chained from this promise.
+]]
+function Promise.prototype:_finally(traceback, finallyHandler, onlyOk)
+	if not onlyOk then
+		self._unhandledRejection = false
+	end
+
+	-- Return a promise chained off of this promise
+	return Promise._new(traceback, function(resolve, reject)
+		local finallyCallback = resolve
+		if finallyHandler then
+			finallyCallback = createAdvancer(
+				traceback,
+				finallyHandler,
+				resolve,
+				reject
+			)
+		end
+
+		if onlyOk then
+			local callback = finallyCallback
+			finallyCallback = function(...)
+				if self._status == Promise.Status.Rejected then
+					return resolve(self)
+				end
+
+				return callback(...)
+			end
+		end
+
+		if self._status == Promise.Status.Started then
+			-- The promise is not settled, so queue this.
+			table.insert(self._queuedFinally, finallyCallback)
+		else
+			-- The promise already settled or was cancelled, run the callback now.
+			finallyCallback(self._status)
+		end
+	end, self)
+end
+
+function Promise.prototype:finally(finallyHandler)
+	assert(
+		finallyHandler == nil or type(finallyHandler) == "function",
+		string.format(ERROR_NON_FUNCTION, "Promise:finally")
+	)
+	return self:_finally(debug.traceback(nil, 2), finallyHandler)
+end
+
+--[[
+	Calls a callback on `finally` with specific arguments.
+]]
+function Promise.prototype:finallyCall(callback, ...)
+	assert(type(callback) == "function", string.format(ERROR_NON_FUNCTION, "Promise:finallyCall"))
+	local length, values = pack(...)
+	return self:_finally(debug.traceback(nil, 2), function()
+		return callback(unpack(values, 1, length))
+	end)
+end
+
+--[[
+	Shorthand for a finally handler that returns the given value.
+]]
+function Promise.prototype:finallyReturn(...)
+	local length, values = pack(...)
+	return self:_finally(debug.traceback(nil, 2), function()
+		return unpack(values, 1, length)
+	end)
+end
+
+--[[
+	Similar to finally, except rejections are propagated through it.
+]]
+function Promise.prototype:done(finallyHandler)
+	assert(
+		finallyHandler == nil or type(finallyHandler) == "function",
+		string.format(ERROR_NON_FUNCTION, "Promise:done")
+	)
+	return self:_finally(debug.traceback(nil, 2), finallyHandler, true)
+end
+
+--[[
+	Calls a callback on `done` with specific arguments.
+]]
+function Promise.prototype:doneCall(callback, ...)
+	assert(type(callback) == "function", string.format(ERROR_NON_FUNCTION, "Promise:doneCall"))
+	local length, values = pack(...)
+	return self:_finally(debug.traceback(nil, 2), function()
+		return callback(unpack(values, 1, length))
+	end, true)
+end
+
+--[[
+	Shorthand for a done handler that returns the given value.
+]]
+function Promise.prototype:doneReturn(...)
+	local length, values = pack(...)
+	return self:_finally(debug.traceback(nil, 2), function()
+		return unpack(values, 1, length)
+	end, true)
+end
+
+--[[
+	Yield until the promise is completed.
+
+	This matches the execution model of normal Roblox functions.
+]]
+function Promise.prototype:awaitStatus()
+	self._unhandledRejection = false
+
+	if self._status == Promise.Status.Started then
+		local bindable = Instance.new("BindableEvent")
+
+		self:finally(function()
+			bindable:Fire()
+		end)
+
+		bindable.Event:Wait()
+		bindable:Destroy()
+	end
+
+	if self._status == Promise.Status.Resolved then
+		return self._status, unpack(self._values, 1, self._valuesLength)
+	elseif self._status == Promise.Status.Rejected then
+		return self._status, unpack(self._values, 1, self._valuesLength)
+	end
+
+	return self._status
+end
+
+local function awaitHelper(status, ...)
+	return status == Promise.Status.Resolved, ...
+end
+
+--[[
+	Calls awaitStatus internally, returns (isResolved, values...)
+]]
+function Promise.prototype:await()
+	return awaitHelper(self:awaitStatus())
+end
+
+local function expectHelper(status, ...)
+	if status ~= Promise.Status.Resolved then
+		error((...) == nil and "Expected Promise rejected with no value." or (...), 3)
+	end
+
+	return ...
+end
+
+--[[
+	Calls await and only returns if the Promise resolves.
+	Throws if the Promise rejects or gets cancelled.
+]]
+function Promise.prototype:expect()
+	return expectHelper(self:awaitStatus())
+end
+
+-- Backwards compatibility
+Promise.prototype.awaitValue = Promise.prototype.expect
+
+--[[
+	Intended for use in tests.
+
+	Similar to await(), but instead of yielding if the promise is unresolved,
+	_unwrap will throw. This indicates an assumption that a promise has
+	resolved.
+]]
+function Promise.prototype:_unwrap()
+	if self._status == Promise.Status.Started then
+		error("Promise has not resolved or rejected.", 2)
+	end
+
+	local success = self._status == Promise.Status.Resolved
+
+	return success, unpack(self._values, 1, self._valuesLength)
+end
+
+function Promise.prototype:_resolve(...)
+	if self._status ~= Promise.Status.Started then
+		if Promise.is((...)) then
+			(...):_consumerCancelled(self)
+		end
+		return
+	end
+
+	-- If the resolved value was a Promise, we chain onto it!
+	if Promise.is((...)) then
+		-- Without this warning, arguments sometimes mysteriously disappear
+		if select("#", ...) > 1 then
+			local message = string.format(
+				"When returning a Promise from andThen, extra arguments are " ..
+				"discarded! See:\n\n%s",
+				self._source
+			)
+			warn(message)
+		end
+
+		local chainedPromise = ...
+
+		local promise = chainedPromise:andThen(
+			function(...)
+				self:_resolve(...)
+			end,
+			function(...)
+				local maybeRuntimeError = chainedPromise._values[1]
+
+				-- Backwards compatibility < v2
+				if chainedPromise._error then
+					maybeRuntimeError = Error.new({
+						error = chainedPromise._error,
+						kind = Error.Kind.ExecutionError,
+						context = "[No stack trace available as this Promise originated from an older version of the Promise library (< v2)]",
+					})
+				end
+
+				if Error.isKind(maybeRuntimeError, Error.Kind.ExecutionError) then
+					return self:_reject(maybeRuntimeError:extend({
+						error = "This Promise was chained to a Promise that errored.",
+						trace = "",
+						context = string.format(
+							"The Promise at:\n\n%s\n...Rejected because it was chained to the following Promise, which encountered an error:\n",
+							self._source
+						),
+					}))
+				end
+
+				self:_reject(...)
+			end
+		)
+
+		if promise._status == Promise.Status.Cancelled then
+			self:cancel()
+		elseif promise._status == Promise.Status.Started then
+			-- Adopt ourselves into promise for cancellation propagation.
+			self._parent = promise
+			promise._consumers[self] = true
+		end
+
+		return
+	end
+
+	self._status = Promise.Status.Resolved
+	self._valuesLength, self._values = pack(...)
+
+	-- We assume that these callbacks will not throw errors.
+	for _, callback in ipairs(self._queuedResolve) do
+		coroutine.wrap(callback)(...)
+	end
+
+	self:_finalize()
+end
+
+function Promise.prototype:_reject(...)
+	if self._status ~= Promise.Status.Started then
+		return
+	end
+
+	self._status = Promise.Status.Rejected
+	self._valuesLength, self._values = pack(...)
+
+	-- If there are any rejection handlers, call those!
+	if not isEmpty(self._queuedReject) then
+		-- We assume that these callbacks will not throw errors.
+		for _, callback in ipairs(self._queuedReject) do
+			coroutine.wrap(callback)(...)
+		end
+	else
+		-- At this point, no one was able to observe the error.
+		-- An error handler might still be attached if the error occurred
+		-- synchronously. We'll wait one tick, and if there are still no
+		-- observers, then we should put a message in the console.
+
+		local err = tostring((...))
+
+		coroutine.wrap(function()
+			Promise._timeEvent:Wait()
+
+			-- Someone observed the error, hooray!
+			if not self._unhandledRejection then
+				return
+			end
+
+			-- Build a reasonable message
+			local message = string.format(
+				"Unhandled Promise rejection:\n\n%s\n\n%s",
+				err,
+				self._source
+			)
+
+			if Promise.TEST then
+				-- Don't spam output when we're running tests.
+				return
+			end
+
+			warn(message)
+		end)()
+	end
+
+	self:_finalize()
+end
+
+--[[
+	Calls any :finally handlers. We need this to be a separate method and
+	queue because we must call all of the finally callbacks upon a success,
+	failure, *and* cancellation.
+]]
+function Promise.prototype:_finalize()
+	for _, callback in ipairs(self._queuedFinally) do
+		-- Purposefully not passing values to callbacks here, as it could be the
+		-- resolved values, or rejected errors. If the developer needs the values,
+		-- they should use :andThen or :catch explicitly.
+		coroutine.wrap(callback)(self._status)
+	end
+
+	self._queuedFinally = nil
+	self._queuedReject = nil
+	self._queuedResolve = nil
+
+	-- Clear references to other Promises to allow gc
+	if not Promise.TEST then
+		self._parent = nil
+		self._consumers = nil
+	end
+end
+
+--[[
+	Chains a Promise from this one that is resolved if this Promise is
+	resolved, and rejected if it is not resolved.
+]]
+function Promise.prototype:now(rejectionValue)
+	local traceback = debug.traceback(nil, 2)
+	if self:getStatus() == Promise.Status.Resolved then
+		return self:_andThen(traceback, function(...)
+			return ...
+		end)
+	else
+		return Promise.reject(rejectionValue == nil and Error.new({
+			kind = Error.Kind.NotResolvedInTime,
+			error = "This Promise was not resolved in time for :now()",
+			context = ":now() was called at:\n\n" .. traceback,
+		}) or rejectionValue)
+	end
+end
+
+--[[
+	Retries a Promise-returning callback N times until it succeeds.
+]]
+function Promise.retry(callback, times, ...)
+	assert(type(callback) == "function", "Parameter #1 to Promise.retry must be a function")
+	assert(type(times) == "number", "Parameter #2 to Promise.retry must be a number")
+
+	local args, length = {...}, select("#", ...)
+
+	return Promise.resolve(callback(...)):catch(function(...)
+		if times > 0 then
+			return Promise.retry(callback, times - 1, unpack(args, 1, length))
+		else
+			return Promise.reject(...)
+		end
+	end)
+end
+
+--[[
+	Converts an event into a Promise with an optional predicate
+]]
+function Promise.fromEvent(event, predicate)
+	predicate = predicate or function()
+		return true
+	end
+
+	return Promise._new(debug.traceback(nil, 2), function(resolve, reject, onCancel)
+		local connection
+		local shouldDisconnect = false
+
+		local function disconnect()
+			connection:Disconnect()
+			connection = nil
+		end
+
+		-- We use shouldDisconnect because if the callback given to Connect is called before
+		-- Connect returns, connection will still be nil. This happens with events that queue up
+		-- events when there's nothing connected, such as RemoteEvents
+
+		connection = event:Connect(function(...)
+			local callbackValue = predicate(...)
+
+			if callbackValue == true then
+				resolve(...)
+
+				if connection then
+					disconnect()
+				else
+					shouldDisconnect = true
+				end
+			elseif type(callbackValue) ~= "boolean" then
+				error("Promise.fromEvent predicate should always return a boolean")
+			end
+		end)
+
+		if shouldDisconnect and connection then
+			return disconnect()
+		end
+
+		onCancel(function()
+			disconnect()
+		end)
+	end)
+end
+
+return Promise
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="6">
+          <Properties>
+            <string name="Name">Robase</string>
+            <string name="Source">local HttpWrapper = require(script.Parent.HttpWrapper)
+local HttpService = game:GetService("HttpService")
+
+local Robase = { }
+Robase.__index = Robase
+
+local Enum = {
+    HttpMethod = {
+        ["Default"] = "PUT",
+        ["Put"] = "PUT",
+        ["Get"] = "GET",
+        ["Delete"] = "DELETE",
+        ["Patch"] = "PATCH"
+     }
+}
+
+local function findHttpMethod(method)
+    if method == nil then
+        return nil
+    end
+
+    for key, value in pairs(Enum.HttpMethod) do
+        if method:upper() ~= key:upper() or method:upper() ~= value:upper() then
+            continue
+        else
+            return Enum.HttpMethod[key]
+        end
+    end
+    return nil
+end
+
+local function generateRequestOptions(key, data, method, robase)
+    if typeof(key)~="string" then
+        error(string.format("Bad argument 1 string expected got %s", typeof(key)))
+    end
+    if data ~= nil then
+        data = HttpService:JSONEncode(data)
+    end
+    if typeof(method)~="string" or findHttpMethod(method)==nil then
+        warn(
+            string.format(
+                "Malformed argument 3, string expected, got %s; Defaulting to %s",
+                typeof(method),
+                Enum.HttpMethod.Default
+            )
+        )
+        method = Enum.HttpMethod.Default
+    end
+    if typeof(robase)~="table" then
+        error(string.format("Bad arument 4 table {Robase|self} expected got %s", typeof(robase)))
+    end
+
+    key = key:sub(1,1)~="/" and "/"..key or key
+    local url = robase._path .. HttpService:UrlEncode(key) .. robase._auth
+
+    return {
+        Url = url,
+        Method = findHttpMethod(method),
+        Body = data
+    }
+end
+
+function Robase.new(path, robaseService)
+    assert(path~=nil, "Cannot instantiate Robase without a specific path")
+    assert(robaseService~=nil, "Cannot instatiate Robase without a linked RobaseService")
+
+    local self = { }
+    self._path = path
+    self._auth = robaseService.AuthKey
+    return setmetatable(self, Robase)
+end
+
+function Robase:Get(key)
+    local options = generateRequestOptions(key, nil, "GET", self)
+    return HttpWrapper:Request(options)
+end
+
+function Robase:Set(key, data, method)
+    local options = generateRequestOptions(key, data, method, self)
+    options.Headers = {
+        ["Content-Type"] = "application/json"
+    }
+    return HttpWrapper:Request(options)
+end
+
+function Robase:GetAsync(key)
+    local success, value = self:Get(key):await()
+
+    if not success then
+        local err = string.format("%d Error: %s", value.StatusCode, value.StatusMessage)
+        error(err)
+    end
+
+    value = value and HttpService:JSONDecode(value) or nil
+    return success, value
+end
+
+function Robase:SetAsync(key, data, method)
+    local success, value = self:Set(key, data, method):await()
+
+    if not success then
+        local err = string.format("%d Error: %s", value.StatusCode, value.StatusMessage)
+        error(err)
+    end
+
+    value = value and HttpService:JSONDecode(value) or nil
+    return success,value
+end
+
+function Robase:UpdateAsync(key, callback, cache)
+    assert(typeof(callback)=="function", "Bad argument 2 function expected got " .. typeof(callback))
+
+    local success, data
+    if cache~=nil and cache[key] then
+        data = cache[key]
+        success = (data~=nil)
+    else
+        success, data = self:GetAsync(key)
+    end
+
+    local updated = callback(data)
+
+    return self:SetAsync(key, updated, "PATCH")
+end
+
+function Robase:DeleteAsync(key)
+    local _, old = self:GetAsync(key)
+    if old == nil then
+        error(string.format(
+            "No data found at key {%s}",
+            key
+        ))
+    end
+
+    local success, _ = self:SetAsync(key, "", "DELETE")
+    return success, old
+end
+
+function Robase:IncrementAsync(key, delta)
+    local _, data = self:GetAsync(key)
+
+    if typeof(data)~="number" then -- not a number
+        error(string.format(
+            "IncrementAsync, data found at {%s} is not a number",
+            key
+        ))
+    else -- is a number
+        if math.floor(data) ~= data then -- not an integer
+            error(string.format(
+                "IncrementAsync, data found at {%s} is not an integer",
+                key
+            ))
+        end
+    end
+
+    if typeof(delta) ~= "number" then -- not a number
+        if typeof(delta) == "nil" then -- is nil
+            delta = 1
+        else -- not nil
+            error(string.format(
+                "IncrementAsync, delta is a {%s}, {nil|integer} expected",
+                typeof(delta)
+            ))
+        end
+    else -- is a number
+        if math.floor(delta) ~= delta then -- not an integer
+            error("IncrementAsync, delta is a number but is not an integer")
+        end
+    end
+
+    data += delta
+    return self:SetAsync(key, data, "PUT")
+end
+
+function Robase:BatchUpdateAsync(baseKey, callbacks, cache)
+    assert(typeof(callbacks) == "table", ("Bad argument 2, table expected got %s"):format(typeof(callbacks)))
+
+    local updated = { }
+
+    for key, updateFunc in pairs(callbacks) do
+        assert(typeof(updateFunc)=="function", ("Callbacks[%s] function expected got %s"):format(key, typeof(updateFunc)))
+
+        local success, data
+        if cache~=nil and cache[key] then
+            data = cache[key]
+            success = (data~=nil)
+        else
+            success, data = self:GetAsync(("%s/%s"):format(baseKey, key))
+        end
+        assert(data ~= nil or not success, "Something went wrong retrieving data, make sure a key exists for a callback function to perform on")
+
+        updated[key] = updateFunc(data)
+    end
+
+    return self:SetAsync(baseKey, updated, "PATCH")
+end
+
+--[[function Robase:BatchUpdateAsync(baseKey, uploadKeyValues, uploadCallbacks, cache)
+    local t1,t2 = typeof(uploadKeyValues), typeof(uploadCallbacks)
+    assert(t1 == "table", "Bad argument 2, table expected got " .. t1)
+    assert(t2 == "table", "Bad argument 3, table expected got " .. t2)
+    t1,t2=nil,nil
+
+    local updated = { }
+
+    for key, value in pairs(uploadKeyValues) do
+        assert(uploadCallbacks[key]~=nil, "BatchUpdateAsync: '"..key.."' does not have a callback function")
+        assert(typeof(uploadCallbacks[key])=="function", "Callback is not a function")
+
+        local success, data
+        if cache~=nil and cache[key] then
+            data = cache[key]
+            success = (data~=nil)
+        else
+            success, data = self:GetAsync(string.format("%s/%s", baseKey, key))
+        end
+
+        local new = uploadCallbacks[key](data)
+        updated[key] = new
+    end
+
+    return self:SetAsync(baseKey, updated, "PATCH")
+end]]
+
+return Robase</string>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="Folder" referent="7">
+        <Properties>
+          <string name="Name">RobaseTests</string>
+        </Properties>
+        <Item class="ModuleScript" referent="8">
+          <Properties>
+            <string name="Name">HttpWrapper.spec</string>
+            <string name="Source">return function()
+    local Shared = script.Parent.Parent
+    local HttpWrapper = require(Shared.RobaseService.HttpWrapper)
+    local HttpService = game:GetService("HttpService")
+
+    local testRequests = { }
+    testRequests.GetRequest = {
+        Url = "https://httpbin.org/get",
+        Method = "GET",
+    }
+    testRequests.PostRequest = {
+        Url = "https://httpbin.org/post",
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = HttpService:JSONEncode({
+            Hello = "Post"
+        })
+    }
+    testRequests.PutRequest = {
+        Url = "https://httpbin.org/put",
+        Method = "PUT",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = HttpService:JSONEncode({
+            Hello = "Put"
+        })
+    }
+    testRequests.PatchRequest = {
+        Url = "https://httpbin.org/patch",
+        Method = "PATCH",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = HttpService:JSONEncode({
+            Hello = "Patch"
+        })
+    }
+    testRequests.DeleteRequest = {
+        Url = "https://httpbin.org/delete",
+        Method = "DELETE",
+    }
+    testRequests.FailRequest = {
+        Url = nil,
+        Method = "GET",
+    }
+    testRequests.UnsuccessfulRequest = {
+        Url = "https://httpbin.org/status/400",
+        Method = "GET"
+    }
+
+    describe("Request", function()
+        it("should perform a simple get request", function()
+            local request = HttpWrapper:Request(testRequests.GetRequest)
+            request:andThen(function(body)
+                expect(body).to.be.ok()
+            end):catch(function(response)
+                return
+            end)
+        end)
+
+        it("should perform a simple post request", function()
+            local request = HttpWrapper:Request(testRequests.PostRequest)
+            request:andThen(function(body)
+                expect(body).to.be.ok()
+            end):catch(function(response)
+                return
+            end)
+        end)
+
+        it("should perform a simple put request", function()
+            local request = HttpWrapper:Request(testRequests.PutRequest)
+            request:andThen(function(body)
+                expect(body).to.be.ok()
+            end):catch(function(response)
+                return
+            end)
+        end)
+
+        it("should perform a simple patch request", function()
+            local request = HttpWrapper:Request(testRequests.PatchRequest)
+            request:andThen(function(body)
+                expect(body).to.be.ok()
+            end):catch(function(response)
+                return
+            end)
+        end)
+
+        it("should perform a simple delete request", function()
+            local request = HttpWrapper:Request(testRequests.DeleteRequest)
+            request:andThen(function(body)
+                expect(body).to.be.ok()
+            end):catch(function(response)
+                return
+            end)
+        end)
+
+        it("should catch unsuccessful requests", function()
+            local request = HttpWrapper:Request(testRequests.UnsuccessfulRequest)
+            request:andThen(function(body)
+                return
+            end):catch(function(response)
+                expect(response).to.be.ok()
+                expect(response.Body).to.be.ok()
+                expect(response.StatusCode).to.be.ok()
+                expect(response.StatusMessage).to.be.ok()
+            end)
+        end)
+
+        it("should catch unspecified Url promise rejection", function()
+            local request = HttpWrapper:Request(testRequests.FailRequest)
+            request:andThen(nil, function(err)
+                expect(err).to.be.ok()
+            end)
+        end)
+    end)
+end</string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="9">
+          <Properties>
+            <string name="Name">Robase.spec</string>
+            <string name="Source">return function()
+
+    local Shared = script.Parent.Parent
+    local RobaseService = require(Shared.RobaseService)
+    RobaseService = RobaseService.new(
+        "https://robasestore-test-default-rtdb.europe-west1.firebasedatabase.app/",
+        "DOiy9dDWghkdUYJKiFLXV1MGYkPRuddjLTL3bQJi"
+    )
+
+    local PlayerData = RobaseService:GetRobase("PlayerData")
+
+    local function shallow_eq(o1, o2, ignore_mt)
+        if o1 == o2 then return true end
+        local o1Type = type(o1)
+        local o2Type = type(o2)
+        if o1Type ~= o2Type then return false end
+        if o1Type ~= 'table' then return false end
+
+        if not ignore_mt then
+            local mt1 = getmetatable(o1)
+            if mt1 and mt1.__eq then
+                --compare using built in method
+                return o1 == o2
+            end
+        end
+
+        local keySet = {}
+
+        for key1, value1 in pairs(o1) do
+            local value2 = o2[key1]
+            if value2 == nil or shallow_eq(value1, value2, ignore_mt) == false then
+                return false
+            end
+            keySet[key1] = true
+        end
+
+        for key2, _ in pairs(o2) do
+            if not keySet[key2] then return false end
+        end
+        return true
+    end
+
+    beforeAll(function()
+        PlayerData:SetAsync(
+            "GetDataHere",
+            {
+                DeleteMe = true,
+                IncrementThat = 25,
+                JustALevel = 10,
+                PutOverThis = 10,
+                UpdateWhatever = "Hello",
+                BatchUpdateMe = {
+                    Players = {
+                        ["123"] = {
+                            Coins = 10,
+                            Level = 5,
+                        },
+                        ["456"] = {
+                            Coins = 10,
+                            Level = 2
+                        }
+                    },
+                    Server = {
+                        LastUpdated = os.date()
+                    }
+                }
+            },
+            "PUT"
+        )
+    end)
+
+    describe("GetAsync", function()
+        it("should successfully retreive data", function()
+            local Data = PlayerData:GetAsync("GetDataHere")
+            expect(Data).to.be.ok()
+        end)
+
+        it("should fail to retrieve data from unknown keys", function()
+            local success, value = PlayerData:GetAsync("DataDoesNotExist")
+            expect(success).to.equal(true)
+            expect(value).to.never.be.ok()
+        end)
+
+        it("should be able to perform on global level scope", function()
+            local Robase = RobaseService:GetRobase()
+            local _, Data = Robase:GetAsync("PlayerData")
+            local _, playerData = PlayerData:GetAsync("")
+
+            expect(shallow_eq(Data, playerData, true)).to.equal(true)
+        end)
+    end)
+
+    describe("SetAsync", function()
+        it("should successfully PUT data into the database if it does not exist", function()
+            local key, value = "GetDataHere/IPutThisHereRemotely", true
+            local success, body = PlayerData:SetAsync(key, value, "PUT")
+            expect(success).to.equal(true)
+            expect(body).to.be.ok()
+            expect(body).to.equal(value)
+        end)
+
+        it("should successfully replace data that exists in the database with a PUT request", function()
+            local key, value = "GetDataHere/PutOverThis", 100
+            local success, body = PlayerData:SetAsync(key, value, "PUT")
+            expect(success).to.equal(true)
+            expect(body).to.be.ok()
+            expect(body).to.equal(value)
+        end)
+
+        it("should throw an error if no key is specified", function()
+            expect(function()
+                PlayerData:SetAsync(nil, "hello, world!", "PUT")
+            end).to.throw()
+        end)
+
+        it("should manage malformed methods and set them to the default request method", function()
+            local key, value = "GetDataHere/MalformedPutExample", "PuT"
+            local success, body = PlayerData:SetAsync(key, value, "PuT")
+
+            expect(success).to.equal(true)
+            expect(body).to.be.ok()
+            expect(body).to.equal(value)
+        end)
+    end)
+
+    describe("UpdateAsync", function()
+        it("should update a key in the database", function()
+            local success, value = PlayerData:UpdateAsync(
+                "GetDataHere",
+                function(old)
+                    old.UpdateWhatever ..= ", world!"
+                    return old
+                end
+            )
+
+            expect(success).to.equal(true)
+            expect(value).to.be.ok()
+            expect(value.UpdateWhatever).to.equal("Hello, world!")
+        end)
+
+        it("should throw an error if the callback is not a function", function()
+            expect(function()
+                PlayerData:UpdateAsync("GetDataHere/UpdateWhatever", "Hello, world!")
+            end).to.throw()
+        end)
+    end)
+
+    describe("DeleteAsync", function()
+        it("should delete a key from the database", function()
+            local _, before = PlayerData:GetAsync("GetDataHere/DeleteMe")
+            local success, removed = PlayerData:DeleteAsync("GetDataHere/DeleteMe")
+            local _, after = PlayerData:GetAsync("GetDataHere/DeleteMe")
+
+            expect(success).to.equal(true)
+            expect(removed).to.be.ok()
+            expect(removed).to.equal(before)
+            expect(removed).to.never.equal(after)
+        end)
+
+        it("should abort request if key is nil", function()
+            expect(function()
+                PlayerData:DeleteAsync("GetDataHere/ThereIsNoDataHere")
+            end).to.throw()
+        end)
+    end)
+
+    describe("IncrementAsync", function()
+        it("should increment integer-typed data - at a given key - by a set integer, delta", function()
+            local key = "GetDataHere/IncrementThat"
+            local delta = 25
+            local success, value = PlayerData:IncrementAsync(key, delta)
+            
+            expect(success).to.equal(true) -- success check
+            expect(value).to.be.ok() -- non-nil check
+            expect(value).to.be.a("number") -- number check
+            expect(value).to.equal(math.floor(value)) -- integer check
+        end)
+
+        it("should increment integer-typed data - at a given key - by 1 if delta is nil", function()
+            local key = "GetDataHere/JustALevel"
+            local success, value = PlayerData:IncrementAsync(key)
+            
+            expect(success).to.equal(true) -- success check
+            expect(value).to.be.ok() -- non-nil check
+            expect(value).to.be.a("number") -- number check
+            expect(value).to.equal(math.floor(value)) -- integer check
+        end)
+
+        it("should throw an error if delta is non-nil and non-integer", function()
+            local key = "GetDataHere/IncrementThat"
+            local delta = "Cannot increment with a string"
+            expect(function()
+                PlayerData:IncrementAsync(key, delta)
+            end).to.throw()
+        end)
+
+        it("should throw an error if the data retrieved at the key is non-integer", function()
+            local key = "GetDataHere"
+            local delta = 1
+            expect(function()
+                PlayerData:IncrementAsync(key, delta)
+            end).to.throw()
+        end)
+    end)
+
+    describe("BatchUpdateAsync", function()
+        it("should update multiple child nodes from a baseKey with relevant callback functions", function()
+            local calledAt = os.date()
+
+            local Callbacks = {
+                ["Players"] = function(old)
+                    for _, plr in pairs(old) do
+                        plr.Level += 10
+                        plr.Coins += 100
+                    end
+                    return old
+                end,
+
+                ["Server"] = function(old)
+                    old.LastUpdated = calledAt
+                    return old
+                end
+            }
+
+            local success, data = PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
+
+            expect(success).to.equal(true)
+            expect(data).to.be.ok()
+            expect(data.Server.LastUpdated).to.equal(calledAt)
+        end)
+
+        it("should throw an error if the callbacks are not a table", function()
+            expect(function()
+                local _, Data = PlayerData:GetAsync("GetDataHere/BatchUpdateMe")
+                local Callbacks = "ThisShouldThrow" -- wait a minute this isn't a table of functions
+
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
+            end).to.throw()
+        end)
+
+        it("should throw an error if a key cannot be found for a callback function", function()
+            expect(function()
+                local calledAt = os.date()
+
+                local Callbacks = {
+                    ["Players"] = function(old) -- correct spelling
+                        for _, plr in pairs(old) do
+                            plr.Level += 10
+                            plr.Coins += 100
+                        end
+                        return old
+                    end,
+
+                    ["Serve"] = function(old) -- intentional typo
+                        old.LastUpdated = calledAt
+                        return old
+                    end
+                }
+
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
+            end).to.throw()
+        end)
+
+        it("should throw an error if an element of the callbacks table is not a function", function()
+            expect(function()
+                local calledAt = os.date()
+
+                local Callbacks = {
+                    ["Players"] = function(old) -- correct spelling
+                        for _, plr in pairs(old) do
+                            plr.Level += 10
+                            plr.Coins += 100
+                        end
+                        return old
+                    end,
+
+                    ["Server"] = calledAt
+                }
+
+                PlayerData:BatchUpdateAsync("GetDataHere/BatchUpdateMe", Callbacks)
+            end).to.throw()
+        end)
+    end)
+end</string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="10">
+          <Properties>
+            <string name="Name">RobaseService.spec</string>
+            <string name="Source">return function()
+    local Shared = script.Parent.Parent
+    local RobaseService = require(Shared.RobaseService)
+    local TestUrl = "https://robasestore-test-default-rtdb.europe-west1.firebasedatabase.app/"
+    local TestAuth = "DOiy9dDWghkdUYJKiFLXV1MGYkPRuddjLTL3bQJi"
+    local TestName = "PlayerData"
+
+    describe("new", function()
+        it("should instantiate a new RobaseService with a BaseUrl and AuthToken", function()
+            local ExampleService = RobaseService.new(TestUrl, TestAuth)
+
+            expect(ExampleService).to.be.ok()
+            expect(ExampleService.BaseUrl).to.be.ok()
+            expect(ExampleService.AuthKey).to.be.ok()
+        end)
+
+        it("should throw an error when no BaseUrl is given", function()
+            expect(function()
+                RobaseService.new(nil, TestAuth)
+            end).to.throw()
+        end)
+
+        it("should throw an error when no AuthKey is given", function()
+            expect(function()
+                RobaseService.new(TestUrl, nil)
+            end).to.throw()
+        end)
+    end)
+
+    describe("GetRobase", function()
+        it("should fetch a new Robase with associated path and authentication", function()
+            local ExampleService = RobaseService.new(TestUrl, TestAuth)
+            local ExampleRobase = ExampleService:GetRobase(TestName)
+
+            expect(ExampleRobase).to.be.ok()
+            expect(ExampleRobase._path).to.be.ok()
+            expect(ExampleRobase._auth).to.be.ok()
+        end)
+
+        it("should throw an error if called before instantiation", function()
+            expect(function()
+                RobaseService:GetRobase(nil, nil)
+            end).to.throw()
+        end)
+    end)
+end</string>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="ModuleScript" referent="11">
+        <Properties>
+          <string name="Name">TestEZ</string>
+          <string name="Source">local Expectation = require(script.Expectation)
+local TestBootstrap = require(script.TestBootstrap)
+local TestEnum = require(script.TestEnum)
+local TestPlan = require(script.TestPlan)
+local TestPlanner = require(script.TestPlanner)
+local TestResults = require(script.TestResults)
+local TestRunner = require(script.TestRunner)
+local TestSession = require(script.TestSession)
+local TextReporter = require(script.Reporters.TextReporter)
+local TextReporterQuiet = require(script.Reporters.TextReporterQuiet)
+local TeamCityReporter = require(script.Reporters.TeamCityReporter)
+
+local function run(testRoot, callback)
+	local modules = TestBootstrap:getModules(testRoot)
+	local plan = TestPlanner.createPlan(modules)
+	local results = TestRunner.runPlan(plan)
+
+	callback(results)
+end
+
+local TestEZ = {
+	run = run,
+
+	Expectation = Expectation,
+	TestBootstrap = TestBootstrap,
+	TestEnum = TestEnum,
+	TestPlan = TestPlan,
+	TestPlanner = TestPlanner,
+	TestResults = TestResults,
+	TestRunner = TestRunner,
+	TestSession = TestSession,
+
+	Reporters = {
+		TextReporter = TextReporter,
+		TextReporterQuiet = TextReporterQuiet,
+		TeamCityReporter = TeamCityReporter,
+	},
+}
+
+return TestEZ</string>
+        </Properties>
+        <Item class="ModuleScript" referent="12">
+          <Properties>
+            <string name="Name">Context</string>
+            <string name="Source"><![CDATA[--[[
+	The Context object implements a write-once key-value store. It also allows
+	for a new Context object to inherit the entries from an existing one.
+]]
+local Context = {}
+
+function Context.new(parent)
+	local meta = {}
+	local index = {}
+	meta.__index = index
+
+	if parent then
+		for key, value in pairs(getmetatable(parent).__index) do
+			index[key] = value
+		end
+	end
+
+	function meta.__newindex(_obj, key, value)
+		assert(index[key] == nil, string.format("Cannot reassign %s in context", tostring(key)))
+		index[key] = value
+	end
+
+	return setmetatable({}, meta)
+end
+
+return Context
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="13">
+          <Properties>
+            <string name="Name">Expectation</string>
+            <string name="Source">--[[
+	Allows creation of expectation statements designed for behavior-driven
+	testing (BDD). See Chai (JS) or RSpec (Ruby) for examples of other BDD
+	frameworks.
+
+	The Expectation class is exposed to tests as a function called `expect`:
+
+		expect(5).to.equal(5)
+		expect(foo()).to.be.ok()
+
+	Expectations can be negated using .never:
+
+		expect(true).never.to.equal(false)
+
+	Expectations throw errors when their conditions are not met.
+]]
+
+local Expectation = {}
+
+--[[
+	These keys don't do anything except make expectations read more cleanly
+]]
+local SELF_KEYS = {
+	to = true,
+	be = true,
+	been = true,
+	have = true,
+	was = true,
+	at = true,
+}
+
+--[[
+	These keys invert the condition expressed by the Expectation.
+]]
+local NEGATION_KEYS = {
+	never = true,
+}
+
+--[[
+	Extension of Lua's 'assert' that lets you specify an error level.
+]]
+local function assertLevel(condition, message, level)
+	message = message or "Assertion failed!"
+	level = level or 1
+
+	if not condition then
+		error(message, level + 1)
+	end
+end
+
+--[[
+	Returns a version of the given method that can be called with either . or :
+]]
+local function bindSelf(self, method)
+	return function(firstArg, ...)
+		if firstArg == self then
+			return method(self, ...)
+		else
+			return method(self, firstArg, ...)
+		end
+	end
+end
+
+local function formatMessage(result, trueMessage, falseMessage)
+	if result then
+		return trueMessage
+	else
+		return falseMessage
+	end
+end
+
+--[[
+	Create a new expectation
+]]
+function Expectation.new(value)
+	local self = {
+		value = value,
+		successCondition = true,
+		condition = false
+	}
+
+	setmetatable(self, Expectation)
+
+	self.a = bindSelf(self, self.a)
+	self.an = self.a
+	self.ok = bindSelf(self, self.ok)
+	self.equal = bindSelf(self, self.equal)
+	self.throw = bindSelf(self, self.throw)
+	self.near = bindSelf(self, self.near)
+
+	return self
+end
+
+function Expectation.__index(self, key)
+	-- Keys that don't do anything except improve readability
+	if SELF_KEYS[key] then
+		return self
+	end
+
+	-- Invert your assertion
+	if NEGATION_KEYS[key] then
+		local newExpectation = Expectation.new(self.value)
+		newExpectation.successCondition = not self.successCondition
+
+		return newExpectation
+	end
+
+	-- Fall back to methods provided by Expectation
+	return Expectation[key]
+end
+
+--[[
+	Called by expectation terminators to reset modifiers in a statement.
+
+	This makes chains like:
+
+		expect(5)
+			.never.to.equal(6)
+			.to.equal(5)
+
+	Work as expected.
+]]
+function Expectation:_resetModifiers()
+	self.successCondition = true
+end
+
+--[[
+	Assert that the expectation value is the given type.
+
+	expect(5).to.be.a("number")
+]]
+function Expectation:a(typeName)
+	local result = (type(self.value) == typeName) == self.successCondition
+
+	local message = formatMessage(self.successCondition,
+		("Expected value of type %q, got value %q of type %s"):format(
+			typeName,
+			tostring(self.value),
+			type(self.value)
+		),
+		("Expected value not of type %q, got value %q of type %s"):format(
+			typeName,
+			tostring(self.value),
+			type(self.value)
+		)
+	)
+
+	assertLevel(result, message, 3)
+	self:_resetModifiers()
+
+	return self
+end
+
+--[[
+	Assert that our expectation value is truthy
+]]
+function Expectation:ok()
+	local result = (self.value ~= nil) == self.successCondition
+
+	local message = formatMessage(self.successCondition,
+		("Expected value %q to be non-nil"):format(
+			tostring(self.value)
+		),
+		("Expected value %q to be nil"):format(
+			tostring(self.value)
+		)
+	)
+
+	assertLevel(result, message, 3)
+	self:_resetModifiers()
+
+	return self
+end
+
+--[[
+	Assert that our expectation value is equal to another value
+]]
+function Expectation:equal(otherValue)
+	local result = (self.value == otherValue) == self.successCondition
+
+	local message = formatMessage(self.successCondition,
+		("Expected value %q (%s), got %q (%s) instead"):format(
+			tostring(otherValue),
+			type(otherValue),
+			tostring(self.value),
+			type(self.value)
+		),
+		("Expected anything but value %q (%s)"):format(
+			tostring(otherValue),
+			type(otherValue)
+		)
+	)
+
+	assertLevel(result, message, 3)
+	self:_resetModifiers()
+
+	return self
+end
+
+--[[
+	Assert that our expectation value is equal to another value within some
+	inclusive limit.
+]]
+function Expectation:near(otherValue, limit)
+	assert(type(self.value) == "number", "Expectation value must be a number to use 'near'")
+	assert(type(otherValue) == "number", "otherValue must be a number")
+	assert(type(limit) == "number" or limit == nil, "limit must be a number or nil")
+
+	limit = limit or 1e-7
+
+	local result = (math.abs(self.value - otherValue) &lt;= limit) == self.successCondition
+
+	local message = formatMessage(self.successCondition,
+		("Expected value to be near %f (within %f) but got %f instead"):format(
+			otherValue,
+			limit,
+			self.value
+		),
+		("Expected value to not be near %f (within %f) but got %f instead"):format(
+			otherValue,
+			limit,
+			self.value
+		)
+	)
+
+	assertLevel(result, message, 3)
+	self:_resetModifiers()
+
+	return self
+end
+
+--[[
+	Assert that our functoid expectation value throws an error when called.
+	An optional error message can be passed to assert that the error message
+	contains the given value.
+]]
+function Expectation:throw(messageSubstring)
+	local ok, err = pcall(self.value)
+	local result = ok ~= self.successCondition
+
+	if messageSubstring and not ok then
+		if self.successCondition then
+			result = err:find(messageSubstring, 1, true) ~= nil
+		else
+			result = err:find(messageSubstring, 1, true) == nil
+		end
+	end
+
+	local message
+
+	if messageSubstring then
+		message = formatMessage(self.successCondition,
+			("Expected function to throw an error containing %q, but it %s"):format(
+				messageSubstring,
+				err and ("threw: %s"):format(err) or "did not throw."
+			),
+			("Expected function to never throw an error containing %q, but it threw: %s"):format(
+				messageSubstring,
+				tostring(err)
+			)
+		)
+	else
+		message = formatMessage(self.successCondition,
+			"Expected function to throw an error, but it did not throw.",
+			("Expected function to succeed, but it threw an error: %s"):format(
+				tostring(err)
+			)
+		)
+	end
+
+	assertLevel(result, message, 3)
+	self:_resetModifiers()
+
+	return self
+end
+
+return Expectation</string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="14">
+          <Properties>
+            <string name="Name">LifecycleHooks</string>
+            <string name="Source"><![CDATA[local TestEnum = require(script.Parent.TestEnum)
+
+local LifecycleHooks = {}
+LifecycleHooks.__index = LifecycleHooks
+
+function LifecycleHooks.new()
+	local self = {
+		_stack = {},
+	}
+	return setmetatable(self, LifecycleHooks)
+end
+
+--[[
+	Returns an array of `beforeEach` hooks in FIFO order
+]]
+function LifecycleHooks:getBeforeEachHooks()
+	local key = TestEnum.NodeType.BeforeEach
+	local hooks = {}
+
+	for _, level in ipairs(self._stack) do
+		for _, hook in ipairs(level[key]) do
+			table.insert(hooks, hook)
+		end
+	end
+
+	return hooks
+end
+
+--[[
+	Returns an array of `afterEach` hooks in FILO order
+]]
+function LifecycleHooks:getAfterEachHooks()
+	local key = TestEnum.NodeType.AfterEach
+	local hooks = {}
+
+	for _, level in ipairs(self._stack) do
+		for _, hook in ipairs(level[key]) do
+			table.insert(hooks, 1, hook)
+		end
+	end
+
+	return hooks
+end
+
+--[[
+	Pushes uncalled beforeAll and afterAll hooks back up the stack
+]]
+function LifecycleHooks:popHooks()
+	table.remove(self._stack, #self._stack)
+end
+
+function LifecycleHooks:pushHooksFrom(planNode)
+	assert(planNode ~= nil)
+
+	table.insert(self._stack, {
+		[TestEnum.NodeType.BeforeAll] = self:_getHooksOfType(planNode.children, TestEnum.NodeType.BeforeAll),
+		[TestEnum.NodeType.AfterAll] = self:_getHooksOfType(planNode.children, TestEnum.NodeType.AfterAll),
+		[TestEnum.NodeType.BeforeEach] = self:_getHooksOfType(planNode.children, TestEnum.NodeType.BeforeEach),
+		[TestEnum.NodeType.AfterEach] = self:_getHooksOfType(planNode.children, TestEnum.NodeType.AfterEach),
+	})
+end
+
+--[[
+	Get the beforeAll hooks from the current level.
+]]
+function LifecycleHooks:getBeforeAllHooks()
+	return self._stack[#self._stack][TestEnum.NodeType.BeforeAll]
+end
+
+--[[
+	Get the afterAll hooks from the current level.
+]]
+function LifecycleHooks:getAfterAllHooks()
+	return self._stack[#self._stack][TestEnum.NodeType.AfterAll]
+end
+
+function LifecycleHooks:_getHooksOfType(nodes, key)
+	local hooks = {}
+
+	for _, node in ipairs(nodes) do
+		if node.type == key then
+			table.insert(hooks, node.callback)
+		end
+	end
+
+	return hooks
+end
+
+return LifecycleHooks
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="Folder" referent="15">
+          <Properties>
+            <string name="Name">Reporters</string>
+          </Properties>
+          <Item class="ModuleScript" referent="16">
+            <Properties>
+              <string name="Name">TeamCityReporter</string>
+              <string name="Source">local TestService = game:GetService("TestService")
+
+local TestEnum = require(script.Parent.Parent.TestEnum)
+
+local TeamCityReporter = {}
+
+local function teamCityEscape(str)
+	str = string.gsub(str, "([]|'[])","|%1")
+	str = string.gsub(str, "\r", "|r")
+	str = string.gsub(str, "\n", "|n")
+	return str
+end
+
+local function teamCityEnterSuite(suiteName)
+	return string.format("##teamcity[testSuiteStarted name='%s']", teamCityEscape(suiteName))
+end
+
+local function teamCityLeaveSuite(suiteName)
+	return string.format("##teamcity[testSuiteFinished name='%s']", teamCityEscape(suiteName))
+end
+
+local function teamCityEnterCase(caseName)
+	return string.format("##teamcity[testStarted name='%s']", teamCityEscape(caseName))
+end
+
+local function teamCityLeaveCase(caseName)
+	return string.format("##teamcity[testFinished name='%s']", teamCityEscape(caseName))
+end
+
+local function teamCityFailCase(caseName, errorMessage)
+	return string.format("##teamcity[testFailed name='%s' message='%s']",
+		teamCityEscape(caseName), teamCityEscape(errorMessage))
+end
+
+local function reportNode(node, buffer, level)
+	buffer = buffer or {}
+	level = level or 0
+	if node.status == TestEnum.TestStatus.Skipped then
+		return buffer
+	end
+	if node.planNode.type == TestEnum.NodeType.Describe then
+		table.insert(buffer, teamCityEnterSuite(node.planNode.phrase))
+		for _, child in ipairs(node.children) do
+			reportNode(child, buffer, level + 1)
+		end
+		table.insert(buffer, teamCityLeaveSuite(node.planNode.phrase))
+	else
+		table.insert(buffer, teamCityEnterCase(node.planNode.phrase))
+		if node.status == TestEnum.TestStatus.Failure then
+			table.insert(buffer, teamCityFailCase(node.planNode.phrase, table.concat(node.errors,"\n")))
+		end
+		table.insert(buffer, teamCityLeaveCase(node.planNode.phrase))
+	end
+end
+
+local function reportRoot(node)
+	local buffer = {}
+
+	for _, child in ipairs(node.children) do
+		reportNode(child, buffer, 0)
+	end
+
+	return buffer
+end
+
+local function report(root)
+	local buffer = reportRoot(root)
+
+	return table.concat(buffer, "\n")
+end
+
+function TeamCityReporter.report(results)
+	local resultBuffer = {
+		"Test results:",
+		report(results),
+		("%d passed, %d failed, %d skipped"):format(
+			results.successCount,
+			results.failureCount,
+			results.skippedCount
+		)
+	}
+
+	print(table.concat(resultBuffer, "\n"))
+
+	if results.failureCount > 0 then
+		print(("%d test nodes reported failures."):format(results.failureCount))
+	end
+
+	if #results.errors > 0 then
+		print("Errors reported by tests:")
+		print("")
+
+		for _, message in ipairs(results.errors) do
+			TestService:Error(message)
+
+			-- Insert a blank line after each error
+			print("")
+		end
+	end
+end
+
+return TeamCityReporter</string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="17">
+            <Properties>
+              <string name="Name">TextReporter</string>
+              <string name="Source">--[[
+	The TextReporter uses the results from a completed test to output text to
+	standard output and TestService.
+]]
+
+local TestService = game:GetService("TestService")
+
+local TestEnum = require(script.Parent.Parent.TestEnum)
+
+local INDENT = (" "):rep(3)
+local STATUS_SYMBOLS = {
+	[TestEnum.TestStatus.Success] = "+",
+	[TestEnum.TestStatus.Failure] = "-",
+	[TestEnum.TestStatus.Skipped] = "~"
+}
+local UNKNOWN_STATUS_SYMBOL = "?"
+
+local TextReporter = {}
+
+local function compareNodes(a, b)
+	return a.planNode.phrase:lower() &lt; b.planNode.phrase:lower()
+end
+
+local function reportNode(node, buffer, level)
+	buffer = buffer or {}
+	level = level or 0
+
+	if node.status == TestEnum.TestStatus.Skipped then
+		return buffer
+	end
+
+	local line
+
+	if node.status then
+		local symbol = STATUS_SYMBOLS[node.status] or UNKNOWN_STATUS_SYMBOL
+
+		line = ("%s[%s] %s"):format(
+			INDENT:rep(level),
+			symbol,
+			node.planNode.phrase
+		)
+	else
+		line = ("%s%s"):format(
+			INDENT:rep(level),
+			node.planNode.phrase
+		)
+	end
+
+	table.insert(buffer, line)
+	table.sort(node.children, compareNodes)
+
+	for _, child in ipairs(node.children) do
+		reportNode(child, buffer, level + 1)
+	end
+
+	return buffer
+end
+
+local function reportRoot(node)
+	local buffer = {}
+	table.sort(node.children, compareNodes)
+
+	for _, child in ipairs(node.children) do
+		reportNode(child, buffer, 0)
+	end
+
+	return buffer
+end
+
+local function report(root)
+	local buffer = reportRoot(root)
+
+	return table.concat(buffer, "\n")
+end
+
+function TextReporter.report(results)
+	local resultBuffer = {
+		"Test results:",
+		report(results),
+		("%d passed, %d failed, %d skipped"):format(
+			results.successCount,
+			results.failureCount,
+			results.skippedCount
+		)
+	}
+
+	print(table.concat(resultBuffer, "\n"))
+
+	if results.failureCount > 0 then
+		print(("%d test nodes reported failures."):format(results.failureCount))
+	end
+
+	if #results.errors > 0 then
+		print("Errors reported by tests:")
+		print("")
+
+		for _, message in ipairs(results.errors) do
+			TestService:Error(message)
+
+			-- Insert a blank line after each error
+			print("")
+		end
+	end
+end
+
+return TextReporter</string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="18">
+            <Properties>
+              <string name="Name">TextReporterQuiet</string>
+              <string name="Source">--[[
+	Copy of TextReporter that doesn't output successful tests.
+
+	This should be temporary, it's just a workaround to make CI environments
+	happy in the short-term.
+]]
+
+local TestService = game:GetService("TestService")
+
+local TestEnum = require(script.Parent.Parent.TestEnum)
+
+local INDENT = (" "):rep(3)
+local STATUS_SYMBOLS = {
+	[TestEnum.TestStatus.Success] = "+",
+	[TestEnum.TestStatus.Failure] = "-",
+	[TestEnum.TestStatus.Skipped] = "~"
+}
+local UNKNOWN_STATUS_SYMBOL = "?"
+
+local TextReporterQuiet = {}
+
+local function reportNode(node, buffer, level)
+	buffer = buffer or {}
+	level = level or 0
+
+	if node.status == TestEnum.TestStatus.Skipped then
+		return buffer
+	end
+
+	local line
+
+	if node.status ~= TestEnum.TestStatus.Success then
+		local symbol = STATUS_SYMBOLS[node.status] or UNKNOWN_STATUS_SYMBOL
+
+		line = ("%s[%s] %s"):format(
+			INDENT:rep(level),
+			symbol,
+			node.planNode.phrase
+		)
+	end
+
+	table.insert(buffer, line)
+
+	for _, child in ipairs(node.children) do
+		reportNode(child, buffer, level + 1)
+	end
+
+	return buffer
+end
+
+local function reportRoot(node)
+	local buffer = {}
+
+	for _, child in ipairs(node.children) do
+		reportNode(child, buffer, 0)
+	end
+
+	return buffer
+end
+
+local function report(root)
+	local buffer = reportRoot(root)
+
+	return table.concat(buffer, "\n")
+end
+
+function TextReporterQuiet.report(results)
+	local resultBuffer = {
+		"Test results:",
+		report(results),
+		("%d passed, %d failed, %d skipped"):format(
+			results.successCount,
+			results.failureCount,
+			results.skippedCount
+		)
+	}
+
+	print(table.concat(resultBuffer, "\n"))
+
+	if results.failureCount > 0 then
+		print(("%d test nodes reported failures."):format(results.failureCount))
+	end
+
+	if #results.errors > 0 then
+		print("Errors reported by tests:")
+		print("")
+
+		for _, message in ipairs(results.errors) do
+			TestService:Error(message)
+
+			-- Insert a blank line after each error
+			print("")
+		end
+	end
+end
+
+return TextReporterQuiet</string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="ModuleScript" referent="19">
+          <Properties>
+            <string name="Name">TestBootstrap</string>
+            <string name="Source">--[[
+	Provides an interface to quickly run and report tests from a given object.
+]]
+
+local TestPlanner = require(script.Parent.TestPlanner)
+local TestRunner = require(script.Parent.TestRunner)
+local TextReporter = require(script.Parent.Reporters.TextReporter)
+
+local TestBootstrap = {}
+
+local function stripSpecSuffix(name)
+	return (name:gsub("%.spec$", ""))
+end
+local function isSpecScript(aScript)
+	return aScript:IsA("ModuleScript") and aScript.Name:match("%.spec$")
+end
+
+local function getPath(module, root)
+	root = root or game
+
+	local path = {}
+	local last = module
+
+	if last.Name == "init.spec" then
+		-- Use the directory's node for init.spec files.
+		last = last.Parent
+	end
+
+	while last ~= nil and last ~= root do
+		table.insert(path, stripSpecSuffix(last.Name))
+		last = last.Parent
+	end
+	table.insert(path, stripSpecSuffix(root.Name))
+
+	return path
+end
+
+local function toStringPath(tablePath)
+	local stringPath = ""
+	local first = true
+	for _, element in ipairs(tablePath) do
+		if first then
+			stringPath = element
+			first = false
+		else
+			stringPath = element .. " " .. stringPath
+		end
+	end
+	return stringPath
+end
+
+function TestBootstrap:getModulesImpl(root, modules, current)
+	modules = modules or {}
+	current = current or root
+
+	if isSpecScript(current) then
+		local method = require(current)
+		local path = getPath(current, root)
+		local pathString = toStringPath(path)
+
+		table.insert(modules, {
+			method = method,
+			path = path,
+			pathStringForSorting = pathString:lower()
+		})
+	end
+end
+
+--[[
+	Find all the ModuleScripts in this tree that are tests.
+]]
+function TestBootstrap:getModules(root)
+	local modules = {}
+
+	self:getModulesImpl(root, modules)
+
+	for _, child in ipairs(root:GetDescendants()) do
+		self:getModulesImpl(root, modules, child)
+	end
+
+	return modules
+end
+
+--[[
+	Runs all test and reports the results using the given test reporter.
+
+	If no reporter is specified, a reasonable default is provided.
+
+	This function demonstrates the expected workflow with this testing system:
+	1. Locate test modules
+	2. Generate test plan
+	3. Run test plan
+	4. Report test results
+
+	This means we could hypothetically present a GUI to the developer that shows
+	the test plan before we execute it, allowing them to toggle specific tests
+	before they're run, but after they've been identified!
+]]
+function TestBootstrap:run(roots, reporter, otherOptions)
+	reporter = reporter or TextReporter
+
+	otherOptions = otherOptions or {}
+	local showTimingInfo = otherOptions["showTimingInfo"] or false
+	local testNamePattern = otherOptions["testNamePattern"]
+	local extraEnvironment = otherOptions["extraEnvironment"] or {}
+
+	if type(roots) ~= "table" then
+		error(("Bad argument #1 to TestBootstrap:run. Expected table, got %s"):format(typeof(roots)), 2)
+	end
+
+	local startTime = tick()
+
+	local modules = {}
+	for _, subRoot in ipairs(roots) do
+		local newModules = self:getModules(subRoot)
+
+		for _, newModule in ipairs(newModules) do
+			table.insert(modules, newModule)
+		end
+	end
+
+	local afterModules = tick()
+
+	local plan = TestPlanner.createPlan(modules, testNamePattern, extraEnvironment)
+	local afterPlan = tick()
+
+	local results = TestRunner.runPlan(plan)
+	local afterRun = tick()
+
+	reporter.report(results)
+	local afterReport = tick()
+
+	if showTimingInfo then
+		local timing = {
+			("Took %f seconds to locate test modules"):format(afterModules - startTime),
+			("Took %f seconds to create test plan"):format(afterPlan - afterModules),
+			("Took %f seconds to run tests"):format(afterRun - afterPlan),
+			("Took %f seconds to report tests"):format(afterReport - afterRun),
+		}
+
+		print(table.concat(timing, "\n"))
+	end
+
+	return results
+end
+
+return TestBootstrap</string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="20">
+          <Properties>
+            <string name="Name">TestEnum</string>
+            <string name="Source">--[[
+	Constants used throughout the testing framework.
+]]
+
+local TestEnum = {}
+
+TestEnum.TestStatus = {
+	Success = "Success",
+	Failure = "Failure",
+	Skipped = "Skipped"
+}
+
+TestEnum.NodeType = {
+	Describe = "Describe",
+	It = "It",
+	BeforeAll = "BeforeAll",
+	AfterAll = "AfterAll",
+	BeforeEach = "BeforeEach",
+	AfterEach = "AfterEach"
+}
+
+TestEnum.NodeModifier = {
+	None = "None",
+	Skip = "Skip",
+	Focus = "Focus"
+}
+
+return TestEnum</string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="21">
+          <Properties>
+            <string name="Name">TestPlan</string>
+            <string name="Source"><![CDATA[--[[
+	Represents a tree of tests that have been loaded but not necessarily
+	executed yet.
+
+	TestPlan objects are produced by TestPlanner.
+]]
+
+local TestEnum = require(script.Parent.TestEnum)
+local Expectation = require(script.Parent.Expectation)
+
+local function newEnvironment(currentNode, extraEnvironment)
+	local env = {}
+
+	if extraEnvironment then
+		if type(extraEnvironment) ~= "table" then
+			error(("Bad argument #2 to newEnvironment. Expected table, got %s"):format(
+				typeof(extraEnvironment)), 2)
+		end
+
+		for key, value in pairs(extraEnvironment) do
+			env[key] = value
+		end
+	end
+
+	local function addChild(phrase, callback, nodeType, nodeModifier)
+		local node = currentNode:addChild(phrase, nodeType, nodeModifier)
+		node.callback = callback
+		if nodeType == TestEnum.NodeType.Describe then
+			node:expand()
+		end
+		return node
+	end
+
+	function env.describeFOCUS(phrase, callback)
+		addChild(phrase, callback, TestEnum.NodeType.Describe, TestEnum.NodeModifier.Focus)
+	end
+
+	function env.describeSKIP(phrase, callback)
+		addChild(phrase, callback, TestEnum.NodeType.Describe, TestEnum.NodeModifier.Skip)
+	end
+
+	function env.describe(phrase, callback, nodeModifier)
+		addChild(phrase, callback, TestEnum.NodeType.Describe, TestEnum.NodeModifier.None)
+	end
+
+	function env.itFOCUS(phrase, callback)
+		addChild(phrase, callback, TestEnum.NodeType.It, TestEnum.NodeModifier.Focus)
+	end
+
+	function env.itSKIP(phrase, callback)
+		addChild(phrase, callback, TestEnum.NodeType.It, TestEnum.NodeModifier.Skip)
+	end
+
+	function env.itFIXME(phrase, callback)
+		local node = addChild(phrase, callback, TestEnum.NodeType.It, TestEnum.NodeModifier.Skip)
+		warn("FIXME: broken test", node:getFullName())
+	end
+
+	function env.it(phrase, callback, nodeModifier)
+		addChild(phrase, callback, TestEnum.NodeType.It, TestEnum.NodeModifier.None)
+	end
+
+	-- Incrementing counter used to ensure that beforeAll, afterAll, beforeEach, afterEach have unique phrases
+	local lifecyclePhaseId = 0
+
+	local lifecycleHooks = {
+		[TestEnum.NodeType.BeforeAll] = "beforeAll",
+		[TestEnum.NodeType.AfterAll] = "afterAll",
+		[TestEnum.NodeType.BeforeEach] = "beforeEach",
+		[TestEnum.NodeType.AfterEach] = "afterEach"
+	}
+
+	for nodeType, name in pairs(lifecycleHooks) do
+		env[name] = function(callback)
+			addChild(name .. "_" .. tostring(lifecyclePhaseId), callback, nodeType, TestEnum.NodeModifier.None)
+			lifecyclePhaseId = lifecyclePhaseId + 1
+		end
+	end
+
+	function env.FIXME(optionalMessage)
+		warn("FIXME: broken test", currentNode:getFullName(), optionalMessage or "")
+
+		currentNode.modifier = TestEnum.NodeModifier.Skip
+	end
+
+	function env.FOCUS()
+		currentNode.modifier = TestEnum.NodeModifier.Focus
+	end
+
+	function env.SKIP()
+		currentNode.modifier = TestEnum.NodeModifier.Skip
+	end
+
+	--[[
+		This function is deprecated. Calling it is a no-op beyond generating a
+		warning.
+	]]
+	function env.HACK_NO_XPCALL()
+		warn("HACK_NO_XPCALL is deprecated. It is now safe to yield in an " ..
+			"xpcall, so this is no longer necessary. It can be safely deleted.")
+	end
+
+	env.fit = env.itFOCUS
+	env.xit = env.itSKIP
+	env.fdescribe = env.describeFOCUS
+	env.xdescribe = env.describeSKIP
+
+	env.expect = Expectation.new
+
+	return env
+end
+
+local TestNode = {}
+TestNode.__index = TestNode
+
+--[[
+	Create a new test node. A pointer to the test plan, a phrase to describe it
+	and the type of node it is are required. The modifier is optional and will
+	be None if left blank.
+]]
+function TestNode.new(plan, phrase, nodeType, nodeModifier)
+	nodeModifier = nodeModifier or TestEnum.NodeModifier.None
+
+	local node = {
+		plan = plan,
+		phrase = phrase,
+		type = nodeType,
+		modifier = nodeModifier,
+		children = {},
+		callback = nil,
+		parent = nil,
+	}
+
+	node.environment = newEnvironment(node, plan.extraEnvironment)
+	return setmetatable(node, TestNode)
+end
+
+local function getModifier(name, pattern, modifier)
+	if pattern and (modifier == nil or modifier == TestEnum.NodeModifier.None) then
+		if name:match(pattern) then
+			return TestEnum.NodeModifier.Focus
+		else
+			return TestEnum.NodeModifier.Skip
+		end
+	end
+	return modifier
+end
+
+function TestNode:addChild(phrase, nodeType, nodeModifier)
+	if nodeType == TestEnum.NodeType.It then
+		for _, child in pairs(self.children) do
+			if child.phrase == phrase then
+				error("Duplicate it block found: " .. child:getFullName())
+			end
+		end
+	end
+
+	local childName = self:getFullName() .. " " .. phrase
+	nodeModifier = getModifier(childName, self.plan.testNamePattern, nodeModifier)
+	local child = TestNode.new(self.plan, phrase, nodeType, nodeModifier)
+	child.parent = self
+	table.insert(self.children, child)
+	return child
+end
+
+--[[
+	Join the names of all the nodes back to the parent.
+]]
+function TestNode:getFullName()
+	if self.parent then
+		local parentPhrase = self.parent:getFullName()
+		if parentPhrase then
+			return parentPhrase .. " " .. self.phrase
+		end
+	end
+	return self.phrase
+end
+
+--[[
+	Expand a node by setting its callback environment and then calling it. Any
+	further it and describe calls within the callback will be added to the tree.
+]]
+function TestNode:expand()
+	local originalEnv = getfenv(self.callback)
+	local callbackEnv = setmetatable({}, { __index = originalEnv })
+	for key, value in pairs(self.environment) do
+		callbackEnv[key] = value
+	end
+	setfenv(self.callback, callbackEnv)
+
+	local success, result = xpcall(self.callback, debug.traceback)
+
+	if not success then
+		self.loadError = result
+	end
+end
+
+local TestPlan = {}
+TestPlan.__index = TestPlan
+
+--[[
+	Create a new, empty TestPlan.
+]]
+function TestPlan.new(testNamePattern, extraEnvironment)
+	local plan = {
+		children = {},
+		testNamePattern = testNamePattern,
+		extraEnvironment = extraEnvironment,
+	}
+
+	return setmetatable(plan, TestPlan)
+end
+
+--[[
+	Add a new child under the test plan's root node.
+]]
+function TestPlan:addChild(phrase, nodeType, nodeModifier)
+	nodeModifier = getModifier(phrase, self.testNamePattern, nodeModifier)
+	local child = TestNode.new(self, phrase, nodeType, nodeModifier)
+	table.insert(self.children, child)
+	return child
+end
+
+--[[
+	Add a new describe node with the given method as a callback. Generates or
+	reuses all the describe nodes along the path.
+]]
+function TestPlan:addRoot(path, method)
+	local curNode = self
+	for i = #path, 1, -1 do
+		local nextNode = nil
+
+		for _, child in ipairs(curNode.children) do
+			if child.phrase == path[i] then
+				nextNode = child
+				break
+			end
+		end
+
+		if nextNode == nil then
+			nextNode = curNode:addChild(path[i], TestEnum.NodeType.Describe)
+		end
+
+		curNode = nextNode
+	end
+
+	curNode.callback = method
+	curNode:expand()
+end
+
+--[[
+	Calls the given callback on all nodes in the tree, traversed depth-first.
+]]
+function TestPlan:visitAllNodes(callback, root, level)
+	root = root or self
+	level = level or 0
+
+	for _, child in ipairs(root.children) do
+		callback(child, level)
+
+		self:visitAllNodes(callback, child, level + 1)
+	end
+end
+
+--[[
+	Visualizes the test plan in a simple format, suitable for debugging the test
+	plan's structure.
+]]
+function TestPlan:visualize()
+	local buffer = {}
+	self:visitAllNodes(function(node, level)
+		table.insert(buffer, (" "):rep(3 * level) .. node.phrase)
+	end)
+	return table.concat(buffer, "\n")
+end
+
+--[[
+	Gets a list of all nodes in the tree for which the given callback returns
+	true.
+]]
+function TestPlan:findNodes(callback)
+	local results = {}
+	self:visitAllNodes(function(node)
+		if callback(node) then
+			table.insert(results, node)
+		end
+	end)
+	return results
+end
+
+return TestPlan
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="22">
+          <Properties>
+            <string name="Name">TestPlanner</string>
+            <string name="Source">--[[
+	Turns a series of specification functions into a test plan.
+
+	Uses a TestPlanBuilder to keep track of the state of the tree being built.
+]]
+local TestPlan = require(script.Parent.TestPlan)
+
+local TestPlanner = {}
+
+--[[
+	Create a new TestPlan from a list of specification functions.
+
+	These functions should call a combination of `describe` and `it` (and their
+	variants), which will be turned into a test plan to be executed.
+
+	Parameters:
+		- modulesList - list of tables describing test modules {
+			method, -- specification function described above
+			path, -- array of parent entires, first element is the leaf that owns `method`
+			pathStringForSorting -- a string representation of `path`, used for sorting of the test plan
+		}
+		- testNamePattern - Only tests matching this Lua pattern string will run. Pass empty or nil to run all tests
+		- extraEnvironment - Lua table holding additional functions and variables to be injected into the specification
+							function during execution
+]]
+function TestPlanner.createPlan(modulesList, testNamePattern, extraEnvironment)
+	local plan = TestPlan.new(testNamePattern, extraEnvironment)
+
+	table.sort(modulesList, function(a, b)
+		return a.pathStringForSorting &lt; b.pathStringForSorting
+	end)
+
+	for _, module in ipairs(modulesList) do
+		plan:addRoot(module.path, module.method)
+	end
+
+	return plan
+end
+
+return TestPlanner</string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="23">
+          <Properties>
+            <string name="Name">TestResults</string>
+            <string name="Source">--[[
+	Represents a tree of test results.
+
+	Each node in the tree corresponds directly to a node in a corresponding
+	TestPlan, accessible via the 'planNode' field.
+
+	TestResults objects are produced by TestRunner using TestSession as state.
+]]
+
+local TestEnum = require(script.Parent.TestEnum)
+
+local STATUS_SYMBOLS = {
+	[TestEnum.TestStatus.Success] = "+",
+	[TestEnum.TestStatus.Failure] = "-",
+	[TestEnum.TestStatus.Skipped] = "~"
+}
+
+local TestResults = {}
+
+TestResults.__index = TestResults
+
+--[[
+	Create a new TestResults tree that's linked to the given TestPlan.
+]]
+function TestResults.new(plan)
+	local self = {
+		successCount = 0,
+		failureCount = 0,
+		skippedCount = 0,
+		planNode = plan,
+		children = {},
+		errors = {}
+	}
+
+	setmetatable(self, TestResults)
+
+	return self
+end
+
+--[[
+	Create a new result node that can be inserted into a TestResult tree.
+]]
+function TestResults.createNode(planNode)
+	local node = {
+		planNode = planNode,
+		children = {},
+		errors = {},
+		status = nil
+	}
+
+	return node
+end
+
+--[[
+	Visit all test result nodes, depth-first.
+]]
+function TestResults:visitAllNodes(callback, root)
+	root = root or self
+
+	for _, child in ipairs(root.children) do
+		callback(child)
+
+		self:visitAllNodes(callback, child)
+	end
+end
+
+--[[
+	Creates a debug visualization of the test results.
+]]
+function TestResults:visualize(root, level)
+	root = root or self
+	level = level or 0
+
+	local buffer = {}
+
+	for _, child in ipairs(root.children) do
+		if child.planNode.type == TestEnum.NodeType.It then
+			local symbol = STATUS_SYMBOLS[child.status] or "?"
+			local str = ("%s[%s] %s"):format(
+				(" "):rep(3 * level),
+				symbol,
+				child.planNode.phrase
+			)
+
+			if child.messages and #child.messages > 0 then
+				str = str .. "\n " .. (" "):rep(3 * level) .. table.concat(child.messages, "\n " .. (" "):rep(3 * level))
+			end
+
+			table.insert(buffer, str)
+		else
+			local str = ("%s%s"):format(
+				(" "):rep(3 * level),
+				child.planNode.phrase or ""
+			)
+
+			if child.status then
+				str = str .. (" (%s)"):format(child.status)
+			end
+
+			table.insert(buffer, str)
+
+			if #child.children > 0 then
+				local text = self:visualize(child, level + 1)
+				table.insert(buffer, text)
+			end
+		end
+	end
+
+	return table.concat(buffer, "\n")
+end
+
+return TestResults</string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="24">
+          <Properties>
+            <string name="Name">TestRunner</string>
+            <string name="Source">--[[
+	Contains the logic to run a test plan and gather test results from it.
+
+	TestRunner accepts a TestPlan object, executes the planned tests, and
+	produces a TestResults object. While the tests are running, the system's
+	state is contained inside a TestSession object.
+]]
+
+local Expectation = require(script.Parent.Expectation)
+local TestEnum = require(script.Parent.TestEnum)
+local TestSession = require(script.Parent.TestSession)
+local LifecycleHooks = require(script.Parent.LifecycleHooks)
+
+local RUNNING_GLOBAL = "__TESTEZ_RUNNING_TEST__"
+
+local TestRunner = {
+	environment = {}
+}
+
+function TestRunner.environment.expect(...)
+	return Expectation.new(...)
+end
+
+--[[
+	Runs the given TestPlan and returns a TestResults object representing the
+	results of the run.
+]]
+function TestRunner.runPlan(plan)
+	local session = TestSession.new(plan)
+	local lifecycleHooks = LifecycleHooks.new()
+
+	local exclusiveNodes = plan:findNodes(function(node)
+		return node.modifier == TestEnum.NodeModifier.Focus
+	end)
+
+	session.hasFocusNodes = #exclusiveNodes > 0
+
+	TestRunner.runPlanNode(session, plan, lifecycleHooks)
+
+	return session:finalize()
+end
+
+--[[
+	Run the given test plan node and its descendants, using the given test
+	session to store all of the results.
+]]
+function TestRunner.runPlanNode(session, planNode, lifecycleHooks)
+	local function runCallback(callback, messagePrefix)
+		local success = true
+		local errorMessage
+		-- Any code can check RUNNING_GLOBAL to fork behavior based on
+		-- whether a test is running. We use this to avoid accessing
+		-- protected APIs; it's a workaround that will go away someday.
+		_G[RUNNING_GLOBAL] = true
+
+		messagePrefix = messagePrefix or ""
+
+		local testEnvironment = getfenv(callback)
+
+		for key, value in pairs(TestRunner.environment) do
+			testEnvironment[key] = value
+		end
+
+		testEnvironment.fail = function(message)
+			if message == nil then
+				message = "fail() was called."
+			end
+
+			success = false
+			errorMessage = messagePrefix .. message .. "\n" .. debug.traceback()
+		end
+
+		local context = session:getContext()
+
+		local nodeSuccess, nodeResult = xpcall(
+			function()
+				callback(context)
+			end,
+			function(message)
+				return messagePrefix .. message .. "\n" .. debug.traceback()
+			end
+		)
+
+		-- If a node threw an error, we prefer to use that message over
+		-- one created by fail() if it was set.
+		if not nodeSuccess then
+			success = false
+			errorMessage = nodeResult
+		end
+
+		_G[RUNNING_GLOBAL] = nil
+
+		return success, errorMessage
+	end
+
+	local function runNode(childPlanNode)
+		-- Errors can be set either via `error` propagating upwards or
+		-- by a test calling fail([message]).
+
+		for _, hook in ipairs(lifecycleHooks:getBeforeEachHooks()) do
+			local success, errorMessage = runCallback(hook, "beforeEach hook: ")
+			if not success then
+				return false, errorMessage
+			end
+		end
+
+		do
+			local success, errorMessage = runCallback(childPlanNode.callback)
+			if not success then
+				return false, errorMessage
+			end
+		end
+
+		for _, hook in ipairs(lifecycleHooks:getAfterEachHooks()) do
+			local success, errorMessage = runCallback(hook, "afterEach hook: ")
+			if not success then
+				return false, errorMessage
+			end
+		end
+
+		return true, nil
+	end
+
+	lifecycleHooks:pushHooksFrom(planNode)
+
+	local halt = false
+	for _, hook in ipairs(lifecycleHooks:getBeforeAllHooks()) do
+		local success, errorMessage = runCallback(hook, "beforeAll hook: ")
+		if not success then
+			session:addDummyError("beforeAll", errorMessage)
+			halt = true
+		end
+	end
+
+	if not halt then
+		for _, childPlanNode in ipairs(planNode.children) do
+			session:pushNode(childPlanNode)
+
+			if childPlanNode.type == TestEnum.NodeType.It then
+				if session:shouldSkip() then
+					session:setSkipped()
+				else
+					local success, errorMessage = runNode(childPlanNode)
+
+					if success then
+						session:setSuccess()
+					else
+						session:setError(errorMessage)
+					end
+				end
+			elseif childPlanNode.type == TestEnum.NodeType.Describe then
+				TestRunner.runPlanNode(session, childPlanNode, lifecycleHooks)
+
+				-- Did we have an error trying build a test plan?
+				if childPlanNode.loadError then
+					local message = "Error during planning: " .. childPlanNode.loadError
+					session:setError(message)
+				else
+					session:setStatusFromChildren()
+				end
+			end
+
+			session:popNode()
+		end
+	end
+
+	for _, hook in ipairs(lifecycleHooks:getAfterAllHooks()) do
+		local success, errorMessage = runCallback(hook, "afterAll hook: ")
+		if not success then
+			session:addDummyError("afterAll", errorMessage)
+		end
+	end
+
+	lifecycleHooks:popHooks()
+end
+
+return TestRunner</string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="25">
+          <Properties>
+            <string name="Name">TestSession</string>
+            <string name="Source"><![CDATA[--[[
+	Represents the state relevant while executing a test plan.
+
+	Used by TestRunner to produce a TestResults object.
+
+	Uses the same tree building structure as TestPlanBuilder; TestSession keeps
+	track of a stack of nodes that represent the current path through the tree.
+]]
+
+local TestEnum = require(script.Parent.TestEnum)
+local TestResults = require(script.Parent.TestResults)
+local Context = require(script.Parent.Context)
+
+local TestSession = {}
+
+TestSession.__index = TestSession
+
+--[[
+	Create a TestSession related to the given TestPlan.
+
+	The resulting TestResults object will be linked to this TestPlan.
+]]
+function TestSession.new(plan)
+	local self = {
+		results = TestResults.new(plan),
+		nodeStack = {},
+		contextStack = {},
+		hasFocusNodes = false
+	}
+
+	setmetatable(self, TestSession)
+
+	return self
+end
+
+--[[
+	Calculate success, failure, and skipped test counts in the tree at the
+	current point in the execution.
+]]
+function TestSession:calculateTotals()
+	local results = self.results
+
+	results.successCount = 0
+	results.failureCount = 0
+	results.skippedCount = 0
+
+	results:visitAllNodes(function(node)
+		local status = node.status
+		local nodeType = node.planNode.type
+
+		if nodeType == TestEnum.NodeType.It then
+			if status == TestEnum.TestStatus.Success then
+				results.successCount = results.successCount + 1
+			elseif status == TestEnum.TestStatus.Failure then
+				results.failureCount = results.failureCount + 1
+			elseif status == TestEnum.TestStatus.Skipped then
+				results.skippedCount = results.skippedCount + 1
+			end
+		end
+	end)
+end
+
+--[[
+	Gathers all of the errors reported by tests and puts them at the top level
+	of the TestResults object.
+]]
+function TestSession:gatherErrors()
+	local results = self.results
+
+	results.errors = {}
+
+	results:visitAllNodes(function(node)
+		if #node.errors > 0 then
+			for _, message in ipairs(node.errors) do
+				table.insert(results.errors, message)
+			end
+		end
+	end)
+end
+
+--[[
+	Calculates test totals, verifies the tree is valid, and returns results.
+]]
+function TestSession:finalize()
+	if #self.nodeStack ~= 0 then
+		error("Cannot finalize TestResults with nodes still on the stack!", 2)
+	end
+
+	self:calculateTotals()
+	self:gatherErrors()
+
+	return self.results
+end
+
+--[[
+	Create a new test result node and push it onto the navigation stack.
+]]
+function TestSession:pushNode(planNode)
+	local node = TestResults.createNode(planNode)
+	local lastNode = self.nodeStack[#self.nodeStack] or self.results
+	local lastContext = self.contextStack[#self.contextStack]
+	local context = Context.new(lastContext)
+
+	table.insert(lastNode.children, node)
+	table.insert(self.nodeStack, node)
+	table.insert(self.contextStack, context)
+end
+
+--[[
+	Pops a node off of the navigation stack.
+]]
+function TestSession:popNode()
+	assert(#self.nodeStack > 0, "Tried to pop from an empty node stack!")
+	table.remove(self.nodeStack, #self.nodeStack)
+	table.remove(self.contextStack, #self.contextStack)
+end
+
+--[[
+	Gets the Context object for the current node.
+]]
+function TestSession:getContext()
+	assert(#self.contextStack > 0, "Tried to get context from an empty stack!")
+	return self.contextStack[#self.contextStack]
+end
+
+--[[
+	Tells whether the current test we're in should be skipped.
+]]
+function TestSession:shouldSkip()
+	-- If our test tree had any exclusive tests, then normal tests are skipped!
+	if self.hasFocusNodes then
+		for i = #self.nodeStack, 1, -1 do
+			local node = self.nodeStack[i]
+
+			-- Skipped tests are still skipped
+			if node.planNode.modifier == TestEnum.NodeModifier.Skip then
+				return true
+			end
+
+			-- Focused tests are the only ones that aren't skipped
+			if node.planNode.modifier == TestEnum.NodeModifier.Focus then
+				return false
+			end
+		end
+
+		return true
+	else
+		for i = #self.nodeStack, 1, -1 do
+			local node = self.nodeStack[i]
+
+			if node.planNode.modifier == TestEnum.NodeModifier.Skip then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+--[[
+	Set the current node's status to Success.
+]]
+function TestSession:setSuccess()
+	assert(#self.nodeStack > 0, "Attempting to set success status on empty stack")
+	self.nodeStack[#self.nodeStack].status = TestEnum.TestStatus.Success
+end
+
+--[[
+	Set the current node's status to Skipped.
+]]
+function TestSession:setSkipped()
+	assert(#self.nodeStack > 0, "Attempting to set skipped status on empty stack")
+	self.nodeStack[#self.nodeStack].status = TestEnum.TestStatus.Skipped
+end
+
+--[[
+	Set the current node's status to Failure and adds a message to its list of
+	errors.
+]]
+function TestSession:setError(message)
+	assert(#self.nodeStack > 0, "Attempting to set error status on empty stack")
+	local last = self.nodeStack[#self.nodeStack]
+	last.status = TestEnum.TestStatus.Failure
+	table.insert(last.errors, message)
+end
+
+--[[
+	Add a dummy child node to the current node to hold the given error. This
+	allows an otherwise empty describe node to report an error in a more natural
+	way.
+]]
+function TestSession:addDummyError(phrase, message)
+	self:pushNode({type = TestEnum.NodeType.It, phrase = phrase})
+	self:setError(message)
+	self:popNode()
+	self.nodeStack[#self.nodeStack].status = TestEnum.TestStatus.Failure
+end
+
+--[[
+	Set the current node's status based on that of its children. If all children
+	are skipped, mark it as skipped. If any are fails, mark it as failed.
+	Otherwise, mark it as success.
+]]
+function TestSession:setStatusFromChildren()
+	assert(#self.nodeStack > 0, "Attempting to set status from children on empty stack")
+
+	local last = self.nodeStack[#self.nodeStack]
+	local status = TestEnum.TestStatus.Success
+	local skipped = true
+
+	-- If all children were skipped, then we were skipped
+	-- If any child failed, then we failed!
+	for _, child in ipairs(last.children) do
+		if child.status ~= TestEnum.TestStatus.Skipped then
+			skipped = false
+
+			if child.status == TestEnum.TestStatus.Failure then
+				status = TestEnum.TestStatus.Failure
+			end
+		end
+	end
+
+	if skipped then
+		status = TestEnum.TestStatus.Skipped
+	end
+
+	last.status = status
+end
+
+return TestSession
+]]></string>
+          </Properties>
+        </Item>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="ServerScriptService" referent="26">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+    </Properties>
+    <Item class="Folder" referent="27">
+      <Properties>
+        <string name="Name">Server</string>
+      </Properties>
+      <Item class="Folder" referent="28">
+        <Properties>
+          <string name="Name">Benchmarks</string>
+        </Properties>
+        <Item class="ModuleScript" referent="29">
+          <Properties>
+            <string name="Name">RobaseService.bench</string>
+            <string name="Source">local Import = require(game.ReplicatedStorage.Shared.packages.Import)
+
+local TestUrl = "https://robasestore-test-default-rtdb.europe-west1.firebasedatabase.app/"
+local TestAuth = "DOiy9dDWghkdUYJKiFLXV1MGYkPRuddjLTL3bQJi"
+
+local RobaseService = Import("Packages/RobaseService").new(TestUrl, TestAuth)
+local DataStoreService = game:GetService("DataStoreService")
+
+local SampleName = "PlayerData"
+local SampleKey = "ShaneSloth"
+
+local RobaseInfo = {
+	Key = SampleKey,
+	SetKey = ("%s/Name"):format(SampleKey),
+	GetKey = ("%s/Name"):format(SampleKey),
+	IncrementKey = ("/Level"):format(SampleKey),
+	UpdateKey = SampleKey
+}
+
+local DataStoreInfo = {
+	Key = "ShaneSloth",
+	PlayerDataStore = SampleName,
+	VistsDataStore = "Visits",
+}
+
+local function getRobase(): table
+	local _, Result = pcall(RobaseService.GetRobase, SampleName)
+	return Result
+end
+
+local function robaseGetAsync(robase): boolean &amp; any
+	local _, Success, Result = pcall(robase.GetAsync, RobaseInfo.GetKey)
+	return Success, Result
+end
+
+local function robaseSetAsync(robase, data): boolean &amp; any
+	local _, Success, Result = pcall(robase.SetAsync, RobaseInfo.SetKey, data)
+	return Success, Result
+end
+
+local function robaseIncrementAsync(robase, delta): boolean &amp; any
+	local _, Success, Result = pcall(robase.IncrementAsync, RobaseInfo.IncrementKey, delta)
+	return Success, Result
+end
+
+local function getDataStore(store): any
+	local _, Result = pcall(DataStoreService.GetDataStore, store)
+	return Result
+end
+
+local function datastoreGetAsync(datastore): any
+	local _, Result = pcall(datastore.GetAsync, DataStoreInfo.Key)
+	return Result
+end
+
+local function datastoreSetAsync(datastore, data): nil
+	pcall(datastore.SetAsync, DataStoreInfo.Key, data)
+	--return datastoreGetAsync(datastore)
+	--return pcall(datastore.GetAsync, DataStoreInfo.Key)
+end
+
+local function datastoreReturnSetAsync(datastore, data): any
+	datastoreSetAsync(datastore, data)
+	--pcall(datastore.SetAsync, data)
+	return datastoreGetAsync(datastore)
+end
+
+local function datastoreIncrementAsync(datastore)
+	local _, Result = pcall(datastore.IncrementAsync, DataStoreInfo.Key, 1)
+	return Result
+end
+
+return {
+	ParameterGenerator = function()
+	end;
+
+	Functions = {
+		["RobaseService"] = function(Profiler)
+			Profiler.Begin("GetRobase")
+			local Robase
+			for i = 1, 500 do
+				Robase = getRobase()
+			end
+			Profiler.End()
+
+			Profiler.Begin("GetAsync")
+			for i = 1, 500 do
+				robaseGetAsync(Robase)
+			end
+			Profiler.End()
+
+			Profiler.Begin("SetAsync")
+			for i = 1, 500 do
+				robaseSetAsync(Robase, "NotShaneSloth")
+			end
+			Profiler.End()
+
+			Profiler.Begin("IncrementAsync")
+			for i = 1, 500 do
+				robaseIncrementAsync(Robase, 1)
+			end
+			Profiler.End()
+		end,
+
+		["DataStoreService"] = function(Profiler)
+			Profiler.Begin("GetDataStores")
+			local visits
+			local players
+			for i = 1, 500 do
+				visits = getDataStore(DataStoreInfo.VistsDataStore)
+				players = getDataStore(DataStoreInfo.PlayerDataStore)
+			end
+			Profiler.End()
+
+			Profiler.Begin("GetAsync")
+			for i = 1, 500 do
+				datastoreGetAsync(players)
+			end
+			Profiler.End()
+
+			--[[Profiler.Begin("SetAsync")
+			for i = 1, 100 do
+				datastoreSetAsync(players, {Nickname="NotShaneSloth"})
+			end
+			Profiler.End()
+--]]
+			Profiler.Begin("SetAsync") -- ReturnSetAsync
+			for i = 1, 100 do
+				datastoreReturnSetAsync(players, {Nickname="NotShaneSloth"})
+			end
+			Profiler.End()
+
+			Profiler.Begin("IncrementAsync")
+			for i = 1, 100 do
+				datastoreIncrementAsync(visits)
+			end
+			Profiler.End()
+		end
+	}
+}</string>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="Folder" referent="30">
+        <Properties>
+          <string name="Name">RobaseDocsExampleCode</string>
+        </Properties>
+        <Item class="ModuleScript" referent="31">
+          <Properties>
+            <string name="Name">ExampleProfile</string>
+            <string name="Source">local PlayerProfile = {
+    Stats = {
+        Example1 = 20,
+        Example2= 20,
+        Example3 = 20,
+        Example4 = 20,
+        Example5 = 20,
+        Example6 = 20,
+        Example7= 20,
+        Example8 = 20,
+        Example9 = 20,
+        Example10 = 20,
+    },
+
+    Equipped = {
+        Pages = {
+            Armour = {
+                Helmet = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Body = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Legs = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Feet = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Weapon = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Accessories = {
+                    Rings = {
+                        [1] = {
+                            BlankTemplate = {
+                                ItemId = "nil",
+                                Quantity = 0,
+                                Effects = {
+                                    Buffs = { "BuffId_A" },
+                                    Debuffs = { "DebuffId_K" }
+                                }
+                            }
+                        },
+
+                        [2] = {
+                            BlankTemplate = {
+                                ItemId = "nil",
+                                Quantity = 0,
+                                Effects = {
+                                    Buffs = { "BuffId_A" },
+                                    Debuffs = { "DebuffId_K" }
+                                }
+                            }
+                        }
+                    },
+
+                    Necklace = {
+                        BlankTemplate = {
+                            ItemId = "nil",
+                            Quantity = 0,
+                            Effects = {
+                                Buffs = { "BuffId_A" },
+                                Debuffs = { "DebuffId_K" }
+                            }
+                        }
+                    }
+                }
+            },
+
+            Tools = {
+                BlankTool1 = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                BlankTool2 = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                BlankTool3 = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+            },
+
+            Special = {
+                Achievement = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                },
+
+                Title = {
+                    BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    Inventory = {
+        Pages = {
+            [1] = {
+                Slots = {
+                    [1] = {
+                        BlankTemplate = {
+                            ItemId = "nil",
+                            Quantity = 0,
+                            Effects = {
+                                Buffs = { "BuffId_A" },
+                                Debuffs = { "DebuffId_K" }
+                            }
+                        }
+                    },
+                    [2] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [3] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [4] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [5] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [6] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [7] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                    [8] = {
+                        BlankTemplate = {
+                        ItemId = "nil",
+                        Quantity = 0,
+                        Effects = {
+                            Buffs = { "BuffId_A" },
+                            Debuffs = { "DebuffId_K" }
+                        }
+                    }
+                    },
+                }
+            }
+        },
+
+        _metadata = {
+            _totalSlots = 8,
+            _totalPages = 1,
+        }
+    },
+
+    InAppPurchases = {
+        "GamepassId1", "GamepassId2", "GamepassId3", "GamepassId4",
+        "DevProductA", "DevProductB", "DevProductC", "DevProductD", "DevProductE", "DevProductF",
+    },
+
+    Missions = {
+        Completed = {
+            ["QuestId1"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+            ["QuestId2"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+            ["QuestId3"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+            ["QuestId4"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+            ["QuestId5"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+        },
+
+        InProgress = {
+            ["QuestId6"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+            ["QuestId7"] = {
+                _metadata = {
+                    _completion = "1/1/1970 00:00 UTC",
+                    _rewarded = true,
+                }
+            },
+        }
+    },
+
+    _metadata = {
+        _playTime = 0,
+        _lastSessionDuration = 0,
+        _currentSessionDuration = 0,
+        _totalLevel = 10,
+        _lastSession = "1/1/1970 00:00 UTC",
+        _sessionLocked = true,
+        _lastAutoSave = "1/1/1970 00:00 UTC",
+        _lastManualSave = "1/1/1970 00:00 UTC",
+        _questsCompleted = 5,
+        _didLoadFromLastSession = true,
+        _canSave = true,
+    }
+}
+
+return PlayerProfile</string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="32">
+          <Properties>
+            <string name="Name">ExampleServerData</string>
+            <string name="Source">local ServerData = {
+    Events = {
+        BonusExp = {
+            Dates = {
+                Start = "1/1/1970 00:00 UTC",
+                End = "1/7/1970 00:00 UTC",
+            },
+            Title = "Double XP",
+            Description = "All experience is doubled!",
+            _metadata = {
+                _active = false
+            }
+        }
+    },
+
+    PlayedMinigames = {
+
+        Games = {
+
+            ["GameId-A"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-B"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-C"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-D"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-E"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-F"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-G"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-H"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-I"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-J"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-K"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-L"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-M"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            ["GameId-N"] = {
+                PlayedBy = nil,
+                Length = 0,
+                Score = 0,
+
+                _metadata = {
+                    _skill = "nil",
+                    _active = false,
+                    _date = "1/1/1970 00:00 UTC",
+                }
+            },
+            
+        },
+
+        _metadata = {
+            _totalPlayed = math.huge,
+            _totalTimePlayed = math.huge,
+            _averageTimePlayed = math.huge,
+            _highestScore = 0,
+        }
+    },
+
+    FastFlags = {
+        OverrideHumanoidOnSpawn = false,
+        PlayerConnectShowLoadingInterface = true,
+        CustomToolOverride = false,
+        CustomExperienceEvents = true,
+    }
+}
+
+return ServerData</string>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="Script" referent="33">
+        <Properties>
+          <string name="Name">TestEZRobase</string>
+          <string name="Source">local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local TestEZModule = Shared:WaitForChild("TestEZ")
+local TestEZ = require(TestEZModule)
+
+local Tests = Shared:FindFirstChild("RobaseTests"):GetDescendants()
+TestEZ.TestBootstrap:run(Tests)</string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="SoundService" referent="34">
+    <Properties>
+      <string name="Name">SoundService</string>
+      <bool name="RespectFilteringEnabled">true</bool>
+    </Properties>
+  </Item>
+  <Item class="Workspace" referent="35">
+    <Properties>
+      <string name="Name">Workspace</string>
+      <bool name="FilteringEnabled">true</bool>
+    </Properties>
+    <Item class="Part" referent="36">
+      <Properties>
+        <string name="Name">Baseplate</string>
+        <bool name="Anchored">true</bool>
+        <Color3 name="Color3uint8">
+          <R>0.38823</R>
+          <G>0.37254</G>
+          <B>0.38823</B>
+        </Color3>
+        <bool name="Locked">true</bool>
+        <Vector3 name="Position">
+          <X>0</X>
+          <Y>-10</Y>
+          <Z>0</Z>
+        </Vector3>
+        <Vector3 name="size">
+          <X>512</X>
+          <Y>20</Y>
+          <Z>512</Z>
+        </Vector3>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

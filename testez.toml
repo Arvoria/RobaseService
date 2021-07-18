@@ -65,3 +65,6 @@ type = "function"
 
 [SKIP]
 args = []
+
+[Profiler]
+args = []

@@ -1,8 +1,8 @@
 return function()
-    local Shared = script.Parent.Parent
-    local RobaseService = require(Shared.RobaseService)
-    local TestUrl = "https://robasestore-test-default-rtdb.europe-west1.firebasedatabase.app/"
-    local TestAuth = "DOiy9dDWghkdUYJKiFLXV1MGYkPRuddjLTL3bQJi"
+    local RS = script.Parent.Parent
+    local RobaseService = require(RS)
+    local TestUrl = ""
+    local TestAuth = ""
     local TestName = "PlayerData"
 
     describe("new", function()
