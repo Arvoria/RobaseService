@@ -65,7 +65,7 @@ local function generateRequestOptions(key, data, method, queryOption, robase)
     local url = robase._path .. HttpService:UrlEncode(key) .. robase._auth
 
     if queryOption.shallow then
-        url = appendUrlQuery(url, "shallow", queryOption.shallow)
+        url = appendUrlQuery(url, "shallow", tostring(queryOption.shallow))
     else --shallow cannot be used with any of the "filtering data" query parameters.
         if queryOption.orderBy then
             url = appendUrlQuery(url, "orderBy", queryOption.orderBy)
