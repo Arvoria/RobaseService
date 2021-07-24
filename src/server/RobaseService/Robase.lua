@@ -310,7 +310,7 @@ function Robase:limitToFirst(limitToFirst)
 end
 
 function Robase:startAt(startAt)
-    assert(self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+    assert(self._queryOption.shallow == false, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
     assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
     assert(typeof(startAt) == "string", ("Bad argument 1, string expected got %s"):format(typeof(startAt)))
 
@@ -326,7 +326,7 @@ function Robase:startAt(startAt)
 end
 
 function Robase:endAt(endAt)
-    assert(self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+    assert(self._queryOption.shallow == false, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
     assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
     assert(typeof(endAt) == "string", ("Bad argument 1, string expected got %s"):format(typeof(endAt)))
     
@@ -342,7 +342,7 @@ function Robase:endAt(endAt)
 end
 
 function Robase:equalTo(equalTo)
-    assert(self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+    assert(self._queryOption.shallow == false, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
     assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
     assert(typeof(equalTo) == "string", ("Bad argument 1, string expected got %s"):format(typeof(equalTo)))
 
