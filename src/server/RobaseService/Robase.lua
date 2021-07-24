@@ -11,7 +11,7 @@ local Enum = {
         ["Get"] = "GET",
         ["Delete"] = "DELETE",
         ["Patch"] = "PATCH"
-     }
+    }
 }
 
 local function appendUrlQuery(url, queryName, queryData)
@@ -37,12 +37,9 @@ local function findHttpMethod(method)
     return nil
 end
 
-local function generateRequestOptions(key, data, method, queryOption, robase)
+local function generateRequestOptions(key, data, method, robase)
     if typeof(key)~="string" then
         error(string.format("Bad argument 1 string expected got %s", typeof(key)))
-    end
-    if typeof(queryOption)~="table" then
-        error(string.format("Bad argument 4 table expected got %s", typeof(queryOption)))
     end
     if data ~= nil then
         data = HttpService:JSONEncode(data)
@@ -63,7 +60,8 @@ local function generateRequestOptions(key, data, method, queryOption, robase)
 
     key = key:sub(1,1)~="/" and "/"..key or key
     local url = robase._path .. HttpService:UrlEncode(key) .. robase._auth
-
+    local queryOption = robase._queryOption --cba to change all the stuff below
+    
     if queryOption.shallow then
         url = appendUrlQuery(url, "shallow", tostring(queryOption.shallow))
     else --shallow cannot be used with any of the "filtering data" query parameters.
@@ -94,7 +92,7 @@ local function generateRequestOptions(key, data, method, queryOption, robase)
             end
         end
     end
-    
+        
     return {
         Url = url,
         Method = findHttpMethod(method),
@@ -108,12 +106,14 @@ function Robase.new(path, robaseService)
 
     local self = { }
     self._path = path
+    self._queryOption = {}
     self._auth = robaseService.AuthKey
+    self._robaseService = robaseService
     return setmetatable(self, Robase)
 end
 
-function Robase:Get(key, queryOption)
-    local options = generateRequestOptions(key, nil, "GET", queryOption or {}, self)
+function Robase:Get(key)
+    local options = generateRequestOptions(key, nil, "GET", self)
     return HttpWrapper:Request(options)
 end
 
@@ -125,9 +125,9 @@ function Robase:Set(key, data, method)
     return HttpWrapper:Request(options)
 end
 
-function Robase:GetAsync(key, queryOption)
+function Robase:GetAsync(key)
     local err
-    local success, value = self:Get(key, queryOption):catch(function(response)
+    local success, value = self:Get(key):catch(function(response)
         err = {response.StatusCode, response.StatusMessage}
     end):await()
 
@@ -177,7 +177,7 @@ function Robase:DeleteAsync(key)
         error(string.format(
             "No data found at key {%s}",
             key
-        ))
+            ))
     end
 
     local success, _ = self:SetAsync(key, "", "DELETE")
@@ -191,13 +191,13 @@ function Robase:IncrementAsync(key, delta)
         error(string.format(
             "IncrementAsync, data found at {%s} is not a number",
             key
-        ))
+            ))
     else -- is a number
         if math.floor(data) ~= data then -- not an integer
             error(string.format(
                 "IncrementAsync, data found at {%s} is not an integer",
                 key
-            ))
+                ))
         end
     end
 
@@ -208,7 +208,7 @@ function Robase:IncrementAsync(key, delta)
             error(string.format(
                 "IncrementAsync, delta is a {%s}, {nil|integer} expected",
                 typeof(delta)
-            ))
+                ))
         end
     else -- is a number
         if math.floor(delta) ~= delta then -- not an integer
@@ -243,15 +243,132 @@ function Robase:BatchUpdateAsync(baseKey, callbacks, cache)
     return self:SetAsync(baseKey, updated, "PATCH")
 end
 
+function Robase:orderByChild(orderBy)
+    assert(not self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+
+    local newQueryOption = self._queryOption
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.orderBy = tostring(orderBy)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+function Robase:setShallow(shallow)
+    assert(typeof(shallow) == "boolean", ("Bad argument 1, boolean expected got %s"):format(typeof(shallow)))
+    assert(
+        not self._queryOption.orderBy,
+        ('shallow cannot be used with any of the "filtering data" query parameters.')
+    )
+
+    local newQueryOption = self._queryOption
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.shallow = not not shallow
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+
+function Robase:limitToLast(limitToLast)
+    assert(not self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+    assert(typeof(limitToLast) == "string", ("Bad argument 1, string expected got %s"):format(typeof(limitToLast)))
+
+    local newQueryOption = self._queryOption
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.limitToLast = tostring(limitToLast)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+function Robase:limitToFirst(limitToFirst)
+    assert(
+        not self._queryOption.shallow, 
+        ('Shallow cannot be used with any of the "filtering data" query parameters.')
+    )
+    assert(typeof(limitToFirst) == "string", ("Bad argument 1, string expected got %s"):format(typeof(limitToFirst)))
+
+    local newQueryOption = self._queryOption
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.limitToFirst = tostring(limitToFirst)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+function Robase:startAt(startAt)
+    assert(self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+    assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
+    assert(typeof(startAt) == "string", ("Bad argument 1, string expected got %s"):format(typeof(startAt)))
+
+    local newQueryOption = self._queryOption
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.startAt = tostring(startAt)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+function Robase:endAt(endAt)
+    assert(self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+    assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
+    assert(typeof(endAt) == "string", ("Bad argument 1, string expected got %s"):format(typeof(endAt)))
+    
+    local newQueryOption = self._queryOption
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.endAt = tostring(endAt)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+function Robase:equalTo(equalTo)
+    assert(self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+    assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
+    assert(typeof(equalTo) == "string", ("Bad argument 1, string expected got %s"):format(typeof(equalTo)))
+
+    local newQueryOption = self._queryOption
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.equalTo = tostring(equalTo)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
 --[[function Robase:BatchUpdateAsync(baseKey, uploadKeyValues, uploadCallbacks, cache)
     local t1,t2 = typeof(uploadKeyValues), typeof(uploadCallbacks)
     assert(t1 == "table", "Bad argument 2, table expected got " .. t1)
     assert(t2 == "table", "Bad argument 3, table expected got " .. t2)
     t1,t2=nil,nil
+
     local updated = { }
+
     for key, value in pairs(uploadKeyValues) do
         assert(uploadCallbacks[key]~=nil, "BatchUpdateAsync: '"..key.."' does not have a callback function")
         assert(typeof(uploadCallbacks[key])=="function", "Callback is not a function")
+
         local success, data
         if cache~=nil and cache[key] then
             data = cache[key]
@@ -259,9 +376,11 @@ end
         else
             success, data = self:GetAsync(string.format("%s/%s", baseKey, key))
         end
+
         local new = uploadCallbacks[key](data)
         updated[key] = new
     end
+
     return self:SetAsync(baseKey, updated, "PATCH")
 end]]
 
