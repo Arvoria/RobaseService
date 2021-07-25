@@ -1,3 +1,6 @@
+--This is the unofficial branch by me ofc
+--pull request at https://github.com/Arvoria/RobaseService/pull/1
+
 local HttpWrapper = require(script.Parent.HttpWrapper)
 local HttpService = game:GetService("HttpService")
 
@@ -13,6 +16,21 @@ local Enum = {
         ["Patch"] = "PATCH"
     }
 }
+
+local function deepcopy(orig)
+        local orig_type = type(orig)
+        local copy
+        if orig_type == 'table' then
+            copy = {}
+            for orig_key, orig_value in next, orig, nil do
+                copy[deepcopy(orig_key)] = deepcopy(orig_value)
+            end
+            setmetatable(copy, deepcopy(getmetatable(orig)))
+        else -- number, string, boolean, etc
+            copy = orig
+        end
+        return copy
+    end
 
 local function appendUrlQuery(url, queryName, queryData)
     if url:find("?") then
@@ -246,7 +264,7 @@ end
 function Robase:orderByChild(orderBy)
     assert(not self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
 
-    local newQueryOption = self._queryOption
+    local newQueryOption = deepcopy(self._queryOption)
     local deepcopyRobase = Robase.new(
         self._path,
         self._robaseService
@@ -264,7 +282,7 @@ function Robase:setShallow(shallow)
         ('shallow cannot be used with any of the "filtering data" query parameters.')
     )
 
-    local newQueryOption = self._queryOption
+    local newQueryOption = deepcopy(self._queryOption)
     local deepcopyRobase = Robase.new(
         self._path,
         self._robaseService
@@ -280,7 +298,7 @@ function Robase:limitToLast(limitToLast)
     assert(not self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
     assert(typeof(limitToLast) == "string", ("Bad argument 1, string expected got %s"):format(typeof(limitToLast)))
 
-    local newQueryOption = self._queryOption
+    local newQueryOption = deepcopy(self._queryOption)
     local deepcopyRobase = Robase.new(
         self._path,
         self._robaseService
@@ -298,7 +316,7 @@ function Robase:limitToFirst(limitToFirst)
     )
     assert(typeof(limitToFirst) == "string", ("Bad argument 1, string expected got %s"):format(typeof(limitToFirst)))
 
-    local newQueryOption = self._queryOption
+    local newQueryOption = deepcopy(self._queryOption)
     local deepcopyRobase = Robase.new(
         self._path,
         self._robaseService
@@ -314,7 +332,7 @@ function Robase:startAt(startAt)
     assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
     assert(typeof(startAt) == "string", ("Bad argument 1, string expected got %s"):format(typeof(startAt)))
 
-    local newQueryOption = self._queryOption
+    local newQueryOption = deepcopy(self._queryOption)
     local deepcopyRobase = Robase.new(
         self._path,
         self._robaseService
@@ -330,7 +348,7 @@ function Robase:endAt(endAt)
     assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
     assert(typeof(endAt) == "string", ("Bad argument 1, string expected got %s"):format(typeof(endAt)))
     
-    local newQueryOption = self._queryOption
+    local newQueryOption = deepcopy(self._queryOption)
     local deepcopyRobase = Robase.new(
         self._path,
         self._robaseService
@@ -346,7 +364,7 @@ function Robase:equalTo(equalTo)
     assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
     assert(typeof(equalTo) == "string", ("Bad argument 1, string expected got %s"):format(typeof(equalTo)))
 
-    local newQueryOption = self._queryOption
+    local newQueryOption = deepcopy(self._queryOption)
     local deepcopyRobase = Robase.new(
         self._path,
         self._robaseService
