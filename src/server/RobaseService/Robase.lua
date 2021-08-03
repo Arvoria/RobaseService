@@ -1,6 +1,3 @@
---This is the unofficial branch by me ofc
---pull request at https://github.com/Arvoria/RobaseService/pull/1
-
 local HttpWrapper = require(script.Parent.HttpWrapper)
 local HttpService = game:GetService("HttpService")
 
