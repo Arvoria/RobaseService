@@ -11,8 +11,31 @@ local Enum = {
         ["Get"] = "GET",
         ["Delete"] = "DELETE",
         ["Patch"] = "PATCH"
-     }
+    }
 }
+
+local function deepcopy(orig)
+        local orig_type = type(orig)
+        local copy
+        if orig_type == 'table' then
+            copy = {}
+            for orig_key, orig_value in next, orig, nil do
+                copy[deepcopy(orig_key)] = deepcopy(orig_value)
+            end
+            setmetatable(copy, deepcopy(getmetatable(orig)))
+        else -- number, string, boolean, etc
+            copy = orig
+        end
+        return copy
+    end
+
+local function appendUrlQuery(url, queryName, queryData)
+    if url:find("?") then
+        return ("%s&%s=%s"):format(url, queryName, queryData)
+    else
+        return ("%s?%s=%s"):format(url, queryName, queryData)
+    end
+end
 
 local function findHttpMethod(method)
     if method == nil then
@@ -52,7 +75,39 @@ local function generateRequestOptions(key, data, method, robase)
 
     key = key:sub(1,1)~="/" and "/"..key or key
     local url = robase._path .. HttpService:UrlEncode(key) .. robase._auth
-
+    local queryOption = robase._queryOption --cba to change all the stuff below
+    
+    if queryOption.shallow then
+        url = appendUrlQuery(url, "shallow", tostring(queryOption.shallow))
+    else --shallow cannot be used with any of the "filtering data" query parameters.
+        if queryOption.orderBy then
+            url = appendUrlQuery(url, "orderBy", queryOption.orderBy)
+            --limitTo require orderBy
+            
+            if queryOption.limitToLast then
+                url = appendUrlQuery(url, "limitToLast", queryOption.limitToLast)
+            end
+            
+            if queryOption.limitToFirst then
+                url = appendUrlQuery(url, "limitToFirst", queryOption.limitToFirst)
+            end
+            
+            --Range Queries require orderBy
+            
+            if queryOption.startAt then
+                url = appendUrlQuery(url, "startAt", queryOption.startAt)
+            end
+            
+            if queryOption.endAt then
+                url = appendUrlQuery(url, "endAt", queryOption.endAt)
+            end
+            
+            if queryOption.equalTo then
+                url = appendUrlQuery(url, "equalTo", queryOption.equalTo)
+            end
+        end
+    end
+        
     return {
         Url = url,
         Method = findHttpMethod(method),
@@ -66,7 +121,9 @@ function Robase.new(path, robaseService)
 
     local self = { }
     self._path = path
+    self._queryOption = {}
     self._auth = robaseService.AuthKey
+    self._robaseService = robaseService
     return setmetatable(self, Robase)
 end
 
@@ -135,7 +192,7 @@ function Robase:DeleteAsync(key)
         error(string.format(
             "No data found at key {%s}",
             key
-        ))
+            ))
     end
 
     local success, _ = self:SetAsync(key, "", "DELETE")
@@ -149,13 +206,13 @@ function Robase:IncrementAsync(key, delta)
         error(string.format(
             "IncrementAsync, data found at {%s} is not a number",
             key
-        ))
+            ))
     else -- is a number
         if math.floor(data) ~= data then -- not an integer
             error(string.format(
                 "IncrementAsync, data found at {%s} is not an integer",
                 key
-            ))
+                ))
         end
     end
 
@@ -166,7 +223,7 @@ function Robase:IncrementAsync(key, delta)
             error(string.format(
                 "IncrementAsync, delta is a {%s}, {nil|integer} expected",
                 typeof(delta)
-            ))
+                ))
         end
     else -- is a number
         if math.floor(delta) ~= delta then -- not an integer
@@ -199,6 +256,120 @@ function Robase:BatchUpdateAsync(baseKey, callbacks, cache)
     end
 
     return self:SetAsync(baseKey, updated, "PATCH")
+end
+
+function Robase:orderByChild(orderBy)
+    assert(not self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+
+    local newQueryOption = deepcopy(self._queryOption)
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.orderBy = tostring(orderBy)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+function Robase:setShallow(shallow)
+    assert(typeof(shallow) == "boolean", ("Bad argument 1, boolean expected got %s"):format(typeof(shallow)))
+    assert(
+        not self._queryOption.orderBy,
+        ('shallow cannot be used with any of the "filtering data" query parameters.')
+    )
+
+    local newQueryOption = deepcopy(self._queryOption)
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.shallow = not not shallow
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+
+function Robase:limitToLast(limitToLast)
+    assert(not self._queryOption.shallow, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+    assert(typeof(limitToLast) == "string", ("Bad argument 1, string expected got %s"):format(typeof(limitToLast)))
+
+    local newQueryOption = deepcopy(self._queryOption)
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.limitToLast = tostring(limitToLast)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+function Robase:limitToFirst(limitToFirst)
+    assert(
+        not self._queryOption.shallow, 
+        ('Shallow cannot be used with any of the "filtering data" query parameters.')
+    )
+    assert(typeof(limitToFirst) == "string", ("Bad argument 1, string expected got %s"):format(typeof(limitToFirst)))
+
+    local newQueryOption = deepcopy(self._queryOption)
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.limitToFirst = tostring(limitToFirst)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+function Robase:startAt(startAt)
+    assert(self._queryOption.shallow == false, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+    assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
+    assert(typeof(startAt) == "string", ("Bad argument 1, string expected got %s"):format(typeof(startAt)))
+
+    local newQueryOption = deepcopy(self._queryOption)
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.startAt = tostring(startAt)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+function Robase:endAt(endAt)
+    assert(self._queryOption.shallow == false, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+    assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
+    assert(typeof(endAt) == "string", ("Bad argument 1, string expected got %s"):format(typeof(endAt)))
+    
+    local newQueryOption = deepcopy(self._queryOption)
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.endAt = tostring(endAt)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
+end
+
+function Robase:equalTo(equalTo)
+    assert(self._queryOption.shallow == false, ('Shallow cannot be used with any of the "filtering data" query parameters.'))
+    assert(self._queryOption.orderBy, ('Range Queries require orderBy'))
+    assert(typeof(equalTo) == "string", ("Bad argument 1, string expected got %s"):format(typeof(equalTo)))
+
+    local newQueryOption = deepcopy(self._queryOption)
+    local deepcopyRobase = Robase.new(
+        self._path,
+        self._robaseService
+    )    
+    newQueryOption.equalTo = tostring(equalTo)
+    deepcopyRobase._queryOption = newQueryOption
+
+    return deepcopyRobase
 end
 
 --[[function Robase:BatchUpdateAsync(baseKey, uploadKeyValues, uploadCallbacks, cache)
