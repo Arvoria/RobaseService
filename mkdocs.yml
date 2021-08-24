@@ -1,11 +1,10 @@
 site_name: Robase Documentation
-site_url: http://info.arvorian.com/Robase-2.0.0/
-repo_url: https://github.com/Arvoria/Robase-2.0.0
-repo_name: Arvoria/Robase-2.0.0
+site_url: http://info.arvorian.com/RobaseService/
+repo_url: https://github.com/Arvoria/RobaseService
+repo_name: Arvoria/RobaseService
 
 markdown_extensions:
   - admonition
-  - pymdownx.superfences
   - pymdownx.details
   - pymdownx.critic
   - pymdownx.caret
@@ -16,12 +15,13 @@ markdown_extensions:
   - attr_list
   - footnotes
   - def_list
+  - pymdownx.superfences
   - pymdownx.highlight:
       extend_pygments_lang: [
-        "name": "lua-api-ref",
+        "name": "lua-api-code",
         "lang": "lua",
         "options": [
-          css_class: "apiref"
+          css_class: "api-code"
         ]
       ]
   - pymdownx.tasklist:
@@ -36,6 +36,11 @@ markdown_extensions:
 extra_css: 
   - stylesheets/extra.css
   - stylesheets/admonitions/stop.css
+  - stylesheets/admonitions/caution.css
+  - stylesheets/admonitions/advice.css
+  - stylesheets/admonitions/info.css
+  - stylesheets/admonitions/crossref.css
+  - stylesheets/admonitions/todo.css
 
 theme:
   name: material
@@ -49,7 +54,6 @@ theme:
     - navigation.top
     - navigation.tabs
     - navigation.tabs.sticky
-    - toc.integrate
 
 extra:
   social:
@@ -64,5 +68,12 @@ nav:
     - 'Firebase Setup': 'Guide/firebase-setup.md'
     - 'Robase Setup': 'Guide/robase-setup.md'
     - 'Usage Guide': 'Guide/usage.md'
-  - "API Reference": 'api.md'
+  - "API Reference":
+    - 'Reference': 'API/reference.md'
+    - 'RobaseService': 'API/RobaseService.md'
+    - 'Robase':
+      - 'Promise-like Methods': 'API/Robase/Promiselikes.md'
+      - 'Async Methods': 'API/Robase/AsyncMethods.md'
+      - 'Query Methods': 'API/Robase/QueryMethods.md'
   - "Issue Reporting": 'issue-reporting.md'
+  - "Donating": 'donating.md'

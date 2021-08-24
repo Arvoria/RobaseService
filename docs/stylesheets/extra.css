@@ -1,10 +1,10 @@
 :root>* {
-    --md-primary-fg-color: hsl(0, 0%, 10%);
+    --md-primary-fg-color: hsl(0, 0%, 4%);
     --md-primary-bg-color: hsl(0, 0%, 100%);
 
     --md-default-fg-color: hsl(0, 0%, 96%);
     --md-default-fg-color--light: hsl(0, 0%, 96%);
-    --md-default-bg-color: hsl(0, 0%, 13%);
+    --md-default-bg-color: hsl(0, 0%, 7%);
 
     --md-typeset-color: hsl(0, 0%, 96%);
     --md-typeset-a-color: hsl(205, 100%, 65%);
@@ -43,6 +43,17 @@
     color:hsl(0, 0%, 100%);
 }
 
+.md-typeset h2 {
+    color:hsl(0, 0%, 100%);
+    font-weight: bold;
+}
+
+.md-typeset h4 {
+    color:hsl(0, 0%, 100%);
+    font-weight: bold;
+    font-size: 1.1em
+}
+
 .md-tabs__item a:hover {
     color:hsl(205, 100%, 65%);
 }
@@ -51,7 +62,11 @@ code {
     white-space: pre-wrap;
 }
 
-div .api-ref .n {
+div .api-code .n {
     color: rgb(43, 246, 253);
+    font-weight: bold;
+}
+
+div .api-param .n {
     font-weight: bold;
 }

@@ -1,0 +1,1079 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="canonical" href="http://info.arvorian.com/RobaseService/API/Robase/QueryMethods/">
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.8">
+    
+    
+      
+        <title>Query Methods - Robase Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ca7ac06f.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.f1a3b89f.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Encode+Sans:300,400,400i,700%7CFira+Code&display=fallback">
+        <style>:root{--md-text-font-family:"Encode Sans";--md-code-font-family:"Fira Code"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/admonitions/stop.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/admonitions/caution.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/admonitions/advice.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/admonitions/info.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/admonitions/crossref.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/admonitions/todo.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <script>function __prefix(e){return new URL("../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#query-methods" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Robase Documentation" class="md-header__button md-logo" aria-label="Robase Documentation" data-md-component="logo">
+      
+  <img src="../../../img/ai-logo-flat.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Robase Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Query Methods
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/Arvoria/RobaseService/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Arvoria/RobaseService
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../../introduction/" class="md-tabs__link">
+      About
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../Guide/installation/" class="md-tabs__link">
+        Guide
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../reference/" class="md-tabs__link md-tabs__link--active">
+        API Reference
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../../issue-reporting/" class="md-tabs__link">
+      Issue Reporting
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../../donating/" class="md-tabs__link">
+      Donating
+    </a>
+  </li>
+
+      
+    </ul>
+  </div>
+</nav>
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Robase Documentation" class="md-nav__button md-logo" aria-label="Robase Documentation" data-md-component="logo">
+      
+  <img src="../../../img/ai-logo-flat.svg" alt="logo">
+
+    </a>
+    Robase Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/Arvoria/RobaseService/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Arvoria/RobaseService
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../introduction/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" data-md-state="indeterminate" type="checkbox" id="__nav_3" checked>
+      
+      <label class="md-nav__link" for="__nav_3">
+        Guide
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Guide/installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Guide/firebase-setup/" class="md-nav__link">
+        Firebase Setup
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Guide/robase-setup/" class="md-nav__link">
+        Robase Setup
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Guide/usage/" class="md-nav__link">
+        Usage Guide
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      <label class="md-nav__link" for="__nav_4">
+        API Reference
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="API Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/" class="md-nav__link">
+        Reference
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../RobaseService/" class="md-nav__link">
+        RobaseService
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" checked>
+      
+      <label class="md-nav__link" for="__nav_4_3">
+        Robase
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Robase" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          Robase
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Promiselikes/" class="md-nav__link">
+        Promise-like Methods
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AsyncMethods/" class="md-nav__link">
+        Async Methods
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Query Methods
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Query Methods
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#shallow-data" class="md-nav__link">
+    Shallow Data
+  </a>
+  
+    <nav class="md-nav" aria-label="Shallow Data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setshallow" class="md-nav__link">
+    setShallow
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ordering-data" class="md-nav__link">
+    Ordering Data
+  </a>
+  
+    <nav class="md-nav" aria-label="Ordering Data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orderby" class="md-nav__link">
+    orderBy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#range-queries" class="md-nav__link">
+    Range Queries
+  </a>
+  
+    <nav class="md-nav" aria-label="Range Queries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#startat" class="md-nav__link">
+    startAt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#endat" class="md-nav__link">
+    endAt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equalto" class="md-nav__link">
+    equalTo
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limit-queries" class="md-nav__link">
+    Limit Queries
+  </a>
+  
+    <nav class="md-nav" aria-label="Limit Queries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#limittofirst" class="md-nav__link">
+    limitToFirst
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limittolast" class="md-nav__link">
+    limitToLast
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../issue-reporting/" class="md-nav__link">
+        Issue Reporting
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../donating/" class="md-nav__link">
+        Donating
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#shallow-data" class="md-nav__link">
+    Shallow Data
+  </a>
+  
+    <nav class="md-nav" aria-label="Shallow Data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setshallow" class="md-nav__link">
+    setShallow
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ordering-data" class="md-nav__link">
+    Ordering Data
+  </a>
+  
+    <nav class="md-nav" aria-label="Ordering Data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#orderby" class="md-nav__link">
+    orderBy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#range-queries" class="md-nav__link">
+    Range Queries
+  </a>
+  
+    <nav class="md-nav" aria-label="Range Queries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#startat" class="md-nav__link">
+    startAt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#endat" class="md-nav__link">
+    endAt
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#equalto" class="md-nav__link">
+    equalTo
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limit-queries" class="md-nav__link">
+    Limit Queries
+  </a>
+  
+    <nav class="md-nav" aria-label="Limit Queries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#limittofirst" class="md-nav__link">
+    limitToFirst
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limittolast" class="md-nav__link">
+    limitToLast
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/Arvoria/RobaseService/edit/master/docs/API/Robase/QueryMethods.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="query-methods">Query Methods</h1>
+<p>All query methods are an implementation of the Firebase REST API's query parameters, for more information please <a href="https://firebase.google.com/docs/database/rest/retrieve-data#section-rest-uri-params">visit the documentation</a> on retrieving data and how query parameters are used. This section of the documentation will not cover the specifics of each case and will instead provide a general overview of the Robase API.</p>
+<h2 id="shallow-data">Shallow Data</h2>
+<p>Shallow data is an important query useful for large datasets where you don't need to know all the information at a given place or its child data, and only need to know it exists.</p>
+<p>Setting this to true will limit the depth of the data returned. If the data at the specified location is a JSON primitive data type, it will return the data exclusively. Otherwise, the values for each key will be truncated to <code>true</code>.</p>
+<h3 id="setshallow">setShallow</h3>
+<div class="admonition stop">
+<p class="admonition-title">Usage Limitation</p>
+<p>Shallow queries are independent queries and cannot be combined with other query methods for <a href="#ordering-data">Ordering Data</a></p>
+</div>
+<dl>
+<dt><div class="api-ref highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">setShallow</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">boolean</span><span class="p">)</span> <span class="c1">--&gt; Robase</span>
+</code></pre></div></dt>
+<dd>
+<p>Returns a modified Robase object with its shallow query parameter set to the value given. This will truncate all values to <code>true</code> if the target location is a JSON object, or the literal value if the target location is a JSON primitive.</p>
+<dl>
+<dt><code>value: boolean</code></dt>
+<dd>The value of the query parameter</dd>
+</dl>
+</dd>
+</dl>
+<hr />
+<h2 id="ordering-data">Ordering Data</h2>
+<div class="admonition stop">
+<p class="admonition-title">Limitation</p>
+<p>Results returned by <code>orderBy</code> are unsorted because JSON interpreters do not enforce any ordering on the result. When combined with a <code>startAt</code>, <code>endAt</code>, <code>limitToFirst</code>, or <code>limitToLast</code> to retrieve a subset of the data, though these results will be unsorted.</p>
+<p>Thus, if necessary, sorting must be done manually.</p>
+</div>
+<p>Ordering data is simple to do by constructing queries based on certain factors. Initially, you must define <em>how</em> you want your data to be ordered - by key, value, or priority - using the <code>orderBy</code> method, this will return a modified Robase object with an ordering query setup. This Robase is now ready to be used with filtering methods: <code>startAt</code>, <code>endAt</code>, <code>equalTo</code>, <code>limitToFirst</code>, and <code>limitToLast</code>.</p>
+<h3 id="orderby">orderBy</h3>
+<dl>
+<dt>The <code>orderBy</code> method is used to tell Robase what method the filtering queries should be ordered with, the options are:</dt>
+<dd>
+<ul>
+<li>
+<p><code>orderBy=$key</code>: will filter results based on their key.</p>
+</li>
+<li>
+<p><code>orderBy=$value</code>: will filter results based on their value.</p>
+</li>
+<li>
+<p><code>orderBy=$priority</code>: will filter results on their priority.</p>
+</li>
+</ul>
+</dd>
+<dt><div class="api-ref highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">orderBy</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">any</span><span class="p">)</span> <span class="c1">--&gt; Robase</span>
+</code></pre></div></dt>
+<dd>
+<p>Returns a new, modified Robase with its ordering query parameter set.</p>
+<dl>
+<dt><code>value: any</code></dt>
+<dd>The ordering method or child key to be used when filtering data. This value must be convertible to the <code>string</code> data type.</dd>
+</dl>
+</dd>
+</dl>
+<p>Furthermore, you can also order by a specific <strong>child key</strong>, which put simply: allows you to filter results based on a specific key. For example, a <code>Level</code> node in the database where player data is stored and each player has a level, like so:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="nt">&quot;Player1&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="err">Level</span><span class="p">:</span> <span class="mi">10</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;Player2&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="err">Level</span><span class="p">:</span> <span class="mi">2</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>If you are ordering by child key, any <strong>node</strong> at the target location that does not contain that specific key will be returned as <code>null</code> and should be handled appropriately.</p>
+</div>
+<hr />
+<h2 id="range-queries">Range Queries</h2>
+<div class="admonition advice">
+<p class="admonition-title">Useful Tip</p>
+<p>Range queries are useful when you need to paginate your data!</p>
+</div>
+<h3 id="startat">startAt</h3>
+<dl>
+<dt><div class="api-ref highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">startAt</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span> <span class="c1">--&gt; Robase</span>
+</code></pre></div></dt>
+<dd>
+<p>Returns a modified Robase object with its startAt query parameter set to the value given. This will give all results that start at (inclusive), and not before, the given value.</p>
+<dl>
+<dt><code>value: string</code></dt>
+<dd>The value of which the results gathered should start. Results that do not start at this point (for example, "b", will exclude any result that ends before this).</dd>
+</dl>
+</dd>
+</dl>
+<hr />
+<h3 id="endat">endAt</h3>
+<dl>
+<dt><div class="api-ref highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">endAt</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span> <span class="c1">--&gt; Robase</span>
+</code></pre></div></dt>
+<dd>
+<p>Returns a modified Robase object with its endAt query parameter set to the value given. This will return all results that end before (inclusive) the given value.</p>
+<dl>
+<dt><code>value: string</code></dt>
+<dd>The value of which the results gathered should end. Results that start after this point will not be returned (for example calling <code>Robase:endAt("c")</code> will return all results that start and end up to the letter "c")</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition advice">
+<p class="admonition-title">Tip</p>
+<p>It is common to want to combine a startAt and endAt query to set the range of values that get returned, this is possible using Robase, you would simply chain the methods together.</p>
+<p>The example from the <a href="https://firebase.google.com/docs/database/rest/retrieve-data#range-queries">Firebase documentation</a> would look like this:</p>
+<div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">orderBy</span><span class="p">(</span><span class="s2">&quot;$key&quot;</span><span class="p">):</span><span class="n">startAt</span><span class="p">(</span><span class="s2">&quot;b&quot;</span><span class="p">):</span><span class="n">endAt</span><span class="p">(</span><span class="s2">&quot;b</span><span class="err">\</span><span class="s2">uf8ff&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>This example would return all results that start at 'b' and end before 'c'. The <code>\uf8ff</code> character used in the above example is a very high code point in the Unicode range</p>
+</div>
+<hr />
+<h3 id="equalto">equalTo</h3>
+<dl>
+<dt><div class="api-ref highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">equalTo</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span> <span class="c1">--&gt; Robase</span>
+</code></pre></div></dt>
+<dd>
+<p>Returns a modified Robase object with its equalTo query parameter set to the value given. This will return results that are equal to the value given from the target location of the Robase.</p>
+<dl>
+<dt><code>value: string</code></dt>
+<dd>The value of which all results returned will be equal to.</dd>
+</dl>
+</dd>
+</dl>
+<hr />
+<h2 id="limit-queries">Limit Queries</h2>
+<p>Limit queries are used to limit the amount of data returned from a request. The query parameters <code>limitToFirst</code> and <code>limitToLast</code> are used to set a maximum number of children to be returned. If the number of results is less than the limit, all of those results will be returned, otherwise if there are more results than the limit, only the limit will be returned.</p>
+<h3 id="limittofirst">limitToFirst</h3>
+<dl>
+<dt><div class="api-ref highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">limitToFirst</span><span class="p">(</span><span class="n">limit</span><span class="p">:</span> <span class="n">integer</span><span class="p">)</span> <span class="c1">--&gt; Robase</span>
+</code></pre></div></dt>
+<dd>
+<p>Returns a modified Robase object with its limitToLast query parameter set to the value given. This will return the first <code>{limit}</code> children at the target location.</p>
+<dl>
+<dt><code>limit: integer</code></dt>
+<dd>The number of results to be returned by the request.</dd>
+</dl>
+</dd>
+</dl>
+<hr />
+<h3 id="limittolast">limitToLast</h3>
+<dl>
+<dt><div class="api-ref highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">limitToLast</span><span class="p">(</span><span class="n">limit</span><span class="p">:</span> <span class="n">integer</span><span class="p">)</span> <span class="c1">--&gt; Robase</span>
+</code></pre></div></dt>
+<dd>
+<p>Returns a modified Robase object with its limitToLast query parameter set to the value given. This will return the last <code>{limit}</code> children at the target location.</p>
+<dl>
+<dt><code>limit: integer</code></dt>
+<dd>The number of results to be returned by the request.</dd>
+</dl>
+</dd>
+</dl>
+<hr />
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" title="Back to top" data-md-component="top" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
+          </a>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../AsyncMethods/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Async Methods" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Async Methods
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../../../issue-reporting/" class="md-footer__link md-footer__link--next" aria-label="Next: Issue Reporting" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Issue Reporting
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+  <div class="md-footer-social">
+    
+      
+      
+        
+        
+      
+      <a href="https://github.com/Arvoria" target="_blank" rel="noopener" title="github.com" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+      </a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.expand", "navigation.top", "navigation.tabs", "navigation.tabs.sticky"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.b0710199.min.js", "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.76f349be.min.js"></script>
+      
+    
+  </body>
+</html>

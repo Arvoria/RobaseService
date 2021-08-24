@@ -7,7 +7,7 @@ In the following examples, we will go over and take a look into the Robase Test 
 
 Although it is not an ideal structure, it is just an example of what one could potentially look like. It is solely used to test Robase functionality and nothing more, you should not read into the naming of these keys as they are *display only* and provide no functional or tangible purpose outside of testing.
 
-!!! warning "Important"
+!!! caution "Important"
     These examples assume you have [installed](../installation/) Robase already and have required it with a valid path.
 
 ---
@@ -16,7 +16,7 @@ Although it is not an ideal structure, it is just an example of what one could p
 
 To begin using Robase you must first initialise it. This requires two parameters: `baseUrl` and `token`. You can go [here](../firebase-setup/) to learn more about acquiring these and how to safely store them.
 
-!!! danger
+!!! stop "Danger"
     For security purposes it is **highly** recommended that you do **not** store your Database Url and Database Secrets in plain text in your code. Consider using DataStoreService to handle this securely.
 
 ```lua
@@ -40,7 +40,7 @@ The scope and name inputs are formatted like a directory so they use a "/" to se
 
 We will cover using both of these and neither of these in the following sections.
 
-!!! warning
+!!! caution
     Do not prefix or suffix your name, keys, or scopes with "/", RobaseService will do this for you.
 
 ### Providing a name without scope
@@ -130,7 +130,7 @@ A PUT request will simply check to see if the data already exists at the given k
 In most cases though, you will want to opt for updating your data instead, in this case, we use `UpdateAsync`.  
 This method has one key difference from the [DataStoreService equivalent](https://developer.roblox.com/en-us/api-reference/function/GlobalDataStore/UpdateAsync): the `cache` parameter. Robase was made with caches in mind such that you will use fewer requests and can take advantage of the powerful `BatchUpdateAsync` method. You can extend upon this feature nicely by writing a custom data handler module and having your saving/updating use Write-through - change the database first, and then the cache. Though, we will not be showcasing this functionality here.
 
-!!! warning
+!!! caution
     Currently, neither of these methods support retries and this functionality will have to be written at the call site of these methods.
 
 #### Using UpdateAsync
@@ -154,7 +154,7 @@ local Success, Result = ExampleRobase:UpdateAsync("GetDataHere",
 )
 ```
 
-!!! warning
+!!! caution
     You can *only* update or modify keys that are a table, you cannot send a request directly to "UpdateWhatever", this will fail.
 
 #### Using BatchUpdateAsync
@@ -195,7 +195,7 @@ local Success, Result = ExampleRobase:BatchUpdateAsync("BatchUpdateMe", Updaters
 
 Just like DataStoreService, RobaseService offers an `IncrementAsync` function which works similarly to the aforementioned DataStoreService method.
 
-!!! warning
+!!! caution
     Attempting to increment data that is not an integer will throw an error. Numbers and any other data type are not acceptable types to increment.
 
 Again, we will be creating our Robase at "GetDataHere", but this time we will perform two basic operations on the "IncrementThat" key.

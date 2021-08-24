@@ -9,7 +9,7 @@
       
       
       
-        <link rel="canonical" href="http://info.arvorian.com/Robase-2.0.0/Guide/usage/">
+        <link rel="canonical" href="http://info.arvorian.com/RobaseService/Guide/usage/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.8">
@@ -41,6 +41,16 @@
       <link rel="stylesheet" href="../../stylesheets/extra.css">
     
       <link rel="stylesheet" href="../../stylesheets/admonitions/stop.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/admonitions/caution.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/admonitions/advice.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/admonitions/info.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/admonitions/crossref.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/admonitions/todo.css">
     
     
       
@@ -138,13 +148,13 @@
     
       <div class="md-header__source">
         
-<a href="https://github.com/Arvoria/Robase-2.0.0/" title="Go to repository" class="md-source" data-md-component="source">
+<a href="https://github.com/Arvoria/RobaseService/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
-    Arvoria/Robase-2.0.0
+    Arvoria/RobaseService
   </div>
 </a>
       </div>
@@ -208,11 +218,15 @@
   
 
 
-  <li class="md-tabs__item">
-    <a href="../../api/" class="md-tabs__link">
-      API Reference
-    </a>
-  </li>
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../API/reference/" class="md-tabs__link">
+        API Reference
+      </a>
+    </li>
+  
 
       
         
@@ -223,6 +237,18 @@
   <li class="md-tabs__item">
     <a href="../../issue-reporting/" class="md-tabs__link">
       Issue Reporting
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../donating/" class="md-tabs__link">
+      Donating
     </a>
   </li>
 
@@ -245,9 +271,7 @@
   
 
 
-  
-
-<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Robase Documentation" class="md-nav__button md-logo" aria-label="Robase Documentation" data-md-component="logo">
       
@@ -259,13 +283,13 @@
   
     <div class="md-nav__source">
       
-<a href="https://github.com/Arvoria/Robase-2.0.0/" title="Go to repository" class="md-source" data-md-component="source">
+<a href="https://github.com/Arvoria/RobaseService/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
-    Arvoria/Robase-2.0.0
+    Arvoria/RobaseService
   </div>
 </a>
     </div>
@@ -531,10 +555,112 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../api/" class="md-nav__link">
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" data-md-state="indeterminate" type="checkbox" id="__nav_4" checked>
+      
+      <label class="md-nav__link" for="__nav_4">
         API Reference
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="API Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API/reference/" class="md-nav__link">
+        Reference
       </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API/RobaseService/" class="md-nav__link">
+        RobaseService
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_3" data-md-state="indeterminate" type="checkbox" id="__nav_4_3" checked>
+      
+      <label class="md-nav__link" for="__nav_4_3">
+        Robase
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Robase" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          Robase
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API/Robase/Promiselikes/" class="md-nav__link">
+        Promise-like Methods
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API/Robase/AsyncMethods/" class="md-nav__link">
+        Async Methods
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API/Robase/QueryMethods/" class="md-nav__link">
+        Query Methods
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -554,6 +680,21 @@
   
 
     
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../donating/" class="md-nav__link">
+        Donating
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -561,12 +702,146 @@
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#initialising-robaseservice" class="md-nav__link">
+    Initialising RobaseService
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-a-robase" class="md-nav__link">
+    Getting a Robase
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting a Robase">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#providing-a-name-without-scope" class="md-nav__link">
+    Providing a name without scope
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#providing-a-name-and-a-scope" class="md-nav__link">
+    Providing a name and a scope
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#providing-no-information" class="md-nav__link">
+    Providing no information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-data" class="md-nav__link">
+    Getting Data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#saving-data" class="md-nav__link">
+    Saving data
+  </a>
+  
+    <nav class="md-nav" aria-label="Saving data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-setasync" class="md-nav__link">
+    Using SetAsync
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updating-your-data" class="md-nav__link">
+    Updating your data
+  </a>
+  
+    <nav class="md-nav" aria-label="Updating your data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-updateasync" class="md-nav__link">
+    Using UpdateAsync
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-batchupdateasync" class="md-nav__link">
+    Using BatchUpdateAsync
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#incrementing-data" class="md-nav__link">
+    Incrementing Data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deleting-data" class="md-nav__link">
+    Deleting Data
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Arvoria/Robase-2.0.0/edit/master/docs/Guide/usage.md" title="Edit this page" class="md-content__button md-icon">
+                  <a href="https://github.com/Arvoria/RobaseService/edit/master/docs/Guide/usage.md" title="Edit this page" class="md-content__button md-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
                   </a>
                 
@@ -575,14 +850,14 @@
 <p>In the following examples, we will go over and take a look into the Robase Test Database. The structure of which can be seen below.</p>
 <p align="center"><img alt="Robase Test Database" src="../../img/robase-test-db.png" /></p>
 <p>Although it is not an ideal structure, it is just an example of what one could potentially look like. It is solely used to test Robase functionality and nothing more, you should not read into the naming of these keys as they are <em>display only</em> and provide no functional or tangible purpose outside of testing.</p>
-<div class="admonition warning">
+<div class="admonition caution">
 <p class="admonition-title">Important</p>
 <p>These examples assume you have <a href="../installation/">installed</a> Robase already and have required it with a valid path.</p>
 </div>
 <hr />
 <h2 id="initialising-robaseservice">Initialising RobaseService</h2>
 <p>To begin using Robase you must first initialise it. This requires two parameters: <code>baseUrl</code> and <code>token</code>. You can go <a href="../firebase-setup/">here</a> to learn more about acquiring these and how to safely store them.</p>
-<div class="admonition danger">
+<div class="admonition stop">
 <p class="admonition-title">Danger</p>
 <p>For security purposes it is <strong>highly</strong> recommended that you do <strong>not</strong> store your Database Url and Database Secrets in plain text in your code. Consider using DataStoreService to handle this securely.</p>
 </div>
@@ -605,8 +880,8 @@ The scope and name inputs are formatted like a directory so they use a "/" to se
 </li>
 </ul>
 <p>We will cover using both of these and neither of these in the following sections.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
 <p>Do not prefix or suffix your name, keys, or scopes with "/", RobaseService will do this for you.</p>
 </div>
 <h3 id="providing-a-name-without-scope">Providing a name without scope</h3>
@@ -673,8 +948,8 @@ We then tell the Robase that we wish to PUT that new field inside a new table in
 <h3 id="updating-your-data">Updating your data</h3>
 <p>In most cases though, you will want to opt for updating your data instead, in this case, we use <code>UpdateAsync</code>.<br />
 This method has one key difference from the <a href="https://developer.roblox.com/en-us/api-reference/function/GlobalDataStore/UpdateAsync">DataStoreService equivalent</a>: the <code>cache</code> parameter. Robase was made with caches in mind such that you will use fewer requests and can take advantage of the powerful <code>BatchUpdateAsync</code> method. You can extend upon this feature nicely by writing a custom data handler module and having your saving/updating use Write-through - change the database first, and then the cache. Though, we will not be showcasing this functionality here.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
 <p>Currently, neither of these methods support retries and this functionality will have to be written at the call site of these methods.</p>
 </div>
 <h4 id="using-updateasync">Using UpdateAsync</h4>
@@ -694,8 +969,8 @@ This method has one key difference from the <a href="https://developer.roblox.co
     <span class="kr">end</span>
 <span class="p">)</span>
 </code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
 <p>You can <em>only</em> update or modify keys that are a table, you cannot send a request directly to "UpdateWhatever", this will fail.</p>
 </div>
 <h4 id="using-batchupdateasync">Using BatchUpdateAsync</h4>
@@ -730,15 +1005,15 @@ This method has one key difference from the <a href="https://developer.roblox.co
 </code></pre></div>
 <h2 id="incrementing-data">Incrementing Data</h2>
 <p>Just like DataStoreService, RobaseService offers an <code>IncrementAsync</code> function which works similarly to the aforementioned DataStoreService method.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
 <p>Attempting to increment data that is not an integer will throw an error. Numbers and any other data type are not acceptable types to increment.</p>
 </div>
 <p>Again, we will be creating our Robase at "GetDataHere", but this time we will perform two basic operations on the "IncrementThat" key.</p>
 <div class="highlight"><pre><span></span><code><span class="kd">local</span> <span class="n">ExampleRobase</span> <span class="o">=</span> <span class="n">RobaseService</span><span class="p">:</span><span class="n">GetRobase</span><span class="p">(</span><span class="s2">&quot;GetDataHere&quot;</span><span class="p">,</span> <span class="s2">&quot;PlayerData&quot;</span><span class="p">)</span>
 <span class="kd">local</span> <span class="n">Success</span><span class="p">,</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">ExampleRobase</span><span class="p">:</span><span class="n">IncrementAsync</span><span class="p">(</span><span class="s2">&quot;IncrementThat&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">Result</span><span class="p">)</span> <span class="c1">--&gt;&gt; 51</span>
-<span class="n">Success</span><span class="p">,</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">Example</span><span class="p">:</span><span class="n">Robase</span><span class="p">:</span><span class="n">IncrementAsync</span><span class="p">(</span><span class="s2">&quot;IncrementThat&quot;</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
+<span class="n">Success</span><span class="p">,</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">ExampleRobase</span><span class="p">:</span><span class="n">IncrementAsync</span><span class="p">(</span><span class="s2">&quot;IncrementThat&quot;</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">Result</span><span class="p">)</span> <span class="c1">--&gt;&gt; 75</span>
 </code></pre></div>
 <h2 id="deleting-data">Deleting Data</h2>
@@ -791,13 +1066,13 @@ This method has one key difference from the <a href="https://developer.roblox.co
       
       
         
-        <a href="../../api/" class="md-footer__link md-footer__link--next" aria-label="Next: API Reference" rel="next">
+        <a href="../../API/reference/" class="md-footer__link md-footer__link--next" aria-label="Next: Reference" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              API Reference
+              Reference
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -839,7 +1114,7 @@ This method has one key difference from the <a href="https://developer.roblox.co
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "navigation.tabs", "navigation.tabs.sticky", "toc.integrate"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.b0710199.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.top", "navigation.tabs", "navigation.tabs.sticky"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.b0710199.min.js", "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.76f349be.min.js"></script>

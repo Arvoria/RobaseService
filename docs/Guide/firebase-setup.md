@@ -13,7 +13,7 @@ In the green box is your URL, it should be formatted like so:
 {database-name}-default-rtdb-{server-location}.firebasedatabase.app/
 ```
 
-???+ note
+!!! info
 	This is the `baseUrl` parameter of [RobaseService.new()](../../api/#robaseservicenew).
 
 ## Finding your Database Secret
@@ -22,7 +22,7 @@ Your database secret will be serving as your authentication token for your reque
 
 When you create your database a database secret should be generated automatically, but you can create more.
 
-!!! warning
+!!! caution
 	You **must** have created your database first, if you have just created your project you will not be able to create a database secret. Read the opening paragraph of this page for help with creating your database.
 
 ![Database Sevrets View](../../img/findingauthtoken.png){align=center}
@@ -34,5 +34,5 @@ When you create your database a database secret should be generated automaticall
 	+ If a secret does not this exist then "add" (create) a new one
 6. Hover over the secret and reveal it, then copy it and save it somewhere safe.
 
-???+ note
+!!! info
 	The value of your database secret is the `token` parameter of [RobaseService.new()](../../api/#robaseservicenew).

@@ -1,91 +1,11 @@
-# API Reference
-
-## RobaseService
-!!! stop "Caution"
-    RobaseService cannot be used without first instantiating it with `.new` and providing a Firebase Database Url and a Secrets Authentication Token.
-
-#### RobaseService.new
-
-Used to instantiate a new RobaseService with the provided Url and Auth Token.
-
-```{.lua .api-ref}
-RobaseService.new(baseUrl: string, token: string) --> RobaseService
-```
-: This method will create a new RobaseService for the provided database.
-
-    `baseUrl: string`
-    :   This is the URL of your database, it can be found at the top of the database view in the Firebase Console.
-
-    `token: string`
-    :   This is your Database Secrets Authentication Token. Currently, RobaseService only accepts this method of authentication.
-
-#### RobaseService:GetRobase
-
-Used to retrieve a Robase object with a path supplied from scope and name.
-
-```{.lua .api-ref}
-RobaseService:GetRobase([name: string, [scope: string]]) --> Robase
-```
-:   This method will create a new Robase object at the path determined by scope and name.
-
-    `name?: string`
-    :   Optional (but recommended) parameter for the name of the key that the Robase points toward.
-
-    `scope?: string`
-    :   Optional parameter for the scope (directory path) you wish to start searching in for "name". This should be a path going through your database with keys separated by "/" like a file system!
-
----
-
-## Robase
-!!! warning "Caution"
-    Robase will handle failed requests automatically by throwing an error. They will never return `(false, any)` but they can return `(true, nil)`, for this reason, it is recommended to wrap your method calls with a [pcall](https://developer.roblox.com/en-us/api-reference/lua-docs/Lua-Globals).
-
-### Promise-returning methods
-
-Promise returning methods allow you to abstract over the original async methods of Robase so that you can implement custom functionality. This requires knowledge of Promises to implement and even further knowledge on them to perform meaningful tasks that Robase does not. These are retrieved synchronously but consumed asynchronously.
-
-#### Get
-
-Returns a promise associated with retrieving a value from the database.
-
-```{.lua .api-ref}
-Robase:Get(key: string) --> Promise
-```
-:   Returns a promise synchronously for an asynchronous get operation.
-
-    `key: string`
-    :   The name of the key you wish to retrieve data from.
-
----
-
-#### Set
-
-Returns a promise associated with adding a value into the database.
-
-```{.lua .api-ref} 
-Robase:Set(key: string, data: any [, method: string]) --> Promise
-```
-:   Returns a promise synchronously for an asynchronous set operation.
-
-    `key: string`
-    :   The name of the key you wish to add data into (will create a new key if one does not exist).
-
-    `data: any`
-    :   The data you wish to add to the database
-
-    `method?: string`
-    :   Optional parameter defining the HTTP Method to use, this will default to "PUT".
-
----
-
-### Async methods returning information
+# Async methods returning information
 
 The asynchronous methods of Robase are here to immediately retrieve information and perform operations on your database. These are simple and have no side effects outside of the HTTP Requests they perform. 
 These are useful if you don't wish to do anything on top of what Robase already does and just wish to use the core functions.
 
 Internally, Robase uses the Promise-returning methods and consumes them with an `:await()` call.
 
-#### Robase:GetAsync
+## GetAsync
 
 Retrieves the data stored at the given key within the Robase.
 
@@ -99,7 +19,7 @@ Robase:GetAsync(key: string) --> Success: Boolean, Result: any
 
 ---
 
-#### Robase:SetAsync
+## SetAsync
 
 Adds data into the Robase at the key specified using the given method.
 
@@ -119,7 +39,7 @@ Robase:SetAsync(key: string, data: any, [method: string]) --> Success: Boolean, 
 
 ---
 
-#### Robase:IncrementAsync
+## IncrementAsync
 
 Increments the data stored at the given key by the supplied delta. This only works on key's which have an integer value and with an integer-only delta (ex. 1.5 will not work)
 
@@ -145,7 +65,7 @@ Robase:IncrementAsync(key: string, [delta: integer]) --> Success: Boolean, Resul
 
 ---
 
-#### Robase:DeleteAsync
+## DeleteAsync
 
 Deletes the data at the specified key permanently.
 
@@ -162,7 +82,7 @@ Robase:DeleteAsync(key: string) --> Success: Boolean, Result: any
 
 ---
 
-#### Robase:UpdateAsync
+## UpdateAsync
 
 Retrieves data from the Robase at the given key, or from the cache if provided and transforms it using the callback function and updates the key with a new value.
 
@@ -182,7 +102,7 @@ Robase:UpdateAsync(key, callback [, cache])
 
 ---
 
-#### Robase:BatchUpdateAsync
+## BatchUpdateAsync
 
 Similar in functionality to `:UpdateAsync` except given a baseKey, it will modify keys with the provided updater (callback) functions.
 

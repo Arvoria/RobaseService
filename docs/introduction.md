@@ -92,7 +92,7 @@ Writing a custom manager similar to DataStore2 or ProfileService may seem daunti
 
 ### Why Promises?
 
-!!! quote
+!!! crossref "[Why you should use promises](https://eryn.io/roblox-lua-promise/#why-you-should-use-promises)"
     The way Roblox models asynchronous operations by default is by yielding (stopping) the thread and then resuming it when the future value is available. This model is not ideal because:
 
     + Functions you call can yield without warning, or only yield sometimes, leading to unpredictable and surprising results. Accidentally yielding the thread is the source of a large class of bugs and race conditions that Roblox developers run into.
@@ -102,8 +102,6 @@ Writing a custom manager similar to DataStore2 or ProfileService may seem daunti
     + When an asynchronous operation fails or an error is encountered, Lua functions usually either raise an error or return a success value followed by the actual value. Both of these methods lead to repeating the same tired patterns many times over for checking if the operation was successful.
     
     + Yielding lacks easy access to introspection and the ability to cancel an operation if the value is no longer needed.
-
-Source: *[why you should use promises](https://eryn.io/roblox-lua-promise/#why-you-should-use-promises)*
 
 
 ### Dynamic Updates
