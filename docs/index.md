@@ -10,8 +10,18 @@ As mentioned, RobaseService seeks to be simple to use, but this is one of two co
 
 + RobaseService v2.1.0-beta has been released. This release adds querying support for most documented [Firebase URL Queries](https://firebase.google.com/docs/database/rest/retrieve-data#section-rest-filtering).
 
-+ Donation page and links have been set up, see [Donating](donating/) for more.
++ Added support for the following query parameters: `orderBy`, `shallow`, `limitToFirst`, `limitToLast`, `startAt`, `endAt`, and `equalTo`.
 
 + Documentation has been added for querying your database, [see here](API/Robase/QueryMethods/) for the API Reference.
 
-+ Stylistic changes to call-outs (those "cautions" and "dangers" messages you see).
++ Gave the API Reference page a makeover and changed the look of the "call-outs" (aka "caution", "tip", etc.) to fit better with the website theme.
+
++  [Github Release](https://github.com/Arvoria/RobaseService/releases/tag/v2.1.0-beta-rc) page now includes a `.rbxm` file for you to drop into your studio session. Documentation for this will be added soon.
+
++ Updated the [Roblox Model](https://www.roblox.com/library/7012135793/RobaseService) to current version..
+
++ You no longer have to wrap your Robase method calls with a `pcall` this is done behind the scenes (see: `HttpWrapper.lua` on Github).
+
++ Added proper error handling for `::GetAsync` and `::SetAsync`, this can be overridden if you know of `Promise`s and have experience with them you could use the `::Get` and `::Set` methods.
+
++ Donation page and links have been set up, see [Donating](donating/) for more.

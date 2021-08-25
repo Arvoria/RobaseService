@@ -30,6 +30,16 @@ Robase:setShallow(value: boolean) --> Robase
 
     Thus, if necessary, sorting must be done manually.
 
+!!! stop "Requirement"
+    The `orderBy` query parameter requires string values to be escaped as literal strings in the URL, so your strings should escape `"` quotes. For example:
+    ```lua
+    Robase:orderBy("\"$key\"")
+    ----
+    Robase:orderBy('"$key"')
+    ----
+    Robase:equalTo( ("\"%s\""):format("$priority") )
+    ```
+
 Ordering data is simple to do by constructing queries based on certain factors. Initially, you must define *how* you want your data to be ordered - by key, value, or priority - using the `orderBy` method, this will return a modified Robase object with an ordering query setup. This Robase is now ready to be used with filtering methods: `startAt`, `endAt`, `equalTo`, `limitToFirst`, and `limitToLast`.
 
 ### orderBy
@@ -72,6 +82,15 @@ Furthermore, you can also order by a specific **child key**, which put simply: a
 
 !!! advice "Useful Tip"
     Range queries are useful when you need to paginate your data!
+
+!!! stop "Requirement"
+    The Range query parameters require string values to be escaped as literal strings in the URL, so your strings should escape `"` quotes. For example:
+    ```lua
+    Robase:startAt("\"$key\"")
+    ----
+    Robase:endAt('"$value"')
+    ----
+    Robase:equalTo( ("\"%s\""):format("$priority") )
 
 ### startAt
 
@@ -121,6 +140,14 @@ Robase:equalTo(value: string) --> Robase
 ---
 
 ## Limit Queries
+
+!!! stop "Requirement"
+    The Limit query parameters are required to be integers (whole numbers). For example:
+    ```lua
+    Robase:limitToFirst(100)
+    ----
+    Robase:limitToLast(10)
+    ```
 
 Limit queries are used to limit the amount of data returned from a request. The query parameters `limitToFirst` and `limitToLast` are used to set a maximum number of children to be returned. If the number of results is less than the limit, all of those results will be returned, otherwise if there are more results than the limit, only the limit will be returned.
 

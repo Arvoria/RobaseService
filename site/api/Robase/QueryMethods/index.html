@@ -583,7 +583,14 @@
     Range Queries
   </a>
   
-    <nav class="md-nav" aria-label="Range Queries">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#robaseendatvalue" class="md-nav__link">
+    Robase:endAt('"$value"')
+  </a>
+  
+    <nav class="md-nav" aria-label="Robase:endAt('"$value"')">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -759,7 +766,14 @@
     Range Queries
   </a>
   
-    <nav class="md-nav" aria-label="Range Queries">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#robaseendatvalue" class="md-nav__link">
+    Robase:endAt('"$value"')
+  </a>
+  
+    <nav class="md-nav" aria-label="Robase:endAt('"$value"')">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -860,6 +874,16 @@
 <p>Results returned by <code>orderBy</code> are unsorted because JSON interpreters do not enforce any ordering on the result. When combined with a <code>startAt</code>, <code>endAt</code>, <code>limitToFirst</code>, or <code>limitToLast</code> to retrieve a subset of the data, though these results will be unsorted.</p>
 <p>Thus, if necessary, sorting must be done manually.</p>
 </div>
+<div class="admonition stop">
+<p class="admonition-title">Requirement</p>
+<p>The <code>orderBy</code> query parameter requires string values to be escaped as literal strings in the URL, so your strings should escape <code>"</code> quotes. For example:
+<div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">orderBy</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">$key</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1">----</span>
+<span class="n">Robase</span><span class="p">:</span><span class="n">orderBy</span><span class="p">(</span><span class="s1">&#39;&quot;$key&quot;&#39;</span><span class="p">)</span>
+<span class="c1">----</span>
+<span class="n">Robase</span><span class="p">:</span><span class="n">equalTo</span><span class="p">(</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">%s</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">):</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;$priority&quot;</span><span class="p">)</span> <span class="p">)</span>
+</code></pre></div></p>
+</div>
 <p>Ordering data is simple to do by constructing queries based on certain factors. Initially, you must define <em>how</em> you want your data to be ordered - by key, value, or priority - using the <code>orderBy</code> method, this will return a modified Robase object with an ordering query setup. This Robase is now ready to be used with filtering methods: <code>startAt</code>, <code>endAt</code>, <code>equalTo</code>, <code>limitToFirst</code>, and <code>limitToLast</code>.</p>
 <h3 id="orderby">orderBy</h3>
 <dl>
@@ -906,6 +930,15 @@
 <div class="admonition advice">
 <p class="admonition-title">Useful Tip</p>
 <p>Range queries are useful when you need to paginate your data!</p>
+</div>
+<div class="admonition stop">
+<p class="admonition-title">Requirement</p>
+<p>The Range query parameters require string values to be escaped as literal strings in the URL, so your strings should escape <code>"</code> quotes. For example:
+```lua
+Robase:startAt("\"$key\"")</p>
+<hr />
+<h2 id="robaseendatvalue">Robase:endAt('"$value"')</h2>
+<p>Robase:equalTo( ("\"%s\""):format("$priority") )</p>
 </div>
 <h3 id="startat">startAt</h3>
 <dl>
@@ -955,6 +988,14 @@
 </dl>
 <hr />
 <h2 id="limit-queries">Limit Queries</h2>
+<div class="admonition stop">
+<p class="admonition-title">Requirement</p>
+<p>The Limit query parameters are required to be integers (whole numbers). For example:
+<div class="highlight"><pre><span></span><code><span class="n">Robase</span><span class="p">:</span><span class="n">limitToFirst</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="c1">----</span>
+<span class="n">Robase</span><span class="p">:</span><span class="n">limitToLast</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div></p>
+</div>
 <p>Limit queries are used to limit the amount of data returned from a request. The query parameters <code>limitToFirst</code> and <code>limitToLast</code> are used to set a maximum number of children to be returned. If the number of results is less than the limit, all of those results will be returned, otherwise if there are more results than the limit, only the limit will be returned.</p>
 <h3 id="limittofirst">limitToFirst</h3>
 <dl>
