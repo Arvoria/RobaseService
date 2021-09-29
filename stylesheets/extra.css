@@ -1,0 +1,72 @@
+:root>* {
+    --md-primary-fg-color: hsl(0, 0%, 4%);
+    --md-primary-bg-color: hsl(0, 0%, 100%);
+
+    --md-default-fg-color: hsl(0, 0%, 96%);
+    --md-default-fg-color--light: hsl(0, 0%, 96%);
+    --md-default-bg-color: hsl(0, 0%, 7%);
+
+    --md-typeset-color: hsl(0, 0%, 96%);
+    --md-typeset-a-color: hsl(205, 100%, 65%);
+
+    --md-accent-fg-color: var(--md-typeset-a-color);
+    --md-accent-fg-color-transparent: var(--md-accent-fg-color);
+
+    --md-code-hl-color: hsla(202, 100%, 60%, 0.6);
+    --md-code-hl-number-color: rgb(250, 125, 100);
+    --md-code-hl-special-color: hsl(170, 94%, 58%);
+    --md-code-hl-function-color: hsl(170, 94%, 58%);
+    --md-code-hl-constant-color: hsl(170, 94%, 58%);
+    --md-code-hl-keyword-color: hsl(49, 99%, 65%);
+    --md-code-hl-string-color: hsl(25, 100%, 61%);
+    --md-code-hl-name-color: hsl(317, 100%, 75%);
+    --md-code-hl-operator-color: var(--md-code-hl-keyword-color);
+    --md-code-hl-punctuation-color: hsl(60, 18%, 67%);
+    --md-code-hl-comment-color: hsl(233, 30%, 63%);
+    --md-code-hl-generic-color: rgb(132, 139, 189);
+    --md-code-hl-variable-color: hsl(317, 100%, 75%);
+
+    --md-code-bg-color: hsl(250, 20%, 17%);
+    --md-code-fg-color: hsl(317, 100%, 75%);
+}
+
+.md-typeset a:hover {
+    text-decoration: underline;
+    color: hsl(194, 100%, 57%);
+}
+
+.md-typeset a {
+    color: hsl(194, 100%, 57%);
+}
+
+.md-typeset h1 {
+    color:hsl(0, 0%, 100%);
+}
+
+.md-typeset h2 {
+    color:hsl(0, 0%, 100%);
+    font-weight: bold;
+}
+
+.md-typeset h4 {
+    color:hsl(0, 0%, 100%);
+    font-weight: bold;
+    font-size: 1.1em
+}
+
+.md-tabs__item a:hover {
+    color:hsl(205, 100%, 65%);
+}
+
+code {
+    white-space: pre-wrap;
+}
+
+div .api-code .n {
+    color: rgb(43, 246, 253);
+    font-weight: bold;
+}
+
+div .api-param .n {
+    font-weight: bold;
+}
