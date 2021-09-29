@@ -1,6 +1,6 @@
 [package]
 name = "shanebutt/robase-service"
-version = "2.2.0"
+version = "2.2.1"
 license = "MIT"
 authors = [ "Shane Butt <shaneslothrsf@gmail.com>" ]
 description = "A simple to use promise-driven wrapper for the Firebase RESTful API."
