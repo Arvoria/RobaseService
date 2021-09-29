@@ -35,10 +35,10 @@ function RobaseService:GetRobase(name, scope)
     end
 
     name = name and HttpService:UrlEncode(name) or ""
-    scope = scope and HttpService:UrlEncode(scope) or ""
+    scope = scope and HttpService:UrlEncode(scope) or nil
 
-    local formatted = string.format("%s/%s/%s", self.BaseUrl, scope, name)
-    --local formattedUrl = self.BaseUrl .. scope .. "/" .. name
+    local target = scope and ("%s/%s"):format(scope, name) or name
+    local formatted = ("%s/%s"):format(self.BaseUrl, target)
     return Robase.new(formatted, self)
 end
 

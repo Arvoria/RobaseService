@@ -47,13 +47,13 @@ theme:
   custom_dir: overrides
   font:
     text: Encode Sans
-    code: Fira Code
+    code: Fira Mono
   logo: img/ai-logo-flat.svg
   features:
+    - navigation.instance
     - navigation.expand
     - navigation.top
     - navigation.tabs
-    - navigation.tabs.sticky
 
 extra:
   social:

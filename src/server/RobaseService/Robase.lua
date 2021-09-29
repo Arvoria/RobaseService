@@ -1,6 +1,8 @@
 local HttpWrapper = require(script.Parent.HttpWrapper)
 local HttpService = game:GetService("HttpService")
 
+local ERROR_BAD_ARGUMENT = "Bad argument %d, [%s] expected got [%s]."
+
 local Robase = { }
 Robase.__index = Robase
 
@@ -15,22 +17,21 @@ local Enum = {
 }
 
 local function deepcopy(orig)
-        local orig_type = type(orig)
-        local copy
-        if orig_type == 'table' then
-            copy = {}
-            for orig_key, orig_value in next, orig, nil do
-                copy[deepcopy(orig_key)] = deepcopy(orig_value)
-            end
-            setmetatable(copy, deepcopy(getmetatable(orig)))
-        else -- number, string, boolean, etc
-            copy = orig
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[deepcopy(orig_key)] = deepcopy(orig_value)
         end
-        return copy
+        setmetatable(copy, deepcopy(getmetatable(orig)))
+    else -- number, string, boolean, etc
+        copy = orig
     end
+    return copy
+end
 
-
-    local function appendUrlQuery(url, queryName, queryData)
+local function appendUrlQuery(url, queryName, queryData)
     if url:find("?") then
         return ("%s&%s=%s"):format(url, queryName, queryData)
     else
@@ -44,7 +45,7 @@ local function findHttpMethod(method)
     end
 
     for key, value in pairs(Enum.HttpMethod) do
-        if method:upper() ~= key:upper() or method:upper() ~= value:upper() then
+        if method:lower() ~= key:lower() or method:upper() ~= value then
             continue
         else
             return Enum.HttpMethod[key]
@@ -60,7 +61,7 @@ local function appendUrlQueryOptions(url, queryOptions)
         -- Shallow is incompatible with Filtering Queries
 
         if queryOptions.orderBy then
-            url = appendUrlQuery(url, "orderBy", queryOptions.orderBy)
+            url = appendUrlQuery(url, "orderBy", ('"%s"'):format(queryOptions.orderBy))
 
             -- Limiting Queries require an Ordering Query
             if queryOptions.limitToLast then
@@ -73,15 +74,15 @@ local function appendUrlQueryOptions(url, queryOptions)
 
             --Range Queries require an Ordering Query
             if queryOptions.startAt then
-                url = appendUrlQuery(url, "startAt", queryOptions.startAt)
+                url = appendUrlQuery(url, "startAt", ('"%s"'):format(queryOptions.startAt))
             end
 
             if queryOptions.endAt then
-                url = appendUrlQuery(url, "endAt", queryOptions.endAt)
+                url = appendUrlQuery(url, "endAt", ('"%s"'):format(queryOptions.endAt))
             end
 
             if queryOptions.equalTo then
-                url = appendUrlQuery(url, "equalTo", queryOptions.equalTo)
+                url = appendUrlQuery(url, "equalTo", ('"%s"'):format(queryOptions.equalTo))
             end
         end
     end
@@ -90,24 +91,14 @@ local function appendUrlQueryOptions(url, queryOptions)
 end
 
 local function generateRequestOptions(key, data, method, robase)
-    if typeof(key)~="string" then
-        error(string.format("Bad argument 1 string expected got %s", typeof(key)))
-    end
+    assert(typeof(key)=="string", ERROR_BAD_ARGUMENT:format(1, "string", typeof(key)))
+    assert(typeof(robase)=="table" and robase.Get and robase.Set, ERROR_BAD_ARGUMENT:format(4, "Robase-like table", typeof(robase)))
+
     if data ~= nil then
         data = HttpService:JSONEncode(data)
     end
     if typeof(method)~="string" or findHttpMethod(method)==nil then
-        warn(
-            string.format(
-                "Malformed argument 3, string expected, got %s; Defaulting to %s",
-                typeof(method),
-                Enum.HttpMethod.Default
-            )
-        )
         method = Enum.HttpMethod.Default
-    end
-    if typeof(robase)~="table" then
-        error(string.format("Bad arument 4 table {Robase|self} expected got %s", typeof(robase)))
     end
 
     key = key:sub(1,1)~="/" and "/"..key or key
@@ -167,28 +158,24 @@ function Robase:GetAsync(key)
 end
 
 function Robase:SetAsync(key, data, method)
-    local err
-    local success, value = self:Set(key, data, method):catch(function(response)
-        err = {response.StatusCode, response.StatusMessage}
-        error( ("Something went wrong, RobaseService:\n"
+    local set = self:Set(key, data, method)
+    set:catch(function(response)
+        local err = {response.StatusCode, response.StatusMessage, tostring(response.Body)}
+        error( ("Something went wrong in RobaseService:\n"
                 .. "==============================\n"
                 .. "Error: %d %s\n"
                 .. "Body: %s"
             ):format(err[1], err[2], err[3])
         )
-    end):await()
-
-    if not success then
-        local msg = string.format("%d Error: %s", err[1], err[2])
-        error(msg)
-    end
+    end)
+    local success, value = set:await()
 
     value = value and HttpService:JSONDecode(value) or nil
     return success,value
 end
 
 function Robase:UpdateAsync(key, callback, cache)
-    assert(typeof(callback)=="function", "Bad argument 2 function expected got " .. typeof(callback))
+    assert(typeof(callback)=="function", ERROR_BAD_ARGUMENT:format(2, "function", typeof(callback)))
 
     local success, data
     if cache~=nil and cache[key] then
@@ -253,13 +240,15 @@ function Robase:IncrementAsync(key, delta)
 end
 
 function Robase:BatchUpdateAsync(baseKey, callbacks, cache)
-    assert(typeof(callbacks) == "table", ("Bad argument 2, table expected got %s"):format(typeof(callbacks)))
+    assert(typeof(callbacks)=="table", ERROR_BAD_ARGUMENT:format(2, "table", typeof(callbacks)))
+    for _, func in pairs(callbacks) do
+        assert(typeof(func)=="function", ERROR_BAD_ARGUMENT:format(2, "function", typeof(func)) 
+        .. "Callbacks dictionary must be populated with functions.")
+    end
 
     local updated = { }
 
     for key, updateFunc in pairs(callbacks) do
-        assert(typeof(updateFunc)=="function", ("Callbacks[%s] function expected got %s"):format(key, typeof(updateFunc)))
-
         local success, data
         if cache~=nil and cache[key] then
             data = cache[key]
@@ -282,15 +271,15 @@ function Robase:orderBy(orderBy)
     local deepcopyRobase = Robase.new(
         self._path,
         self._robaseService
-    )    
-    newQueryOption.orderBy = tostring(orderBy)
+    )
+    newQueryOption.orderBy = orderBy
     deepcopyRobase._queryOptions = newQueryOption
 
     return deepcopyRobase
 end
 
 function Robase:setShallow(shallow)
-    assert(typeof(shallow) == "boolean", ("Bad argument 1, boolean expected got %s"):format(typeof(shallow)))
+    assert(typeof(shallow) == "boolean", ERROR_BAD_ARGUMENT:format(1, "boolean", typeof(shallow)))
     assert(
         not self._queryOptions.orderBy,
         ('shallow cannot be used with any of the "filtering data" query parameters.')
@@ -311,12 +300,12 @@ end
 function Robase:limitToLast(limit)
     assert(
         not self._queryOptions.shallow,
-        ('Shallow cannot be used with any of the "filtering data" query parameters.')
+        "Shallow cannot be used with any of the \"filtering data\" query parameters."
     )
-    assert(self._queryOptions.orderBy, ('Limit Queries require orderBy'))
+    assert(self._queryOptions.orderBy, "Limit Queries require orderBy")
     assert(
         typeof(limit) == "number" and (math.floor(limit)==limit),
-        ("Bad argument 1, integer expected got %s"):format(typeof(limit))
+        ERROR_BAD_ARGUMENT:format(1, "number", typeof(limit))
     )
 
     local newQueryOption = deepcopy(self._queryOptions)
@@ -339,7 +328,7 @@ function Robase:limitToFirst(limit)
     assert(self._queryOptions.orderBy, ('Limit Queries require orderBy'))
     assert(
         typeof(limit) == "number" and (math.floor(limit)==limit),
-        ("Bad argument 1, integer expected got %s"):format(typeof(limit))
+        ERROR_BAD_ARGUMENT:format(1, "number", typeof(limit))
     )
 
     local newQueryOption = deepcopy(self._queryOptions)
@@ -360,14 +349,14 @@ function Robase:startAt(value)
         ('Shallow cannot be used with any of the "filtering data" query parameters.')
     )
     assert(self._queryOptions.orderBy, ('Range Queries require orderBy'))
-    assert(typeof(value) == "string", ("Bad argument 1, string expected got %s"):format(typeof(value)))
+    assert(typeof(value) == "string", ERROR_BAD_ARGUMENT:format(1, "string", typeof(value)))
 
     local newQueryOption = deepcopy(self._queryOptions)
     local deepcopyRobase = Robase.new(
         self._path,
         self._robaseService
     )
-    newQueryOption.startAt = tostring(value)
+    newQueryOption.startAt = value
     deepcopyRobase._queryOptions = newQueryOption
 
     return deepcopyRobase
@@ -379,7 +368,7 @@ function Robase:endAt(value)
         ('Shallow cannot be used with any of the "filtering data" query parameters.')
     )
     assert(self._queryOptions.orderBy, ('Range Queries require orderBy'))
-    assert(typeof(value) == "string", ("Bad argument 1, string expected got %s"):format(typeof(value)))
+    assert(typeof(value) == "string", ERROR_BAD_ARGUMENT:format(1, "string", typeof(value)))
 
     local newQueryOption = deepcopy(self._queryOptions)
     local deepcopyRobase = Robase.new(
@@ -387,7 +376,7 @@ function Robase:endAt(value)
         self._robaseService
     )
 
-    newQueryOption.endAt = tostring(value)
+    newQueryOption.endAt = value
     deepcopyRobase._queryOptions = newQueryOption
 
     return deepcopyRobase
@@ -399,14 +388,14 @@ function Robase:equalTo(value)
         ('Shallow cannot be used with any of the "filtering data" query parameters.')
     )
     assert(self._queryOptions.orderBy, ('Range Queries require orderBy'))
-    assert(typeof(value) == "string", ("Bad argument 1, string expected got %s"):format(typeof(value)))
+    assert(typeof(value) == "string", ERROR_BAD_ARGUMENT:format(1, "string", typeof(value)))
 
     local newQueryOption = deepcopy(self._queryOptions)
     local deepcopyRobase = Robase.new(
         self._path,
         self._robaseService
     )
-    newQueryOption.equalTo = tostring(value)
+    newQueryOption.equalTo = value
     deepcopyRobase._queryOptions = newQueryOption
 
     return deepcopyRobase

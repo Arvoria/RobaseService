@@ -1,5 +1,5 @@
 {
-  "name": "Robase 2.0.0",
+  "name": "robase-service",
   "tree": {
     "$className": "DataModel",
 

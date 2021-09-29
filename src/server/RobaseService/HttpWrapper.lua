@@ -13,18 +13,18 @@ function HttpWrapper:Request(requestOptions)
     return Promise.new(function(resolve, reject)
         local response
 
-        local success, r = pcall(function()
+        local ok, value = pcall(function()
             return HttpService:RequestAsync(requestOptions)
         end)
 
-        if not success then
+        if not ok then
             response.Success = false
-            response.Body = "HttpWrapper could not make the request:\n" .. tostring(r)
+            response.Body = "HttpWrapper could not make the request:\n" .. tostring(value)
             response.StatusCode = 408
             response.StatusMessage = "HTTP Request Timed Out (Probably)"
             reject(response)
         else
-            response = r
+            response = value
             resolve(response.Body)
         end
     end)
