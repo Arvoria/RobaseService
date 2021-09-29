@@ -1,0 +1,82 @@
+{
+  "name": "robase-service",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": {
+        "$path": "src/shared"
+      }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+
+    "HttpService": {
+      "$className": "HttpService",
+      "$properties": {
+          "HttpEnabled": true
+      }
+    },
+
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "Ambient": [
+          0,
+          0,
+          0
+        ],
+        "Brightness": 2,
+        "GlobalShadows": true,
+        "Outlines": false,
+        "Technology": "Voxel"
+      }
+    },
+
+    "SoundService": {
+      "$className": "SoundService",
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    },
+
+    "Workspace": {
+      "$className": "Workspace",
+      
+      "$properties": {
+        "FilteringEnabled": true
+      },
+
+      "Baseplate": {
+        "$className": "Part",
+        
+        "$properties": {
+          "Position": [0.0, -5.0, 0.0 ],
+          "Locked": true,
+          "Anchored": true,
+          "Size": [ 128.0, 10.0, 128.0 ],
+          "Color": [0.121569, 0.501961, 0.113725]
+        },
+
+        "Texture": {
+          "$className": "Texture",
+          
+          "$properties": {
+            "Texture": "rbxassetid://6372755229",
+            "Transparency": 0.5,
+            "Face": "Top",
+            "Color3": [0,0,0],
+            "StudsPerTileU": 8,
+            "StudsPerTileV": 8
+          }
+        }
+      }
+    }
+  }
+}
