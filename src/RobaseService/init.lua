@@ -4,6 +4,7 @@ local HttpService = game:GetService("HttpService")
 local RobaseService = {
     AuthType = {
         Legacy = "Legacy";
+        AccessToken = "AccessToken";
     }
 }
 RobaseService.BaseUrl = nil
@@ -35,6 +36,8 @@ function RobaseService:Authenticate(authType, token)
     
     if authType == self.AuthType.Legacy then
         self.AuthKey = ".json?auth="..token
+    elseif authType == self.AuthType.AccessToken then
+        self.AuthKey = ".json?access_token="..token
     else
         error(('Authenticate method "%s" is not supported'):format(authType))
     end
