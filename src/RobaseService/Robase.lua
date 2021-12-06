@@ -32,6 +32,7 @@ local function deepcopy(orig)
 end
 
 local function appendUrlQuery(url, queryName, queryData)
+    if typeof(queryData) == "string" then queryData = ('"%s"'):format(queryData) end
     if url:find("?") then
         return ("%s&%s=%s"):format(url, queryName, queryData)
     else
